@@ -52,7 +52,9 @@ Next target:
 
 - simplify the main sidebar so it only shows answer-related stats and weak topics
 - move utility controls, hook settings, and import diagnostics into a top-right settings popout
-- add review-time and notification-interval controls to the settings popout
+- add review-time, notification-interval, and active-hours controls to the settings popout
+- widen the settings popout and lay out controls horizontally enough to avoid routine vertical scrolling on desktop
+- summarize import health inline in the settings header, with expandable details only when there are actual issues
 - replace raw ISO timestamps in the visible UI with local `YYYY-MM-DD HH:mm` formatting
 - tighten large-screen density so the app feels more like a desktop tool than a landing page
 - reduce layout shift when switching hero summary copy between Chinese and English

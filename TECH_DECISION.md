@@ -439,7 +439,8 @@ Recommended direction:
 - right column reserved for answer-related stats and weak topics
 - a compact settings trigger should live in the top-right chrome next to the global language toggle
 - utility controls and diagnostics should live in a settings popout instead of the main sidebar
-- scheduling controls such as review time and notification interval should also live in that settings popout
+- scheduling controls such as review time, notification interval, and active hours should also live in that settings popout
+- that settings popout should favor a wider horizontal layout so tool actions and scheduling controls can fit without forcing routine vertical scrolling on desktop
 
 Recommended study-state model:
 
