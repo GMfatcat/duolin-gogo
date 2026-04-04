@@ -441,6 +441,7 @@ Recommended direction:
 - utility controls and diagnostics should live in a settings popout instead of the main sidebar
 - scheduling controls such as review time, notification interval, and active hours should also live in that settings popout
 - that settings popout should favor a wider horizontal layout so tool actions and scheduling controls can fit without forcing routine vertical scrolling on desktop
+- current MVP verification shows interval notifications working after widening active hours from the settings popout, confirming that schedule changes can be tested from the UI instead of editing `data/settings.json`
 
 Recommended study-state model:
 

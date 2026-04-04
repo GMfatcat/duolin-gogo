@@ -124,13 +124,20 @@ Notification prerequisites:
 
 - the app should already be running
 - Windows notifications must be enabled on the machine
-- current time must be inside active hours from `data/settings.json`
+- current time must be inside the configured active hours
 
 Current default settings:
 
 - notification interval: 10 minutes
 - active hours: `09:00` to `22:00`
 - daily review time: `21:00`
+
+You can now change all of these from the in-app settings popout:
+
+- notification interval
+- review time
+- active hours enabled / disabled
+- active hours start / end
 
 ### Automatic notification path
 
@@ -149,6 +156,20 @@ The simplest manual path is now:
 2. click `Send test notification`
 3. wait for the Windows toast
 4. click the toast
+
+### Automatic interval test path
+
+If you want to verify interval notifications instead of only the manual test button:
+
+1. open the settings popout
+2. set a short interval such as `5`
+3. make sure active hours still include the current local time
+4. save the schedule
+5. leave the app running for 5 to 6 minutes
+
+Expected result:
+
+- a new Windows toast should appear automatically
 
 ## 9. Known Current Limitation
 

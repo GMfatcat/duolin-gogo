@@ -361,6 +361,7 @@ Suggested review scheduling:
 - top-right chrome: language toggle plus a settings icon button
 - settings popout: test notification, snooze, rescan, hook settings, review time, notification interval, active hours, import diagnostics
 - import health should be summarized inline near the settings title, with detailed diagnostics only expanded when issues exist
+- active-hours values should be editable from the same settings popout so users can debug notification timing without hand-editing JSON
 - keep `duolin-gogo` as the only fixed product label across languages
 - all other shell copy should follow the selected global UI language
 - visible time values should use `YYYY-MM-DD HH:mm` style formatting
