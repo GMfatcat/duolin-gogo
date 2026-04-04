@@ -45,21 +45,30 @@ type DashboardStats struct {
 }
 
 type AnswerChoice struct {
-	Value string `json:"value"`
-	Label string `json:"label"`
+	Value   string `json:"value"`
+	LabelZH string `json:"labelZh"`
+	LabelEN string `json:"labelEn"`
 }
 
 type StudyCard struct {
-	ID            string         `json:"id"`
-	Title         string         `json:"title"`
-	QuestionType  string         `json:"questionType"`
-	QuestionText  string         `json:"questionText"`
-	Choices       []AnswerChoice `json:"choices"`
-	Clickbait     string         `json:"clickbait"`
-	ReviewHint    string         `json:"reviewHint"`
-	ExplanationZH string         `json:"explanationZh"`
-	ExplanationEN string         `json:"explanationEn"`
-	ShownAt       string         `json:"shownAt"`
+	ID             string         `json:"id"`
+	Title          string         `json:"title"`
+	TitleZH        string         `json:"titleZh"`
+	TitleEN        string         `json:"titleEn"`
+	QuestionType   string         `json:"questionType"`
+	QuestionText   string         `json:"questionText"`
+	QuestionTextZH string         `json:"questionTextZh"`
+	QuestionTextEN string         `json:"questionTextEn"`
+	Choices        []AnswerChoice `json:"choices"`
+	Clickbait      string         `json:"clickbait"`
+	ClickbaitZH    string         `json:"clickbaitZh"`
+	ClickbaitEN    string         `json:"clickbaitEn"`
+	ReviewHint     string         `json:"reviewHint"`
+	ReviewHintZH   string         `json:"reviewHintZh"`
+	ReviewHintEN   string         `json:"reviewHintEn"`
+	ExplanationZH  string         `json:"explanationZh"`
+	ExplanationEN  string         `json:"explanationEn"`
+	ShownAt        string         `json:"shownAt"`
 }
 
 type DashboardData struct {
@@ -236,7 +245,7 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 		return false, nil
 	}
 
-	cache, state, _, err := a.loadState()
+	cache, state, preferredLanguage, err := a.loadState()
 	if err != nil {
 		return false, err
 	}
@@ -244,9 +253,14 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 	if review.ShouldStartReview(config, a.lastReviewRunAt, now) {
 		queue := review.BuildQueue(cache.Cards, state.Cards, now, config.ReviewSchedule.BatchSize)
 		if len(queue) > 0 {
-			message := notifications.BuildStudyMessage(queue[0])
-			message.Title = "Review time"
-			message.Body = "Time to review your recent Git concepts."
+			message := notifications.BuildStudyMessageForLanguage(queue[0], preferredLanguage)
+			if preferredLanguage == "zh-TW" {
+				message.Title = "複習時間到了"
+				message.Body = "該回來複習最近學過的 Git 概念了。"
+			} else {
+				message.Title = "Review time"
+				message.Body = "Time to review your recent Git concepts."
+			}
 			if err := a.notificationSender.Send(message); err != nil {
 				return false, err
 			}
@@ -261,7 +275,7 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 		return false, nil
 	}
 
-	if err := a.notificationSender.Send(notifications.BuildStudyMessage(card)); err != nil {
+	if err := a.notificationSender.Send(notifications.BuildStudyMessageForLanguage(card, preferredLanguage)); err != nil {
 		return false, err
 	}
 
@@ -289,7 +303,7 @@ func (a *App) SnoozeNotifications() (ActionStatus, error) {
 }
 
 func (a *App) SendTestNotification() (ActionStatus, error) {
-	cache, state, _, err := a.loadState()
+	cache, state, preferredLanguage, err := a.loadState()
 	if err != nil {
 		return ActionStatus{}, err
 	}
@@ -303,9 +317,14 @@ func (a *App) SendTestNotification() (ActionStatus, error) {
 		return ActionStatus{Message: "No card available for test notification."}, nil
 	}
 
-	message := notifications.BuildStudyMessage(card)
-	message.Title = "Test notification"
-	message.Body = "Click to open a study card in duolin-gogo."
+	message := notifications.BuildStudyMessageForLanguage(card, preferredLanguage)
+	if preferredLanguage == "zh-TW" {
+		message.Title = "測試通知"
+		message.Body = "點一下，直接打開 duolin-gogo 的學習卡。"
+	} else {
+		message.Title = "Test notification"
+		message.Body = "Click to open a study card in duolin-gogo."
+	}
 	if err := a.notificationSender.Send(message); err != nil {
 		return ActionStatus{}, err
 	}
@@ -414,32 +433,45 @@ func calculateStats(state progress.ProgressFile, now time.Time) DashboardStats {
 
 func studyCardFromCard(card cards.Card, now time.Time) *StudyCard {
 	return &StudyCard{
-		ID:            card.ID,
-		Title:         card.Title,
-		QuestionType:  card.QuestionType,
-		QuestionText:  card.QuestionText,
-		Choices:       choicesFromCard(card),
-		Clickbait:     card.Clickbait,
-		ReviewHint:    card.ReviewHint,
-		ExplanationZH: card.BodyMarkdownZH,
-		ExplanationEN: card.BodyMarkdownEN,
-		ShownAt:       now.Format(time.RFC3339),
+		ID:             card.ID,
+		Title:          card.TitleEN,
+		TitleZH:        card.TitleZH,
+		TitleEN:        card.TitleEN,
+		QuestionType:   card.QuestionType,
+		QuestionText:   card.QuestionTextEN,
+		QuestionTextZH: card.QuestionTextZH,
+		QuestionTextEN: card.QuestionTextEN,
+		Choices:        choicesFromCard(card),
+		Clickbait:      card.ClickbaitEN,
+		ClickbaitZH:    card.ClickbaitZH,
+		ClickbaitEN:    card.ClickbaitEN,
+		ReviewHint:     card.ReviewHintEN,
+		ReviewHintZH:   card.ReviewHintZH,
+		ReviewHintEN:   card.ReviewHintEN,
+		ExplanationZH:  card.BodyMarkdownZH,
+		ExplanationEN:  card.BodyMarkdownEN,
+		ShownAt:        now.Format(time.RFC3339),
 	}
 }
 
 func choicesFromCard(card cards.Card) []AnswerChoice {
 	if card.QuestionType == "true-false" {
 		return []AnswerChoice{
-			{Value: "true", Label: "True"},
-			{Value: "false", Label: "False"},
+			{Value: "true", LabelZH: "是", LabelEN: "True"},
+			{Value: "false", LabelZH: "否", LabelEN: "False"},
 		}
 	}
 
-	choices := make([]AnswerChoice, 0, len(card.Choices))
-	for index, choice := range card.Choices {
+	choices := make([]AnswerChoice, 0, len(card.ChoicesEN))
+	for index, choice := range card.ChoicesEN {
+		labelZH := choice
+		if index < len(card.ChoicesZH) {
+			labelZH = card.ChoicesZH[index]
+		}
 		choices = append(choices, AnswerChoice{
-			Value: fmt.Sprintf("%d", index),
-			Label: choice,
+			Value:   fmt.Sprintf("%d", index),
+			LabelZH: labelZH,
+			LabelEN: choice,
 		})
 	}
 

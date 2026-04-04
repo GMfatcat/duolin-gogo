@@ -116,6 +116,10 @@ func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 		t.Fatal("expected bilingual explanations")
 	}
 
+	if dashboard.CurrentCard.QuestionTextZH == "" || dashboard.CurrentCard.ClickbaitZH == "" {
+		t.Fatal("expected bilingual question and clickbait")
+	}
+
 	if len(dashboard.Summary.WeakTopics) == 0 {
 		t.Fatal("expected weak topics summary")
 	}
@@ -182,6 +186,10 @@ func TestCheckAndSendNotificationSendsSelectedCard(t *testing.T) {
 		t.Fatal("expected notification to be sent")
 	}
 
+	if sender.message.Title != "哪個 Git 指令可以只拿走一個 commit？" {
+		t.Fatalf("unexpected localized title: %s", sender.message.Title)
+	}
+
 	if sender.message.ActivationArgument != "duolin-gogo://study/git-cherry-pick-purpose" {
 		t.Fatalf("unexpected activation argument: %s", sender.message.ActivationArgument)
 	}
@@ -244,7 +252,7 @@ func TestSendTestNotificationUsesSelectedCard(t *testing.T) {
 		t.Fatalf("unexpected status: %s", status.Message)
 	}
 
-	if sender.message.Title != "Test notification" {
+	if sender.message.Title != "測試通知" {
 		t.Fatalf("unexpected notification title: %s", sender.message.Title)
 	}
 }
@@ -277,9 +285,14 @@ func TestRescanKnowledgeRefreshesCacheWithNewCard(t *testing.T) {
 	newCard := `---
 id: git-fast-forward-merge
 title: Fast-forward Merge
+title_zh: Fast-forward Merge
+title_en: Fast-forward Merge
 type: true-false
 tags: [git, branching]
-question: "` + "`git merge --ff-only` refuses to create a merge commit." + `"
+question_zh: "` + "`git merge --ff-only`" + ` 不允許產生 merge commit。"
+question_en: "` + "`git merge --ff-only`" + ` refuses to create a merge commit."
+clickbait_zh: "這個 merge 選項其實比你想的更嚴格"
+clickbait_en: "This merge flag is stricter than you think"
 answer: true
 enabled: true
 ---
@@ -287,7 +300,6 @@ enabled: true
 ## zh-TW
 
 ` + "`git merge --ff-only`" + ` 只允許 fast-forward merge，不能產生 merge commit。
-
 ## en
 
 ` + "`git merge --ff-only`" + ` only allows a fast-forward merge and refuses to create a merge commit.
@@ -410,20 +422,29 @@ func newTestApp(t *testing.T) *App {
 	rebase := `---
 id: git-rebase-vs-merge
 title: Rebase vs Merge
+title_zh: Rebase 跟 Merge 的差別
+title_en: Rebase vs Merge
 type: single-choice
 tags: [git, branching]
-question: "What does git rebase mainly do?"
-choices:
+question_zh: "git rebase 主要是在做什麼？"
+question_en: "What does git rebase mainly do?"
+choices_zh:
+  - "建立一個 merge commit"
+  - "把 commits 重新接到新的 base 上"
+choices_en:
   - "Creates a merge commit between branches"
   - "Replays commits onto a new base"
 answer: 1
+clickbait_zh: "你真的懂 rebase 跟 merge 的差別嗎？"
+clickbait_en: "Do you really know the difference between rebase and merge?"
+review_hint_zh: "Rebase = 把 commits 重放到新的 base 上。"
+review_hint_en: "Rebase = replay commits on top of another base."
 enabled: true
 ---
 
 ## zh-TW
 
-中文 rebase 解釋。
-
+` + "`git rebase` 會把目前分支上的 commits 重新接到另一個 base 上。" + `
 ## en
 
 English rebase explanation.
@@ -432,17 +453,23 @@ English rebase explanation.
 	cherryPick := `---
 id: git-cherry-pick-purpose
 title: Cherry-pick Purpose
+title_zh: Cherry-pick 的用途
+title_en: Cherry-pick Purpose
 type: true-false
 tags: [git, commits]
-question: "` + "`git cherry-pick` applies a chosen commit to the current branch." + `"
+question_zh: "` + "`git cherry-pick` 會把指定的一個 commit 套用到目前分支上。" + `"
+question_en: "` + "`git cherry-pick` applies a chosen commit to the current branch." + `"
+clickbait_zh: "哪個 Git 指令可以只拿走一個 commit？"
+clickbait_en: "One Git command can steal just one commit. Know which?"
+review_hint_zh: "Cherry-pick 會把選定 commit 的變更套到目前分支。"
+review_hint_en: "Cherry-pick copies selected commit changes onto your current branch."
 answer: true
 enabled: true
 ---
 
 ## zh-TW
 
-中文 cherry-pick 解釋。
-
+` + "`git cherry-pick` 會把你指定的一個 commit 套用到目前分支上。" + `
 ## en
 
 English cherry-pick explanation.

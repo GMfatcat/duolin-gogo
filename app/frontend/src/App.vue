@@ -18,6 +18,33 @@ const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
 const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [] })
 const importErrors = computed(() => dashboard.value?.importErrors ?? [])
+const titleText = computed(() => {
+  if (!card.value) {
+    return ''
+  }
+
+  return selectedLanguage.value === 'en' ? card.value.titleEn : card.value.titleZh
+})
+const questionText = computed(() => {
+  if (!card.value) {
+    return ''
+  }
+
+  return selectedLanguage.value === 'en' ? card.value.questionTextEn : card.value.questionTextZh
+})
+const clickbaitText = computed(() => {
+  if (!card.value) {
+    return ''
+  }
+
+  return selectedLanguage.value === 'en' ? card.value.clickbaitEn : card.value.clickbaitZh
+})
+const localizedChoices = computed(() =>
+  (card.value?.choices ?? []).map((choice) => ({
+    value: choice.value,
+    label: selectedLanguage.value === 'en' ? choice.labelEn : choice.labelZh,
+  })),
+)
 const explanation = computed(() => {
   if (!card.value) {
     return ''
@@ -156,7 +183,7 @@ async function handleRescanKnowledge() {
       <div class="study-header">
         <div>
           <p class="label">{{ reviewMode ? 'Review card' : 'Next card' }}</p>
-          <h2>{{ card.title }}</h2>
+          <h2>{{ titleText }}</h2>
         </div>
         <div class="language-toggle">
           <button
@@ -179,15 +206,15 @@ async function handleRescanKnowledge() {
       <p v-if="reviewMode" class="review-banner">
         Review session active. Queue size: {{ reviewQueue.length }}
       </p>
-      <p class="callout">{{ card.clickbait }}</p>
+      <p class="callout">{{ clickbaitText }}</p>
       <p class="explanation">{{ explanation }}</p>
 
       <div class="question-block">
         <p class="label">Quick question</p>
-        <h3>{{ card.questionText }}</h3>
+        <h3>{{ questionText }}</h3>
 
         <div class="answers">
-          <label v-for="choice in card.choices" :key="choice.value" class="answer-option">
+          <label v-for="choice in localizedChoices" :key="choice.value" class="answer-option">
             <input v-model="selectedAnswer" type="radio" name="answer" :value="choice.value">
             <span>{{ choice.label }}</span>
           </label>

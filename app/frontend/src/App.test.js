@@ -12,8 +12,9 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Bilingual Git micro-learning')
     expect(wrapper.text()).toContain('TDD mode')
     expect(wrapper.text()).toContain('Learn session')
-    expect(wrapper.text()).toContain('Cherry-pick Purpose')
-    expect(wrapper.text()).toContain('會把你指定的一個 commit 套用到目前分支上')
+    expect(wrapper.text()).toContain('Cherry-pick 的用途')
+    expect(wrapper.text()).toContain('哪個 Git 指令可以只拿走一個 commit')
+    expect(wrapper.text()).toContain('`git cherry-pick` 會把你指定的一個 commit 套用到目前分支上。')
     expect(wrapper.text()).toContain('Git concepts to revisit')
     expect(wrapper.text()).toContain('branching')
     expect(wrapper.text()).toContain('Next review')
@@ -25,6 +26,8 @@ describe('App', () => {
 
     const languageButtons = wrapper.findAll('.language-toggle button')
     await languageButtons[1].trigger('click')
+    expect(wrapper.text()).toContain('Cherry-pick Purpose')
+    expect(wrapper.text()).toContain('One Git command can steal just one commit')
     expect(wrapper.text()).toContain('lets you apply a chosen commit')
 
     await wrapper.find('input[value="true"]').setValue()

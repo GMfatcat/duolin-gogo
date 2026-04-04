@@ -19,23 +19,31 @@ func TestScanDirectoriesParsesValidBilingualCard(t *testing.T) {
 	content := `---
 id: git-rebase-vs-merge
 title: Rebase vs Merge
+title_zh: Rebase 跟 Merge 的差別
+title_en: Rebase vs Merge
 type: single-choice
 body_format: bilingual-section
 tags: [git, branching]
 difficulty: 2
-question: "What does git rebase mainly do?"
-choices:
+question_zh: "git rebase 主要是在做什麼？"
+question_en: "What does git rebase mainly do?"
+choices_zh:
+  - "建立一個 merge commit"
+  - "把 commits 重新接到新的 base 上"
+choices_en:
   - "Creates a merge commit"
   - "Replays commits onto a new base"
 answer: 1
-clickbait: "Most Git beginners misunderstand rebase. Do you?"
-review_hint: "Rebase = replay commits on top of another base."
+clickbait_zh: "多數 Git 初學者其實沒搞懂 rebase"
+clickbait_en: "Most Git beginners misunderstand rebase. Do you?"
+review_hint_zh: "Rebase = 把 commits 重放到新的 base 上。"
+review_hint_en: "Rebase = replay commits on top of another base."
 enabled: true
 ---
 
 ## zh-TW
 
-` + "`git rebase` 會把目前分支上的提交重新套用到另一個 base commit 上。" + `
+` + "`git rebase` 會把目前分支上的 commits 重新接到另一個 base 上。" + `
 
 ## en
 
@@ -72,8 +80,20 @@ enabled: true
 		t.Fatalf("unexpected question type: %s", card.QuestionType)
 	}
 
-	if len(card.Choices) != 2 {
-		t.Fatalf("expected 2 choices, got %d", len(card.Choices))
+	if len(card.ChoicesEN) != 2 {
+		t.Fatalf("expected 2 English choices, got %d", len(card.ChoicesEN))
+	}
+
+	if card.QuestionTextZH != "git rebase 主要是在做什麼？" {
+		t.Fatalf("unexpected zh question: %s", card.QuestionTextZH)
+	}
+
+	if card.ClickbaitZH != "多數 Git 初學者其實沒搞懂 rebase" {
+		t.Fatalf("unexpected zh clickbait: %s", card.ClickbaitZH)
+	}
+
+	if len(card.ChoicesZH) != 2 || card.ChoicesZH[1] != "把 commits 重新接到新的 base 上" {
+		t.Fatalf("unexpected zh choices: %#v", card.ChoicesZH)
 	}
 }
 
@@ -130,11 +150,15 @@ func TestWriteOutputsPersistsCacheAndErrors(t *testing.T) {
 			{
 				ID:             "git-cherry-pick-purpose",
 				Title:          "Cherry-pick Purpose",
+				TitleZH:        "Cherry-pick 的用途",
+				TitleEN:        "Cherry-pick Purpose",
 				QuestionType:   "true-false",
 				QuestionText:   "Cherry-pick copies a chosen commit onto the current branch.",
+				QuestionTextZH: "git cherry-pick 會把指定 commit 套到目前分支。",
+				QuestionTextEN: "Cherry-pick copies a chosen commit onto the current branch.",
 				AnswerValue:    true,
 				BodyFormat:     "bilingual-section",
-				BodyMarkdownZH: "中文",
+				BodyMarkdownZH: "中文說明",
 				BodyMarkdownEN: "English",
 				Enabled:        true,
 			},
@@ -225,8 +249,13 @@ func TestRefreshKnowledgeWritesDataFiles(t *testing.T) {
 	validCard := `---
 id: git-fetch-basic
 title: Git Fetch
+title_zh: Git Fetch
+title_en: Git Fetch
 type: true-false
-question: "` + "`git fetch` updates local remote-tracking references without merging into the current branch." + `"
+question_zh: "` + "`git fetch` 只會更新 remote-tracking references，不會直接合併到目前分支。" + `"
+question_en: "` + "`git fetch` updates local remote-tracking references without merging into the current branch." + `"
+clickbait_zh: "你真的分得清 fetch 跟 pull 嗎？"
+clickbait_en: "Do you actually know the difference between fetch and pull?"
 answer: true
 ---
 

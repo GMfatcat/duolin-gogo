@@ -48,14 +48,18 @@ This keeps the importer simple and makes file-level editing easy.
 Required fields:
 
 - `id`
-- `title`
 - `type`
-- `question`
 - `answer`
 
 Required body:
 
 - Markdown body must contain both `zh-TW` and `en` explanation sections
+
+Localization rule:
+
+- visible learning content should provide both `zh-TW` and `en` values
+- for MVP, use bilingual frontmatter fields such as `title_zh` / `title_en`, `question_zh` / `question_en`
+- legacy single-language fields like `title`, `question`, `choices`, `clickbait`, and `review_hint` are still accepted as fallback values
 
 ## 3.3 Optional Frontmatter Fields
 
@@ -64,10 +68,16 @@ Optional fields:
 - `tags`
 - `difficulty`
 - `clickbait`
+- `clickbait_zh`
+- `clickbait_en`
 - `choices`
+- `choices_zh`
+- `choices_en`
 - `aliases`
 - `source`
 - `review_hint`
+- `review_hint_zh`
+- `review_hint_en`
 - `enabled`
 - `body_format`
 
@@ -105,6 +115,13 @@ Example:
 
 ```yaml
 title: Rebase vs Merge
+```
+
+Recommended bilingual fields:
+
+```yaml
+title_zh: Rebase 跟 Merge 的差別
+title_en: Rebase vs Merge
 ```
 
 ### `type`
@@ -152,6 +169,13 @@ Purpose:
 
 - the prompt shown after reading the explanation
 
+Recommended bilingual fields:
+
+```yaml
+question_zh: "git rebase 主要是在做什麼？"
+question_en: "What does git rebase mainly do?"
+```
+
 ### `answer`
 
 Type depends on question type:
@@ -192,6 +216,17 @@ choices:
   - Creates a merge commit
   - Replays commits onto a new base
   - Deletes conflict history
+```
+
+Recommended bilingual fields:
+
+```yaml
+choices_zh:
+  - 建立一個 merge commit
+  - 把 commits 重新接到新的 base 上
+choices_en:
+  - Creates a merge commit
+  - Replays commits onto a new base
 ```
 
 ### `tags`
@@ -248,6 +283,13 @@ Example:
 clickbait: Most developers misuse rebase. Do you?
 ```
 
+Recommended bilingual fields:
+
+```yaml
+clickbait_zh: 你真的懂 rebase 跟 merge 的差別嗎？
+clickbait_en: Most developers misuse rebase. Do you?
+```
+
 ### `aliases`
 
 Type:
@@ -278,6 +320,13 @@ Type:
 Purpose:
 
 - short memory aid shown after an incorrect answer
+
+Recommended bilingual fields:
+
+```yaml
+review_hint_zh: Rebase = 把 commits 重放到新的 base 上。
+review_hint_en: Rebase = replay commits on top of another base.
+```
 
 ### `enabled`
 
@@ -760,4 +809,3 @@ For MVP, lock in these principles:
 - `import-errors.json` as parser diagnostics
 
 This is simple enough to implement quickly, while still stable enough to support scheduling, weak-topic weighting, and future migration to SQLite if needed.
-

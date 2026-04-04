@@ -96,7 +96,8 @@ export namespace main {
 	}
 	export class AnswerChoice {
 	    value: string;
-	    label: string;
+	    labelZh: string;
+	    labelEn: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new AnswerChoice(source);
@@ -105,7 +106,8 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.value = source["value"];
-	        this.label = source["label"];
+	        this.labelZh = source["labelZh"];
+	        this.labelEn = source["labelEn"];
 	    }
 	}
 	export class AppInfo {
@@ -127,11 +129,19 @@ export namespace main {
 	export class StudyCard {
 	    id: string;
 	    title: string;
+	    titleZh: string;
+	    titleEn: string;
 	    questionType: string;
 	    questionText: string;
+	    questionTextZh: string;
+	    questionTextEn: string;
 	    choices: AnswerChoice[];
 	    clickbait: string;
+	    clickbaitZh: string;
+	    clickbaitEn: string;
 	    reviewHint: string;
+	    reviewHintZh: string;
+	    reviewHintEn: string;
 	    explanationZh: string;
 	    explanationEn: string;
 	    shownAt: string;
@@ -144,11 +154,19 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.title = source["title"];
+	        this.titleZh = source["titleZh"];
+	        this.titleEn = source["titleEn"];
 	        this.questionType = source["questionType"];
 	        this.questionText = source["questionText"];
+	        this.questionTextZh = source["questionTextZh"];
+	        this.questionTextEn = source["questionTextEn"];
 	        this.choices = this.convertValues(source["choices"], AnswerChoice);
 	        this.clickbait = source["clickbait"];
+	        this.clickbaitZh = source["clickbaitZh"];
+	        this.clickbaitEn = source["clickbaitEn"];
 	        this.reviewHint = source["reviewHint"];
+	        this.reviewHintZh = source["reviewHintZh"];
+	        this.reviewHintEn = source["reviewHintEn"];
 	        this.explanationZh = source["explanationZh"];
 	        this.explanationEn = source["explanationEn"];
 	        this.shownAt = source["shownAt"];

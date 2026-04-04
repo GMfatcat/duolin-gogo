@@ -19,14 +19,31 @@ type Sender interface {
 }
 
 func BuildStudyMessage(card cards.Card) Message {
-	title := card.Clickbait
-	if title == "" {
-		title = card.Title
+	return BuildStudyMessageForLanguage(card, "en")
+}
+
+func BuildStudyMessageForLanguage(card cards.Card, language string) Message {
+	title := card.ClickbaitEN
+	body := card.QuestionTextEN
+	if language == "zh-TW" {
+		title = card.ClickbaitZH
+		body = card.QuestionTextZH
 	}
 
-	body := card.QuestionText
+	if title == "" {
+		if language == "zh-TW" {
+			title = card.TitleZH
+		} else {
+			title = card.TitleEN
+		}
+	}
+
 	if body == "" {
-		body = "Quick Git check ready."
+		if language == "zh-TW" {
+			body = "新的 Git 小測驗已準備好。"
+		} else {
+			body = "Quick Git check ready."
+		}
 	}
 
 	return Message{

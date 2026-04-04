@@ -21,15 +21,25 @@ type Card struct {
 	SourceHash       string   `json:"source_hash,omitempty"`
 	Enabled          bool     `json:"enabled"`
 	Title            string   `json:"title"`
+	TitleZH          string   `json:"title_zh"`
+	TitleEN          string   `json:"title_en"`
 	QuestionType     string   `json:"type"`
 	BodyFormat       string   `json:"body_format"`
 	Tags             []string `json:"tags"`
 	Difficulty       int      `json:"difficulty"`
 	QuestionText     string   `json:"question"`
+	QuestionTextZH   string   `json:"question_zh"`
+	QuestionTextEN   string   `json:"question_en"`
 	Choices          []string `json:"choices,omitempty"`
+	ChoicesZH        []string `json:"choices_zh,omitempty"`
+	ChoicesEN        []string `json:"choices_en,omitempty"`
 	AnswerValue      any      `json:"answer"`
 	Clickbait        string   `json:"clickbait,omitempty"`
+	ClickbaitZH      string   `json:"clickbait_zh,omitempty"`
+	ClickbaitEN      string   `json:"clickbait_en,omitempty"`
 	ReviewHint       string   `json:"review_hint,omitempty"`
+	ReviewHintZH     string   `json:"review_hint_zh,omitempty"`
+	ReviewHintEN     string   `json:"review_hint_en,omitempty"`
 	BodyMarkdownZH   string   `json:"body_markdown_zh"`
 	BodyMarkdownEN   string   `json:"body_markdown_en"`
 	BodyPlaintextZH  string   `json:"body_plaintext_zh,omitempty"`
@@ -61,18 +71,28 @@ type ImportErrorsFile struct {
 }
 
 type frontmatter struct {
-	ID         string   `yaml:"id"`
-	Title      string   `yaml:"title"`
-	Type       string   `yaml:"type"`
-	BodyFormat string   `yaml:"body_format"`
-	Tags       []string `yaml:"tags"`
-	Difficulty int      `yaml:"difficulty"`
-	Question   string   `yaml:"question"`
-	Choices    []string `yaml:"choices"`
-	Answer     any      `yaml:"answer"`
-	Clickbait  string   `yaml:"clickbait"`
-	ReviewHint string   `yaml:"review_hint"`
-	Enabled    *bool    `yaml:"enabled"`
+	ID           string   `yaml:"id"`
+	Title        string   `yaml:"title"`
+	TitleZH      string   `yaml:"title_zh"`
+	TitleEN      string   `yaml:"title_en"`
+	Type         string   `yaml:"type"`
+	BodyFormat   string   `yaml:"body_format"`
+	Tags         []string `yaml:"tags"`
+	Difficulty   int      `yaml:"difficulty"`
+	Question     string   `yaml:"question"`
+	QuestionZH   string   `yaml:"question_zh"`
+	QuestionEN   string   `yaml:"question_en"`
+	Choices      []string `yaml:"choices"`
+	ChoicesZH    []string `yaml:"choices_zh"`
+	ChoicesEN    []string `yaml:"choices_en"`
+	Answer       any      `yaml:"answer"`
+	Clickbait    string   `yaml:"clickbait"`
+	ClickbaitZH  string   `yaml:"clickbait_zh"`
+	ClickbaitEN  string   `yaml:"clickbait_en"`
+	ReviewHint   string   `yaml:"review_hint"`
+	ReviewHintZH string   `yaml:"review_hint_zh"`
+	ReviewHintEN string   `yaml:"review_hint_en"`
+	Enabled      *bool    `yaml:"enabled"`
 }
 
 func ScanDirectories(paths []string) (ImportResult, error) {
@@ -207,13 +227,13 @@ func buildCard(path string, fm frontmatter, body string) (Card, *ImportError) {
 	if strings.TrimSpace(fm.ID) == "" {
 		return Card{}, validationError(path, "missing_required_field", "id", "Required field 'id' is missing.")
 	}
-	if strings.TrimSpace(fm.Title) == "" {
+	if localizeText(fm.TitleZH, fm.Title, fm.TitleEN) == "" {
 		return Card{}, validationError(path, "missing_required_field", "title", "Required field 'title' is missing.")
 	}
 	if strings.TrimSpace(fm.Type) == "" {
 		return Card{}, validationError(path, "missing_required_field", "type", "Required field 'type' is missing.")
 	}
-	if strings.TrimSpace(fm.Question) == "" {
+	if localizeText(fm.QuestionZH, fm.Question, fm.QuestionEN) == "" {
 		return Card{}, validationError(path, "missing_required_field", "question", "Required field 'question' is missing.")
 	}
 
@@ -239,7 +259,10 @@ func buildCard(path string, fm frontmatter, body string) (Card, *ImportError) {
 		return Card{}, validationError(path, "missing_language_section", "body", err.Error())
 	}
 
-	answer, importErr := normalizeAnswer(path, questionType, fm.Answer, fm.Choices)
+	choicesEN := localizeChoices(fm.ChoicesEN, fm.Choices, fm.ChoicesZH)
+	choicesZH := localizeChoices(fm.ChoicesZH, fm.Choices, fm.ChoicesEN)
+
+	answer, importErr := normalizeAnswer(path, questionType, fm.Answer, choicesEN)
 	if importErr != nil {
 		return Card{}, importErr
 	}
@@ -255,16 +278,26 @@ func buildCard(path string, fm frontmatter, body string) (Card, *ImportError) {
 		SourcePath:       path,
 		SourceModifiedAt: modifiedAt,
 		Enabled:          enabled,
-		Title:            strings.TrimSpace(fm.Title),
+		Title:            localizeText(fm.TitleEN, fm.Title, fm.TitleZH),
+		TitleZH:          localizeText(fm.TitleZH, fm.Title, fm.TitleEN),
+		TitleEN:          localizeText(fm.TitleEN, fm.Title, fm.TitleZH),
 		QuestionType:     questionType,
 		BodyFormat:       fm.BodyFormat,
 		Tags:             normalizeTags(fm.Tags),
 		Difficulty:       fm.Difficulty,
-		QuestionText:     strings.TrimSpace(fm.Question),
-		Choices:          fm.Choices,
+		QuestionText:     localizeText(fm.QuestionEN, fm.Question, fm.QuestionZH),
+		QuestionTextZH:   localizeText(fm.QuestionZH, fm.Question, fm.QuestionEN),
+		QuestionTextEN:   localizeText(fm.QuestionEN, fm.Question, fm.QuestionZH),
+		Choices:          choicesEN,
+		ChoicesZH:        choicesZH,
+		ChoicesEN:        choicesEN,
 		AnswerValue:      answer,
-		Clickbait:        strings.TrimSpace(fm.Clickbait),
-		ReviewHint:       strings.TrimSpace(fm.ReviewHint),
+		Clickbait:        localizeText(fm.ClickbaitEN, fm.Clickbait, fm.ClickbaitZH),
+		ClickbaitZH:      localizeText(fm.ClickbaitZH, fm.Clickbait, fm.ClickbaitEN),
+		ClickbaitEN:      localizeText(fm.ClickbaitEN, fm.Clickbait, fm.ClickbaitZH),
+		ReviewHint:       localizeText(fm.ReviewHintEN, fm.ReviewHint, fm.ReviewHintZH),
+		ReviewHintZH:     localizeText(fm.ReviewHintZH, fm.ReviewHint, fm.ReviewHintEN),
+		ReviewHintEN:     localizeText(fm.ReviewHintEN, fm.ReviewHint, fm.ReviewHintZH),
 		BodyMarkdownZH:   zh,
 		BodyMarkdownEN:   en,
 		BodyPlaintextZH:  toPlaintext(zh),
@@ -350,6 +383,31 @@ func normalizeTags(tags []string) []string {
 		}
 	}
 	return out
+}
+
+func localizeText(primary string, fallback string, secondary string) string {
+	for _, candidate := range []string{primary, fallback, secondary} {
+		if trimmed := strings.TrimSpace(candidate); trimmed != "" {
+			return trimmed
+		}
+	}
+	return ""
+}
+
+func localizeChoices(primary []string, fallback []string, secondary []string) []string {
+	for _, candidate := range [][]string{primary, fallback, secondary} {
+		if len(candidate) == 0 {
+			continue
+		}
+
+		out := make([]string, 0, len(candidate))
+		for _, item := range candidate {
+			out = append(out, strings.TrimSpace(item))
+		}
+		return out
+	}
+
+	return nil
 }
 
 func toPlaintext(markdown string) string {
