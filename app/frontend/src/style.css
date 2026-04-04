@@ -523,6 +523,29 @@ body {
   gap: 14px;
 }
 
+.batch-report-title {
+  margin-top: 12px;
+}
+
+.batch-report {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.batch-stat {
+  box-shadow: none;
+}
+
+.batch-stat.warning {
+  border-color: rgba(233, 196, 106, 0.3);
+}
+
+.batch-stat.error {
+  border-color: rgba(231, 111, 81, 0.35);
+}
+
 .diagnostic-group {
   display: grid;
   gap: 10px;

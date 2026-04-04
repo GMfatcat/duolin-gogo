@@ -481,6 +481,7 @@ Goal:
 Deliverables:
 
 - whole-deck validation summary
+- first slice implemented inside settings with total, clean, warning, and error card counts
 - grouped warning/error report
 - filter by severity or topic
 - quick visibility into recently changed or problematic cards
@@ -493,7 +494,7 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
 
 ### Next Phase B: Session And Progress UX
 

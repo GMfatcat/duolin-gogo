@@ -78,6 +78,11 @@ const translations = {
     toolsLabel: '工具',
     warningLabel: 'warning',
     errorLabel: 'error',
+    deckReport: '題庫報告',
+    totalCards: '總卡片數',
+    cleanCards: '乾淨卡片',
+    warningCards: '有警告的卡片',
+    errorCards: '有錯誤的卡片',
     authoringPreview: '作者預覽',
     previewFile: '卡片檔案',
     previewDiagnostics: '這張卡的診斷',
@@ -149,6 +154,11 @@ const translations = {
     toolsLabel: 'Tools',
     warningLabel: 'warning',
     errorLabel: 'error',
+    deckReport: 'Deck report',
+    totalCards: 'Total cards',
+    cleanCards: 'Clean cards',
+    warningCards: 'Cards with warnings',
+    errorCards: 'Cards with errors',
     authoringPreview: 'Authoring preview',
     previewFile: 'Card file',
     previewDiagnostics: 'Diagnostics for this card',
@@ -284,6 +294,39 @@ const activeHoursSummary = computed(() => {
     return t.value.notScheduled
   }
   return `${scheduleForm.value.activeHoursStart} - ${scheduleForm.value.activeHoursEnd}`
+})
+const diagnosticsBySource = computed(() => {
+  const grouped = new Map()
+  for (const item of importErrors.value) {
+    const key = item.source_path || item.sourcePath || ''
+    const entry = grouped.get(key) ?? { hasWarning: false, hasError: false }
+    if ((item.severity || 'error') === 'warning') {
+      entry.hasWarning = true
+    } else {
+      entry.hasError = true
+    }
+    grouped.set(key, entry)
+  }
+  return grouped
+})
+const totalCardsCount = computed(() => previewFiles.value.length)
+const warningCardCount = computed(() => {
+  let count = 0
+  diagnosticsBySource.value.forEach((entry) => {
+    if (entry.hasWarning) count += 1
+  })
+  return count
+})
+const errorCardCount = computed(() => {
+  let count = 0
+  diagnosticsBySource.value.forEach((entry) => {
+    if (entry.hasError) count += 1
+  })
+  return count
+})
+const cleanCardCount = computed(() => {
+  const dirty = new Set(diagnosticsBySource.value.keys())
+  return Math.max(0, totalCardsCount.value - dirty.size)
 })
 
 const correctAnswerLabel = computed(() => {
@@ -891,8 +934,28 @@ function toggleSettings() {
           </section>
         </div>
 
-        <details v-if="importErrors.length" class="diagnostics-disclosure">
+        <details class="diagnostics-disclosure">
           <summary>{{ t.diagnosticsTitle }}</summary>
+          <p class="label batch-report-title">{{ t.deckReport }}</p>
+          <section class="batch-report">
+            <article class="status-card batch-stat">
+              <span class="label">{{ t.totalCards }}</span>
+              <strong>{{ totalCardsCount }}</strong>
+            </article>
+            <article class="status-card batch-stat">
+              <span class="label">{{ t.cleanCards }}</span>
+              <strong>{{ cleanCardCount }}</strong>
+            </article>
+            <article class="status-card batch-stat warning">
+              <span class="label">{{ t.warningCards }}</span>
+              <strong>{{ warningCardCount }}</strong>
+            </article>
+            <article class="status-card batch-stat error">
+              <span class="label">{{ t.errorCards }}</span>
+              <strong>{{ errorCardCount }}</strong>
+            </article>
+          </section>
+          <p v-if="!importErrors.length" class="explanation">{{ t.noDiagnostics }}</p>
           <div class="diagnostics-groups">
             <section v-if="warningItems.length" class="diagnostic-group">
               <div class="diagnostic-group-head">

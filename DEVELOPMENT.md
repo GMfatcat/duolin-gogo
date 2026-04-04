@@ -69,6 +69,7 @@ Next targets:
   - sixth slice implemented: `AI draft review` can validate pasted Markdown and show a normalized preview before saving
   - seventh slice implemented: reviewed drafts can now be saved straight into `knowledge/<topic>/<id>.md`
   - eighth slice implemented: saving a reviewed draft now auto-rescans knowledge and focuses authoring preview on the new card
+  - ninth slice implemented: settings diagnostics now include a batch report for total, clean, warning, and error card counts
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues
