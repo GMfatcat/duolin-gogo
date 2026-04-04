@@ -69,6 +69,10 @@ TDD focus:
 
 - prove the test environment works before writing real feature code
 
+Current status:
+
+- completed
+
 ### Milestone 2: Markdown Card Parser
 
 Goal:
@@ -264,4 +268,3 @@ Suggested status labels for future updates:
 - `completed`
 
 For now, all milestones except Milestone 0 are `planned`.
-

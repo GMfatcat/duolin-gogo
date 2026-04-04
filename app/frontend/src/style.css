@@ -1,0 +1,101 @@
+html {
+    background:
+        radial-gradient(circle at top, rgba(233, 196, 106, 0.14), transparent 30%),
+        linear-gradient(180deg, #10212f 0%, #0b141c 100%);
+    color: #f7f3e8;
+}
+
+body {
+    margin: 0;
+    color: #f7f3e8;
+    font-family: "Nunito", "Segoe UI", sans-serif;
+}
+
+@font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: 400;
+    src: local(""),
+    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+}
+
+#app {
+    height: 100vh;
+}
+
+.shell {
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 32px;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.eyebrow {
+    margin: 0;
+    color: #e9c46a;
+    font-size: 0.9rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
+    line-height: 0.98;
+    max-width: 10ch;
+}
+
+.summary {
+    margin: 0;
+    max-width: 56ch;
+    color: #d4dde5;
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.status-card {
+    padding: 20px;
+    border: 1px solid rgba(233, 196, 106, 0.2);
+    border-radius: 18px;
+    background: rgba(11, 20, 28, 0.7);
+    backdrop-filter: blur(10px);
+}
+
+.label {
+    display: block;
+    margin-bottom: 10px;
+    color: #90a4b5;
+    font-size: 0.9rem;
+}
+
+.status-card strong {
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+    .shell {
+        padding: 32px 18px;
+    }
+
+    .hero h1 {
+        max-width: none;
+    }
+}
