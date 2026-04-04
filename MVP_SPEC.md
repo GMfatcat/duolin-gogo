@@ -6,7 +6,7 @@ This product is a local-first micro-learning app that turns personal Markdown kn
 
 Primary goal:
 
-- Help users continuously learn Git knowledge through short, interrupt-driven study sessions based on bilingual Markdown notes.
+- Help users continuously learn technical knowledge through short, interrupt-driven study sessions based on bilingual Markdown notes.
 
 Product positioning:
 
@@ -43,7 +43,7 @@ Product positioning:
 2. As a user, I want to receive short notifications during the day so I keep studying in small bursts.
 3. As a user, I want the notification title to be curiosity-driven so I feel like clicking it.
 4. As a user, I want to read a short explanation before answering a question.
-5. As a user, I want each card to contain both Chinese and English explanations so I can switch depending on what I want to practice.
+5. As a user, I want each card to contain both Chinese and English learning content so I can switch depending on what I want to practice.
 6. As a user, I want the app to remember what I already learned today.
 7. As a user, I want a daily or weekly review mode to test older material.
 8. As a user, I want weak concepts to show up more often so I can improve where I struggle.
@@ -88,7 +88,7 @@ Product positioning:
 
 ## 7. Content Model
 
-Each Markdown file contains one card. Each card includes both Chinese and English explanation content inside the same Markdown file.
+Each Markdown file contains one card. Each card includes both Chinese and English learning content inside the same Markdown file.
 
 Recommended Markdown format:
 

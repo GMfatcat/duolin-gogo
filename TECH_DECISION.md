@@ -29,6 +29,8 @@ This product is not primarily a website. It is a local desktop utility that:
 - shows Windows-native notifications
 - opens a focused study card window
 
+Current content starts with Git, but the app shell and data model are intended to expand to broader technical topics later.
+
 That means we need:
 
 - good local file access
@@ -162,7 +164,7 @@ knowledge/
     cherry-pick.md
 ```
 
-Each card file should contain both Chinese and English explanation sections so the UI can switch languages without needing duplicate files.
+Each card file should contain both Chinese and English learning fields so the UI can switch languages without needing duplicate files.
 
 ### `settings.json`
 

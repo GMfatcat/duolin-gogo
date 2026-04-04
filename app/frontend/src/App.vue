@@ -135,7 +135,7 @@ async function handleRescanKnowledge() {
   <main class="shell">
     <section class="hero">
       <p class="eyebrow">duolin-gogo</p>
-      <h1>Bilingual Git micro-learning</h1>
+      <h1>duolin-gogo</h1>
       <p class="summary">
         Local-first flashcards built from bilingual Markdown notes, with Windows notifications,
         lightweight review sessions, and adaptive repetition.
@@ -144,8 +144,8 @@ async function handleRescanKnowledge() {
 
     <section class="status-grid">
       <article class="status-card">
-        <span class="label">Current focus</span>
-        <strong>Git knowledge only</strong>
+        <span class="label">Content mode</span>
+        <strong>Bilingual knowledge cards</strong>
       </article>
       <article class="status-card">
         <span class="label">Language mode</span>
@@ -176,7 +176,7 @@ async function handleRescanKnowledge() {
 
     <section v-if="loading" class="study-card">
       <p class="label">Loading</p>
-      <strong>Preparing the next Git card...</strong>
+      <strong>Preparing the next card...</strong>
     </section>
 
     <section v-else-if="card" class="study-card">
@@ -267,7 +267,7 @@ async function handleRescanKnowledge() {
       <div class="study-header">
         <div>
           <p class="label">Weak topics</p>
-          <h2>Git concepts to revisit</h2>
+          <h2>Concepts to revisit</h2>
         </div>
       </div>
 
