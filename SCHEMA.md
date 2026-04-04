@@ -774,6 +774,11 @@ Suggested schema:
 - `error`: the card cannot be imported safely
 - `warning`: the card can still be imported, but the author should fix the content quality
 
+Recommended UI behavior:
+
+- settings diagnostics should visually distinguish `warning` and `error`
+- warning items should not look as severe as import-blocking errors
+
 ## 10. In-Memory App Model
 
 During runtime, it will help to think in terms of these core models.

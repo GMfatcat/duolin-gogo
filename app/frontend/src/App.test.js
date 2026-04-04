@@ -87,4 +87,41 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Start question')
     expect(wrapper.text()).toContain('duolin-gogo')
   })
+
+  it('distinguishes import warnings from import errors inside settings diagnostics', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    wrapper.vm.dashboard = {
+      ...wrapper.vm.dashboard,
+      importErrors: [
+        {
+          source_path: 'D:/duolin-gogo/knowledge/git/legacy.md',
+          severity: 'warning',
+          code: 'missing_localized_field',
+          field: 'title_en',
+          message: "Missing localized field 'title_en'; using fallback title value.",
+        },
+        {
+          source_path: 'D:/duolin-gogo/knowledge/git/broken.md',
+          severity: 'error',
+          code: 'missing_language_section',
+          field: 'body',
+          message: 'Body must contain both ## zh-TW and ## en sections.',
+        },
+      ],
+    }
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.settings-meta').text()).toContain('1')
+    expect(wrapper.find('.settings-meta').text()).toContain('warning')
+    expect(wrapper.find('.settings-meta').text()).toContain('error')
+    expect(wrapper.text()).toContain('warning')
+    expect(wrapper.text()).toContain('error')
+    expect(wrapper.findAll('.severity-pill').length).toBe(2)
+  })
 })

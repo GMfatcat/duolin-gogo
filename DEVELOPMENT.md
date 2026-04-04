@@ -55,6 +55,7 @@ Next targets:
   - improve authoring-time validation for bilingual card files
   - make import feedback clearer for broken Markdown cards
   - first slice implemented: missing localized fields and bilingual choice mismatches now surface as warnings without blocking import
+  - second slice implemented: settings diagnostics visually distinguish warnings from errors
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

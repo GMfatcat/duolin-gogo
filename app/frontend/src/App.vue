@@ -52,7 +52,8 @@ const translations = {
     diagnosticsTitle: '匯入診斷',
     noDiagnostics: '目前沒有匯入問題。',
     importHealthOk: '匯入正常',
-    importHealthIssues: '筆匯入問題',
+    importHealthWarnings: '個警告',
+    importHealthErrors: '個錯誤',
     sendTestNotification: '送出測試通知',
     snoozeNotifications: '延後 15 分鐘',
     rescanKnowledge: '重新掃描知識庫',
@@ -69,6 +70,8 @@ const translations = {
     saveSchedule: '儲存排程',
     openSettings: '開啟設定',
     toolsLabel: '工具',
+    warningLabel: 'warning',
+    errorLabel: 'error',
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
@@ -108,7 +111,8 @@ const translations = {
     diagnosticsTitle: 'Import diagnostics',
     noDiagnostics: 'No import issues detected.',
     importHealthOk: 'import OK',
-    importHealthIssues: 'import issues',
+    importHealthWarnings: 'warnings',
+    importHealthErrors: 'errors',
     sendTestNotification: 'Send test notification',
     snoozeNotifications: 'Snooze 15 min',
     rescanKnowledge: 'Rescan knowledge',
@@ -125,6 +129,8 @@ const translations = {
     saveSchedule: 'Save schedule',
     openSettings: 'Open settings',
     toolsLabel: 'Tools',
+    warningLabel: 'warning',
+    errorLabel: 'error',
   },
 }
 
@@ -175,6 +181,13 @@ const currentPhaseLabel = computed(() => {
   return t.value.learnPhase
 })
 
+const warningCount = computed(
+  () => importErrors.value.filter((item) => (item.severity || 'error') === 'warning').length,
+)
+const errorCount = computed(
+  () => importErrors.value.filter((item) => (item.severity || 'error') === 'error').length,
+)
+
 const titleText = computed(() =>
   card.value ? (selectedLanguage.value === 'en' ? card.value.titleEn : card.value.titleZh) : '',
 )
@@ -201,10 +214,18 @@ const localizedChoices = computed(() =>
 const formattedCorrectRate = computed(() => `${Math.round((stats.value.correctRate ?? 0) * 100)}%`)
 const nextReviewText = computed(() => formatDisplayTime(summary.value.nextReviewAt, t.value.notScheduled))
 const diagnosticsSummary = computed(() => {
-  if (importErrors.value.length === 0) {
+  if (warningCount.value === 0 && errorCount.value === 0) {
     return `(${t.value.importHealthOk})`
   }
-  return `(${importErrors.value.length} ${t.value.importHealthIssues})`
+
+  const parts = []
+  if (warningCount.value > 0) {
+    parts.push(`${warningCount.value} ${t.value.importHealthWarnings}`)
+  }
+  if (errorCount.value > 0) {
+    parts.push(`${errorCount.value} ${t.value.importHealthErrors}`)
+  }
+  return `(${parts.join(', ')})`
 })
 const activeHoursSummary = computed(() => {
   if (!scheduleForm.value.activeHoursEnabled) {
@@ -225,6 +246,10 @@ const correctAnswerLabel = computed(() => {
 const feedbackMessage = computed(() =>
   feedback.value ? (feedback.value.isCorrect ? t.value.correctFeedback : t.value.incorrectFeedback) : '',
 )
+
+function severityLabel(item) {
+  return (item.severity || 'error') === 'warning' ? t.value.warningLabel : t.value.errorLabel
+}
 
 onMounted(async () => {
   await refreshDashboard()
@@ -647,8 +672,18 @@ function toggleSettings() {
         <details v-if="importErrors.length" class="diagnostics-disclosure">
           <summary>{{ t.diagnosticsTitle }}</summary>
           <div class="diagnostics-list">
-            <article v-for="item in importErrors" :key="`${item.source_path}-${item.code}`" class="diagnostic-item">
-              <strong>{{ item.code }}</strong>
+            <article
+              v-for="item in importErrors"
+              :key="`${item.source_path}-${item.code}-${item.field || ''}`"
+              class="diagnostic-item"
+              :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'"
+            >
+              <div class="diagnostic-head">
+                <span class="severity-pill" :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'">
+                  {{ severityLabel(item) }}
+                </span>
+                <strong>{{ item.code }}</strong>
+              </div>
               <p>{{ item.message }}</p>
               <span>{{ item.source_path }}</span>
             </article>

@@ -473,6 +473,40 @@ body {
   background: rgba(28, 51, 69, 0.7);
 }
 
+.diagnostic-item.warning {
+  border: 1px solid rgba(233, 196, 106, 0.3);
+}
+
+.diagnostic-item.error {
+  border: 1px solid rgba(231, 111, 81, 0.35);
+}
+
+.diagnostic-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.severity-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.severity-pill.warning {
+  background: rgba(233, 196, 106, 0.16);
+  color: #e9c46a;
+}
+
+.severity-pill.error {
+  background: rgba(231, 111, 81, 0.16);
+  color: #f4a261;
+}
+
 .diagnostic-item p,
 .diagnostic-item span {
   color: #d4dde5;
