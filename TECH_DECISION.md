@@ -439,6 +439,7 @@ Recommended direction:
 - right column reserved for answer-related stats and weak topics
 - a compact settings trigger should live in the top-right chrome next to the global language toggle
 - utility controls and diagnostics should live in a settings popout instead of the main sidebar
+- scheduling controls such as review time and notification interval should also live in that settings popout
 
 Recommended study-state model:
 
@@ -457,11 +458,13 @@ Recommended density rule:
 - large screens should feel denser and more tool-like, not like a stretched landing page
 - reduce hero weight and oversized spacing
 - keep the main study card visually dominant while making the sidebar lighter
+- keep top summary copy visually stable when switching languages to avoid obvious layout jumps
 
 Recommended time-format rule:
 
 - use local human-readable timestamps such as `2026-04-05 21:00`
 - do not expose raw ISO date strings in visible UI copy
+- highlight `next review` in one location instead of repeating the same value across multiple sidebar cards
 ## 18. Card Selection Logic For MVP
 
 Use a simple priority model.

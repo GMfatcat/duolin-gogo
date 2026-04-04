@@ -374,8 +374,11 @@ Deliverables:
 - staged study flow with `Learn`, `Answer`, and `Feedback` states
 - explicit next-step action after answer submission
 - settings icon plus popout for utility actions, hook controls, and import diagnostics
+- settings popout extended with review-time and notification-interval controls
 - human-readable local date/time formatting in the UI
 - tighter density on large screens
+- deduplicated sidebar summaries with one emphasized `next review` display
+- more stable hero copy layout across language switches
 
 TDD focus:
 
@@ -384,6 +387,7 @@ TDD focus:
 - interaction tests for answer submission followed by `Next card`
 - component tests for settings popout visibility and sidebar simplification
 - formatting tests for visible date/time strings
+- interaction tests for updating review time and notification interval from settings
 
 Current status:
 

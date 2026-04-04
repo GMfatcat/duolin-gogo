@@ -52,5 +52,7 @@ Next target:
 
 - simplify the main sidebar so it only shows answer-related stats and weak topics
 - move utility controls, hook settings, and import diagnostics into a top-right settings popout
+- add review-time and notification-interval controls to the settings popout
 - replace raw ISO timestamps in the visible UI with local `YYYY-MM-DD HH:mm` formatting
 - tighten large-screen density so the app feels more like a desktop tool than a landing page
+- reduce layout shift when switching hero summary copy between Chinese and English
