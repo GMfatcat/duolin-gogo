@@ -143,6 +143,10 @@ TDD focus:
 - regression tests for edge cases
 - candidate ordering tests with fixed timestamps
 
+Current status:
+
+- completed
+
 ### Milestone 5: Minimal Study Card UI
 
 Goal:
@@ -281,4 +285,5 @@ For now:
 - Milestone 1 is `completed`
 - Milestone 2 is `completed`
 - Milestone 3 is `completed`
-- Milestone 4 and beyond are `planned`
+- Milestone 4 is `completed`
+- Milestone 5 and beyond are `planned`

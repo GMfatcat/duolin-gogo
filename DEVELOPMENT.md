@@ -45,8 +45,8 @@ npm run build
 
 Current completed milestone:
 
-- Milestone 3: Progress Store And Attempt Logging
+- Milestone 4: Card Selection Engine
 
 Next target:
 
-- Milestone 4: Card Selection Engine
+- Milestone 5: Minimal Study Card UI
