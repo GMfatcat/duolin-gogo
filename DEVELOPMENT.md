@@ -50,5 +50,6 @@ Current completed milestone:
 
 Next target:
 
-- polish notification quality through stronger localized hook templates
-- improve card surfacing after `Rescan knowledge`, especially for recently edited cards
+- refresh the desktop study flow with a two-column layout
+- add global shell-level i18n for `zh-TW` and `en`
+- convert the study card into a staged `Learn -> Answer -> Feedback` flow with explicit next-step controls

@@ -359,3 +359,27 @@ TDD focus:
 Current status:
 
 - completed
+
+### Study Flow And Global i18n Refresh
+
+Goal:
+
+- make the desktop learning flow feel more guided, more bilingual, and less cluttered
+
+Deliverables:
+
+- two-column layout with study content on the left and progress/context on the right
+- global `zh-TW` / `en` shell-language toggle
+- shell copy localized consistently except for `duolin-gogo`
+- staged study flow with `Learn`, `Answer`, and `Feedback` states
+- explicit next-step action after answer submission
+
+TDD focus:
+
+- frontend tests for global language switching across shell copy
+- component tests for staged visibility of explanation, question, and feedback
+- interaction tests for answer submission followed by `Next card`
+
+Current status:
+
+- planned

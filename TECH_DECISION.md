@@ -411,11 +411,9 @@ Responsibilities:
 ### Study Card View
 
 - title
-- language toggle
-- explanation
-- quick question
-- answer options
-- answer feedback
+- global language toggle
+- staged `Learn -> Answer -> Feedback` flow
+- left-heavy study area with explicit next-step controls
 
 ### Review View
 
@@ -429,7 +427,28 @@ Responsibilities:
 - review cadence
 - import/rescan
 
-## 17. Card Selection Logic For MVP
+## 17. UI Direction For The Next Iteration
+
+The next UI pass should move away from a stacked all-at-once layout and toward a clearer desktop learning workspace.
+
+Recommended direction:
+
+- two-column layout
+- left column reserved for the active study flow
+- right column reserved for progress, weak topics, next review, diagnostics, and notification controls
+
+Recommended study-state model:
+
+- `Learn`: explanation visible, question hidden
+- `Answer`: question visible, explanation hidden
+- `Feedback`: correctness and hint visible, plus a clear `Next card` action
+
+Recommended i18n rule:
+
+- `duolin-gogo` remains fixed
+- all other shell copy should follow a global UI language setting
+- card content and notification language should default to that same global setting
+## 18. Card Selection Logic For MVP
 
 Use a simple priority model.
 
@@ -461,7 +480,7 @@ Where:
 
 This is intentionally simple and tunable.
 
-## 18. MVP Performance Philosophy
+## 19. MVP Performance Philosophy
 
 Design principle:
 
@@ -477,7 +496,7 @@ Practical implications:
 - rewrite `progress.json` only when needed
 - keep scheduler lightweight
 
-## 19. Known Tradeoffs
+## 20. Known Tradeoffs
 
 ### Tradeoff 1: JSON Simplicity vs Query Power
 
@@ -493,7 +512,7 @@ Keeping frontend light means the app should favor clarity over heavy visual poli
 
 These are good tradeoffs for MVP.
 
-## 20. Recommended Build Order
+## 21. Recommended Build Order
 
 ### Step 1
 
@@ -543,7 +562,7 @@ Deliverable:
 
 - user can see lightweight learning stats
 
-## 21. Final Recommendation
+## 22. Final Recommendation
 
 The best-fit technical direction for this product is:
 

@@ -68,11 +68,10 @@ Product positioning:
 2. App shows an OS notification with a clickbait-style question.
 3. User clicks notification.
 4. App opens a learning window/card.
-5. App shows:
-   - title
-   - short concept explanation in the currently selected UI language
-   - language toggle for Chinese / English
-   - one quick question
+5. App enters a staged study flow:
+   - `Learn`: show title and short concept explanation in the selected UI language
+   - `Answer`: hide the explanation and show the question with answer options
+   - `Feedback`: show correctness, hint, and a clear next-step action
 6. User answers.
 7. App records:
    - shown timestamp
@@ -190,11 +189,17 @@ Question types deferred until later:
 - Shows one concept at a time
 - Explanation must be short and readable within about 30 to 90 seconds
 - Card explanation must support both Chinese and English in the same source file
-- UI provides a visible language toggle, defaulting to the user's last selected language
-- Question appears under the explanation
+- App shell should support a global `zh-TW` / `en` language toggle for all UI copy except the product name `duolin-gogo`
+- Card content language should follow the current global language by default
+- Layout should prefer a two-column structure:
+  - left side for the active study flow
+  - right side for dashboard, review timing, diagnostics, and settings context
+- During the `Learn` phase, the explanation is visible and the question is hidden
+- During the `Answer` phase, the question and answer choices are visible and the explanation is hidden
 - User can submit an answer
-- App immediately shows whether the answer is correct
-- App briefly shows the correct explanation after submission
+- During the `Feedback` phase, the app immediately shows whether the answer is correct
+- The feedback state should restore a short explanation or hint after submission
+- The feedback state must provide a clear next-step action such as `Next card`
 - User can dismiss and return later
 
 ### 8.4 Progress Tracking
@@ -338,11 +343,18 @@ Suggested review scheduling:
 ### 11.3 Learning Card Modal / Window
 
 - card title
-- language toggle
-- short explanation
-- question
-- answers
-- submit action
+- global language toggle
+- short explanation in `Learn` phase
+- question and answers in `Answer` phase
+- correctness + hint in `Feedback` phase
+- explicit next-step action after submission
+
+### 11.6 Proposed UI Refinement
+
+- left panel: study flow only
+- right panel: cards imported, studied today, correct rate, next review, weak topics, diagnostics, notification settings
+- keep `duolin-gogo` as the only fixed product label across languages
+- all other shell copy should follow the selected global UI language
 
 ### 11.4 Review Session Screen
 
@@ -480,6 +492,8 @@ When choosing the framework, compare against:
 - import diagnostics
 - cleaner card UI
 - better notification copy
+- staged study flow with clearer next actions
+- global i18n across shell copy
 
 ## 19. Open Decisions For Framework Discussion
 
