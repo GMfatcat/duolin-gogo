@@ -10,83 +10,92 @@ import (
 func TestGeneratePlayfulUsesMetaphorDeterministically(t *testing.T) {
 	card := cards.Card{
 		ID:             "git-fetch-basic",
-		TitleZH:        "git fetch 的用途",
+		TitleZH:        "Git Fetch",
 		TitleEN:        "Git Fetch",
-		QuestionTextZH: "`git fetch` 只會更新遠端追蹤資訊。",
-		QuestionTextEN: "`git fetch` updates remote-tracking references.",
-		Tags:           []string{"git", "remote"},
-		ConfusionWith:  []string{"git-pull-composition"},
+		QuestionTextZH: "`git fetch` 會更新遠端追蹤分支。",
+		QuestionTextEN: "`git fetch` updates remote-tracking branches.",
 		MetaphorSeed:   []string{"先看貨"},
-		HookStyleTags:  []string{"safer-first", "misunderstood"},
+		HookStyleTags:  []string{"safer-first"},
 	}
 
-	title, body := Generate(card, "zh-TW", "playful")
+	titleOne, bodyOne := Generate(card, "zh-TW", "playful")
+	titleTwo, bodyTwo := Generate(card, "zh-TW", "playful")
 
-	if title == "" || body == "" {
-		t.Fatal("expected hook output")
+	if titleOne != titleTwo {
+		t.Fatalf("expected deterministic title, got %q and %q", titleOne, titleTwo)
 	}
-	if !strings.Contains(title, "先看貨") {
-		t.Fatalf("expected metaphor in title, got %q", title)
+	if !strings.Contains(titleOne, "先看貨") {
+		t.Fatalf("expected metaphor in title, got %q", titleOne)
 	}
-	if !strings.Contains(body, "git fetch") {
-		t.Fatalf("expected card question/body context, got %q", body)
+	if bodyOne != card.QuestionTextZH || bodyTwo != card.QuestionTextZH {
+		t.Fatalf("expected localized body, got %q and %q", bodyOne, bodyTwo)
 	}
 }
 
 func TestGenerateAggressiveUsesComparisonWhenAvailable(t *testing.T) {
 	card := cards.Card{
 		ID:             "git-pull-composition",
-		TitleZH:        "git pull 的組成",
+		TitleZH:        "Git Pull",
 		TitleEN:        "Git Pull",
-		QuestionTextZH: "`git pull` 通常等於什麼？",
-		QuestionTextEN: "What is `git pull` usually made of?",
-		Tags:           []string{"git", "remote"},
+		QuestionTextZH: "`git pull` 其實是兩個動作的組合。",
+		QuestionTextEN: "`git pull` is a composition of two Git actions.",
 		ConfusionWith:  []string{"git-fetch-basic"},
-		HookStyleTags:  []string{"comparison", "misunderstood"},
+		HookStyleTags:  []string{"comparison"},
 	}
 
-	title, _ := Generate(card, "en", "aggressive")
+	title, _ := Generate(card, "zh-TW", "aggressive")
 
-	if !strings.Contains(strings.ToLower(title), "fetch basic") && !strings.Contains(strings.ToLower(title), "fetch") {
-		t.Fatalf("expected comparison-oriented aggressive title, got %q", title)
+	if !strings.Contains(title, "fetch basic") {
+		t.Fatalf("expected comparison label in title, got %q", title)
 	}
 }
 
-func TestGenerateChaoticFeelsMoreHeadlineLike(t *testing.T) {
+func TestGenerateChaoticFeelsHeadlineLike(t *testing.T) {
 	card := cards.Card{
-		ID:             "git-checkout-legacy",
-		TitleZH:        "git checkout 的舊式用途",
-		TitleEN:        "Git Checkout",
-		QuestionTextZH: "`git checkout` 可以做不只一件事。",
-		QuestionTextEN: "`git checkout` can do more than one job.",
-		Tags:           []string{"git", "branches"},
-		MetaphorSeed:   []string{"瑞士刀"},
-		HookStyleTags:  []string{"chaotic", "misunderstood"},
+		ID:             "git-stash-purpose",
+		TitleZH:        "Git Stash",
+		TitleEN:        "Git Stash",
+		QuestionTextZH: "`git stash` 可以暫時收起尚未提交的改動。",
+		QuestionTextEN: "`git stash` temporarily shelves uncommitted changes.",
+		MetaphorSeed:   []string{"先藏起來"},
 	}
 
 	title, _ := Generate(card, "zh-TW", "chaotic")
 
-	if !strings.Contains(title, "瑞士刀") && !strings.Contains(title, "事故") && !strings.Contains(title, "心測") {
-		t.Fatalf("expected headline-like chaotic title, got %q", title)
+	matches := []string{
+		"事故開頭",
+		"熱門誤用榜",
+		"心測一下",
+		"翻車",
 	}
+	for _, fragment := range matches {
+		if strings.Contains(title, fragment) {
+			return
+		}
+	}
+
+	t.Fatalf("expected chaotic headline-like title, got %q", title)
 }
 
-func TestGenerateFallsBackWhenMetadataIsSparse(t *testing.T) {
+func TestGenerateFallsBackToTechnicalContextWhenMetadataIsSparse(t *testing.T) {
 	card := cards.Card{
 		ID:             "git-status-purpose",
-		TitleZH:        "git status 的用途",
+		TitleZH:        "Git Status",
 		TitleEN:        "Git Status",
-		QuestionTextZH: "`git status` 最主要是在做什麼？",
-		QuestionTextEN: "What does `git status` mainly do?",
-		Tags:           []string{"git", "basics"},
+		QuestionTextZH: "`git status` 會顯示工作目錄與暫存區的狀態。",
+		QuestionTextEN: "`git status` shows the state of the working tree and staging area.",
+		HookStyleTags:  []string{"misunderstood"},
 	}
 
-	title, body := Generate(card, "en", "aggressive")
+	title, body := Generate(card, "en", "chaotic")
 
-	if title == "" || body == "" {
-		t.Fatal("expected fallback hook output")
+	if title == "" {
+		t.Fatal("expected fallback title")
 	}
-	if !strings.Contains(strings.ToLower(title), "git") {
-		t.Fatalf("expected title to retain technical context, got %q", title)
+	if !strings.Contains(strings.ToLower(title), "status") && !strings.Contains(strings.ToLower(title), "git") {
+		t.Fatalf("expected technical context in title, got %q", title)
+	}
+	if body != card.QuestionTextEN {
+		t.Fatalf("expected english body, got %q", body)
 	}
 }

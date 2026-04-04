@@ -254,6 +254,11 @@ Recommended initial notification styles:
 - `aggressive`
 - `chaotic`
 
+Current implementation note:
+
+- `chaotic` is intentionally allowed to sound more like a headline, shopping hook, or light personality-quiz opener
+- the generator remains offline and deterministic so the same card/style pair stays predictable
+
 Recommended title-source modes:
 
 - `prefer_manual`

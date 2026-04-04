@@ -50,5 +50,5 @@ Current completed milestone:
 
 Next target:
 
-- finish Git deck expansion
-- offline `hook generator` with TDD-first tests for localized notification styles
+- polish notification quality through stronger localized hook templates
+- improve card surfacing after `Rescan knowledge`, especially for recently edited cards

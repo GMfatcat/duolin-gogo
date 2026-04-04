@@ -33,7 +33,6 @@ func BuildStudyMessageForLanguage(card cards.Card, language string, style string
 	}
 
 	generatedTitle, generatedBody := hooks.Generate(card, language, style)
-
 	title, body := resolveContent(manualTitle, generatedTitle, manualBody, generatedBody, titleMode)
 	if title == "" {
 		title = fallbackTitle(card, language)
@@ -52,13 +51,9 @@ func BuildStudyMessageForLanguage(card cards.Card, language string, style string
 func resolveContent(manualTitle string, generatedTitle string, manualBody string, generatedBody string, titleMode string) (string, string) {
 	switch normalizeTitleMode(titleMode) {
 	case "prefer_generated":
-		title := firstNonEmpty(generatedTitle, manualTitle)
-		body := firstNonEmpty(generatedBody, manualBody)
-		return title, body
+		return firstNonEmpty(generatedTitle, manualTitle), firstNonEmpty(generatedBody, manualBody)
 	default:
-		title := firstNonEmpty(manualTitle, generatedTitle)
-		body := firstNonEmpty(manualBody, generatedBody)
-		return title, body
+		return firstNonEmpty(manualTitle, generatedTitle), firstNonEmpty(manualBody, generatedBody)
 	}
 }
 
@@ -80,7 +75,7 @@ func fallbackTitle(card cards.Card, language string) string {
 
 func fallbackBody(language string) string {
 	if language == "zh-TW" {
-		return "新的學習卡已經準備好了。"
+		return "一張新的學習卡已經準備好了。"
 	}
 	return "A quick study card is ready."
 }

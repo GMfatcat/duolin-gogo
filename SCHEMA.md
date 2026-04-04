@@ -381,7 +381,19 @@ Example:
 hook_style_tags: [misunderstood, safer_first]
 ```
 
+Suggested meanings:
+
+- `comparison`: the card is often confused with something in `confusion_with`
+- `safer_first`: strong fit for hooks that frame the action as a safer preliminary step
+- `misunderstood`: strong fit for "most people get this wrong" hooks
+- `fear_of_mistake`: strong fit for mistake-avoidance hooks
+
 ### `enabled`
+
+Recommended usage for `metaphor_seed`:
+
+- keep each seed short, concrete, and easy to echo inside a hook
+- good Git examples include `先看貨`, `先藏起來`, `正式合併`, `回到上一個工作點`
 
 Type:
 
@@ -571,6 +583,8 @@ Suggested schema:
 - `language.default`: allowed MVP values `zh-TW` or `en`
 - `notifications.style`: allowed initial values `safe`, `playful`, `aggressive`, `chaotic`
 - `notifications.title_mode`: allowed initial values `prefer_manual`, `prefer_generated`
+- `prefer_manual`: use localized hand-authored clickbait first, then generated fallback
+- `prefer_generated`: use the offline hook generator first, then hand-authored fallback
 
 ## 6. `data/cards-cache.json` Schema
 
@@ -868,6 +882,8 @@ Fields we may add later without breaking the MVP:
 - `ignore_count`
 - `hook_body_zh`
 - `hook_body_en`
+- `hook_pool_zh`
+- `hook_pool_en`
 
 For now, keep parser permissive for unknown fields and ignore them.
 

@@ -18,118 +18,122 @@ func Generate(card cards.Card, language string, style string) (string, string) {
 	index := stableIndex(card.ID + "|" + language + "|" + style)
 
 	if language == "zh-TW" {
-		return generateZHTitle(style, title, body, primary, metaphor, confusion, tags, index), body
+		return generateZHTitle(style, title, primary, metaphor, confusion, tags, index), body
 	}
 
-	return generateENTitle(style, title, body, primary, metaphor, confusion, tags, index), body
+	return generateENTitle(style, title, primary, metaphor, confusion, tags, index), body
 }
 
-func generateZHTitle(style string, title string, body string, primary string, metaphor string, confusion string, tags map[string]bool, index int) string {
+func generateZHTitle(style string, title string, primary string, metaphor string, confusion string, tags map[string]bool, index int) string {
 	confusionLabel := prettyID(confusion)
 
 	switch style {
 	case "safe":
 		options := []string{
-			fmt.Sprintf("快速確認一下：%s", title),
-			fmt.Sprintf("這題先別急，先看懂 %s", title),
-			fmt.Sprintf("你現在能清楚解釋 %s 嗎？", title),
+			fmt.Sprintf("快速確認一下：你真的懂 %s 嗎？", title),
+			fmt.Sprintf("先別急著滑走，%s 你能說清楚嗎？", title),
+			fmt.Sprintf("你對 %s 的理解，真的夠穩嗎？", title),
 		}
 		return pick(options, index)
 	case "aggressive":
 		if confusionLabel != "" {
 			options := []string{
-				fmt.Sprintf("大多數人會把它跟 %s 搞混，你也可能中招", confusionLabel),
-				fmt.Sprintf("如果你把它當成 %s，接下來很容易出事", confusionLabel),
-				fmt.Sprintf("這題專門抓會把它和 %s 混為一談的人", confusionLabel),
+				fmt.Sprintf("很多人把它跟 %s 搞混，你也是嗎？", confusionLabel),
+				fmt.Sprintf("只要你還把它當成 %s，用 Git 就很容易翻車", confusionLabel),
+				fmt.Sprintf("這題專抓還分不清 %s 的人", confusionLabel),
 			}
 			return pick(options, index)
 		}
 		options := []string{
 			fmt.Sprintf("很多人第一次就把 %s 用錯", title),
-			fmt.Sprintf("這個 %s 動作，看起來簡單卻最常翻車", primary),
-			fmt.Sprintf("你以為自己會 %s，但多數人其實第一步就錯", title),
+			fmt.Sprintf("%s 看起來簡單，出事前大家都這樣想", title),
+			fmt.Sprintf("你以為自己懂 %s，錯誤通常就從這裡開始", title),
 		}
 		return pick(options, index)
 	case "chaotic":
 		if metaphor != "" {
 			options := []string{
 				fmt.Sprintf("看起來像「%s」的小動作，往往就是事故開頭", metaphor),
-				fmt.Sprintf("今天最容易讓人手滑的，不是新聞，是這個「%s」操作", metaphor),
-				fmt.Sprintf("心測一下：你是會先 %s，還是直接做錯的人？", metaphor),
+				fmt.Sprintf("熱門誤用榜又是它：把這題當成「%s」的人超多", metaphor),
+				fmt.Sprintf("心測一下：你是會先「%s」的人，還是會直接做錯的人？", metaphor),
+				fmt.Sprintf("別被「%s」這種錯覺騙了，很多人就是這樣翻車", metaphor),
 			}
 			return pick(options, index)
 		}
 		options := []string{
-			fmt.Sprintf("這個 %s 指令看似無害，後果可能很大", primary),
-			fmt.Sprintf("熱門錯誤操作前幾名，這個 %s 通常都上榜", primary),
-			fmt.Sprintf("你以為只是普通的 %s？很多問題都從這裡開始", title),
+			fmt.Sprintf("這個 %s 指令看起來無害，實際上很常害人收尾", primary),
+			fmt.Sprintf("又一個看似普通的 %s 動作，正在悄悄搞亂工作流", primary),
+			fmt.Sprintf("大家都以為這個 %s 很直覺，問題就出在這裡", title),
+			fmt.Sprintf("這個看起來很日常的 %s 操作，混亂程度比你想得高", primary),
 		}
 		return pick(options, index)
 	default:
 		if metaphor != "" && tags["safer-first"] {
 			options := []string{
-				fmt.Sprintf("%s，不要急著下一步。你知道這是哪個 Git 動作嗎？", metaphor),
-				fmt.Sprintf("先想成「%s」，你就比較不容易把這題做錯", metaphor),
-				fmt.Sprintf("把它當成「%s」來理解，突然就會了", metaphor),
+				fmt.Sprintf("把它想成「%s」再做真正動作，你會更快懂這個 Git 概念", metaphor),
+				fmt.Sprintf("如果先用「%s」來理解，這題會突然變簡單", metaphor),
+				fmt.Sprintf("先把它當成「%s」，答案通常就浮出來了", metaphor),
 			}
 			return pick(options, index)
 		}
 		if confusionLabel != "" && tags["comparison"] {
 			options := []string{
-				fmt.Sprintf("你真的分得清它和 %s 嗎？", confusionLabel),
-				fmt.Sprintf("這題最常被拿來跟 %s 搞混", confusionLabel),
-				fmt.Sprintf("看到 %s 時，你知道自己不是在做它嗎？", confusionLabel),
+				fmt.Sprintf("你真的知道它和 %s 差在哪嗎？", confusionLabel),
+				fmt.Sprintf("這題最常被誤認成 %s", confusionLabel),
+				fmt.Sprintf("當 %s 出現時，你分得出這題在做什麼嗎？", confusionLabel),
 			}
 			return pick(options, index)
 		}
 		options := []string{
-			fmt.Sprintf("你真的懂 %s 嗎？", title),
-			fmt.Sprintf("這個 %s 觀念，多數人其實沒講清楚", primary),
-			fmt.Sprintf("這題不難，難的是你以為自己早就會了：%s", title),
+			fmt.Sprintf("你真的理解 %s 嗎？", title),
+			fmt.Sprintf("這個 %s 概念其實不難，但很多人還是會用錯", primary),
+			fmt.Sprintf("你可能記得名字，但 %s 到底在做什麼？", title),
 		}
 		return pick(options, index)
 	}
 }
 
-func generateENTitle(style string, title string, body string, primary string, metaphor string, confusion string, tags map[string]bool, index int) string {
+func generateENTitle(style string, title string, primary string, metaphor string, confusion string, tags map[string]bool, index int) string {
 	confusionLabel := prettyID(confusion)
 
 	switch style {
 	case "safe":
 		options := []string{
-			fmt.Sprintf("Quick check: %s", title),
-			fmt.Sprintf("Before you click ahead, can you explain %s?", title),
-			fmt.Sprintf("Do you have a clean mental model for %s?", title),
+			fmt.Sprintf("Quick check: do you really understand %s?", title),
+			fmt.Sprintf("Before you move on, can you explain %s?", title),
+			fmt.Sprintf("Is your mental model for %s actually solid?", title),
 		}
 		return pick(options, index)
 	case "aggressive":
 		if confusionLabel != "" {
 			options := []string{
 				fmt.Sprintf("Most developers confuse this with %s. Do you?", confusionLabel),
-				fmt.Sprintf("If you treat this like %s, you are setting yourself up for trouble", confusionLabel),
-				fmt.Sprintf("This one catches people who still mix it up with %s", confusionLabel),
+				fmt.Sprintf("If you still treat this like %s, trouble is coming", confusionLabel),
+				fmt.Sprintf("This one exposes people who still mix it up with %s", confusionLabel),
 			}
 			return pick(options, index)
 		}
 		options := []string{
 			fmt.Sprintf("A lot of developers get %s wrong on the first try", title),
 			fmt.Sprintf("%s looks easy right before it goes wrong", title),
-			fmt.Sprintf("You probably think you know %s. That is where mistakes start", title),
+			fmt.Sprintf("You think you know %s. That is usually where mistakes start", title),
 		}
 		return pick(options, index)
 	case "chaotic":
 		if metaphor != "" {
 			options := []string{
 				fmt.Sprintf("The move that feels like \"%s\" is where trouble starts", metaphor),
-				fmt.Sprintf("Trending mistake of the day: treating this like \"%s\"", metaphor),
+				fmt.Sprintf("Trending mistake: treating this like \"%s\"", metaphor),
 				fmt.Sprintf("Personality quiz: are you the kind of developer who \"%s\"s first?", metaphor),
+				fmt.Sprintf("Do not let the \"%s\" vibe fool you. That is how people get burned", metaphor),
 			}
 			return pick(options, index)
 		}
 		options := []string{
 			fmt.Sprintf("This %s command looks harmless until it isn't", primary),
-			fmt.Sprintf("A suspiciously normal %s move is ruining a lot of workflows", primary),
+			fmt.Sprintf("A suspiciously normal %s move is quietly ruining workflows", primary),
 			fmt.Sprintf("Everyone thinks this %s step is obvious. That is the trap", title),
+			fmt.Sprintf("This boring-looking %s action causes more chaos than people admit", primary),
 		}
 		return pick(options, index)
 	default:
@@ -145,7 +149,7 @@ func generateENTitle(style string, title string, body string, primary string, me
 			options := []string{
 				fmt.Sprintf("Do you actually know how this differs from %s?", confusionLabel),
 				fmt.Sprintf("This gets confused with %s more often than it should", confusionLabel),
-				fmt.Sprintf("When %s shows up, can you tell this apart from it?", confusionLabel),
+				fmt.Sprintf("When %s shows up, can you still tell this apart?", confusionLabel),
 			}
 			return pick(options, index)
 		}

@@ -406,6 +406,7 @@ Offline hook generator rules:
 - should generate 1 to 3 candidate hook lines per card
 - should prefer metaphor, analogy, contrast, or curiosity-gap framing over dry technical wording
 - should still keep a recognizable relation to the underlying concept
+- `chaotic` hooks may lean into headline, shopping, or light personality-quiz energy, but should still preserve an obvious conceptual link to the study card
 
 ## 14. Error Handling
 
