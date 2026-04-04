@@ -48,6 +48,8 @@ const translations = {
     diagnosticsLabel: '匯入診斷',
     diagnosticsTitle: '知識檔案健康度',
     noDiagnostics: '目前沒有匯入問題。',
+    importHealthOk: '匯入正常',
+    importHealthIssues: '匯入問題',
     sendTestNotification: '送出測試通知',
     snoozeNotifications: '稍後 15 分鐘',
     rescanKnowledge: '重新掃描知識庫',
@@ -97,6 +99,8 @@ const translations = {
     diagnosticsLabel: 'Import diagnostics',
     diagnosticsTitle: 'Knowledge file health',
     noDiagnostics: 'No import issues detected.',
+    importHealthOk: 'import OK',
+    importHealthIssues: 'import issues',
     sendTestNotification: 'Send test notification',
     snoozeNotifications: 'Snooze 15 min',
     rescanKnowledge: 'Rescan knowledge',
@@ -175,6 +179,12 @@ const localizedChoices = computed(() =>
 
 const formattedCorrectRate = computed(() => `${Math.round((stats.value.correctRate ?? 0) * 100)}%`)
 const nextReviewText = computed(() => formatDisplayTime(summary.value.nextReviewAt, t.value.notScheduled))
+const diagnosticsSummary = computed(() => {
+  if (importErrors.value.length === 0) {
+    return `(${t.value.importHealthOk})`
+  }
+  return `(${importErrors.value.length} ${t.value.importHealthIssues})`
+})
 
 const correctAnswerLabel = computed(() => {
   if (!feedback.value) return ''
@@ -486,7 +496,7 @@ function toggleSettings() {
         <div class="study-header">
           <div>
             <p class="label">{{ t.notificationSettings }}</p>
-            <h2>{{ t.settingsLabel }}</h2>
+            <h2>{{ t.settingsLabel }} <span class="settings-meta">{{ diagnosticsSummary }}</span></h2>
           </div>
           <button class="close-button" type="button" @click="toggleSettings">{{ t.close }}</button>
         </div>
@@ -553,23 +563,16 @@ function toggleSettings() {
           </button>
         </section>
 
-        <section class="study-card inset-card">
-          <div class="study-header">
-            <div>
-              <p class="label">{{ t.diagnosticsLabel }}</p>
-              <h2>{{ t.diagnosticsTitle }}</h2>
-            </div>
-          </div>
-
-          <div v-if="importErrors.length" class="diagnostics-list">
+        <details v-if="importErrors.length" class="diagnostics-disclosure">
+          <summary>{{ t.diagnosticsTitle }}</summary>
+          <div class="diagnostics-list">
             <article v-for="item in importErrors" :key="`${item.source_path}-${item.code}`" class="diagnostic-item">
               <strong>{{ item.code }}</strong>
               <p>{{ item.message }}</p>
               <span>{{ item.source_path }}</span>
             </article>
           </div>
-          <p v-else class="explanation">{{ t.noDiagnostics }}</p>
-        </section>
+        </details>
       </section>
     </div>
   </main>

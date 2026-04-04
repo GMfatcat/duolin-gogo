@@ -404,6 +404,10 @@ func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime
 		return ActionStatus{}, err
 	}
 
+	now := a.nowFunc()
+	a.schedulerState.LastNotificationAt = &now
+	a.schedulerState.SnoozedUntil = nil
+
 	return ActionStatus{Message: "Schedule settings updated."}, nil
 }
 

@@ -391,6 +391,11 @@ func TestUpdatePreferredLanguagePersistsValue(t *testing.T) {
 func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
 	app := newTestApp(t)
 
+	previous := app.nowFunc().Add(-30 * time.Minute)
+	snoozedUntil := app.nowFunc().Add(20 * time.Minute)
+	app.schedulerState.LastNotificationAt = &previous
+	app.schedulerState.SnoozedUntil = &snoozedUntil
+
 	status, err := app.UpdateScheduleSettings(30, "20:30")
 	if err != nil {
 		t.Fatalf("update schedule settings failed: %v", err)
@@ -410,6 +415,13 @@ func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
 	}
 	if dashboard.ScheduleSettings.ReviewTime != "20:30" {
 		t.Fatalf("expected review time 20:30, got %s", dashboard.ScheduleSettings.ReviewTime)
+	}
+
+	if app.schedulerState.LastNotificationAt == nil {
+		t.Fatal("expected scheduler timestamp to reset")
+	}
+	if app.schedulerState.SnoozedUntil != nil {
+		t.Fatal("expected snooze to clear after schedule update")
 	}
 }
 
