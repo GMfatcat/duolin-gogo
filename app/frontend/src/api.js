@@ -3,6 +3,7 @@ import {
   LoadDashboard,
   LoadAuthoringPreview,
   PreviewKnowledgeCard,
+  ReviewDraft,
   RescanKnowledge,
   SendTestNotification,
   SnoozeNotifications,
@@ -203,6 +204,54 @@ export async function previewKnowledgeCard(path) {
   return {
     ...structuredClone(fallbackAuthoringPreview),
     selectedPath: path,
+  }
+}
+
+export async function reviewDraft(raw) {
+  if (hasBackend()) {
+    return ReviewDraft(raw)
+  }
+
+  if (!raw.includes('## zh-TW') || !raw.includes('## en')) {
+    return {
+      currentCard: null,
+      importErrors: [
+        {
+          source_path: 'draft://ai-card.md',
+          severity: 'error',
+          code: 'missing_language_section',
+          field: 'body',
+          message: 'Body must contain both ## zh-TW and ## en sections.',
+        },
+      ],
+    }
+  }
+
+  const pickField = (name) => {
+    const match = raw.match(new RegExp(`^${name}:\\s*"?(.+?)"?$`, 'm'))
+    return match ? match[1] : ''
+  }
+
+  return {
+    currentCard: {
+      ...structuredClone(fallbackDashboard.currentCard),
+      id: pickField('id') || fallbackDashboard.currentCard.id,
+      title: pickField('title_en') || pickField('title') || fallbackDashboard.currentCard.title,
+      titleZh: pickField('title_zh') || pickField('title') || fallbackDashboard.currentCard.titleZh,
+      titleEn: pickField('title_en') || pickField('title') || fallbackDashboard.currentCard.titleEn,
+      questionText: pickField('question_en') || pickField('question') || fallbackDashboard.currentCard.questionText,
+      questionTextZh: pickField('question_zh') || pickField('question') || fallbackDashboard.currentCard.questionTextZh,
+      questionTextEn: pickField('question_en') || pickField('question') || fallbackDashboard.currentCard.questionTextEn,
+      clickbait: pickField('clickbait_en') || pickField('clickbait') || fallbackDashboard.currentCard.clickbait,
+      clickbaitZh: pickField('clickbait_zh') || pickField('clickbait') || fallbackDashboard.currentCard.clickbaitZh,
+      clickbaitEn: pickField('clickbait_en') || pickField('clickbait') || fallbackDashboard.currentCard.clickbaitEn,
+      reviewHint: pickField('review_hint_en') || pickField('review_hint') || fallbackDashboard.currentCard.reviewHint,
+      reviewHintZh: pickField('review_hint_zh') || pickField('review_hint') || fallbackDashboard.currentCard.reviewHintZh,
+      reviewHintEn: pickField('review_hint_en') || pickField('review_hint') || fallbackDashboard.currentCard.reviewHintEn,
+      explanationZh: raw.split('## zh-TW')[1]?.split('## en')[0]?.trim() || fallbackDashboard.currentCard.explanationZh,
+      explanationEn: raw.split('## en')[1]?.trim() || fallbackDashboard.currentCard.explanationEn,
+    },
+    importErrors: [],
   }
 }
 

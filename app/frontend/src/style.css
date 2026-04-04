@@ -419,6 +419,18 @@ body {
   gap: 10px;
 }
 
+.draft-input {
+  min-height: 240px;
+  padding: 12px 14px;
+  border: 1px solid rgba(233, 196, 106, 0.18);
+  border-radius: 14px;
+  background: rgba(28, 51, 69, 0.7);
+  color: #f7f3e8;
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
 .compact {
   margin: 0;
 }

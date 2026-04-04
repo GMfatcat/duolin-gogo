@@ -423,3 +423,42 @@ This card intentionally has mismatched localized choice counts.
 		t.Fatalf("unexpected warning code: %s", result.Errors[0].Code)
 	}
 }
+
+func TestPreviewDraftReturnsNormalizedCardAndWarnings(t *testing.T) {
+	raw := `---
+id: git-draft-preview
+title: Draft Preview
+type: single-choice
+question: "Which command stages changes?"
+choices:
+  - "git add"
+  - "git log"
+answer: 0
+---
+
+## zh-TW
+
+這是一張只靠 fallback 欄位的草稿卡。
+
+## en
+
+This draft card relies on fallback fields.`
+
+	result, err := PreviewDraft("draft://ai-card.md", raw)
+	if err != nil {
+		t.Fatalf("preview draft failed: %v", err)
+	}
+
+	if result.Card == nil {
+		t.Fatal("expected normalized draft card")
+	}
+	if result.Card.ID != "git-draft-preview" {
+		t.Fatalf("unexpected card id: %s", result.Card.ID)
+	}
+	if len(result.Errors) == 0 {
+		t.Fatal("expected fallback warnings")
+	}
+	if result.Errors[0].Severity != "warning" {
+		t.Fatalf("expected warning severity, got %s", result.Errors[0].Severity)
+	}
+}

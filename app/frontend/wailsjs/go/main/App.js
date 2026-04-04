@@ -30,6 +30,10 @@ export function RescanKnowledge() {
   return window['go']['main']['App']['RescanKnowledge']();
 }
 
+export function ReviewDraft(arg1) {
+  return window['go']['main']['App']['ReviewDraft'](arg1);
+}
+
 export function SendTestNotification() {
   return window['go']['main']['App']['SendTestNotification']();
 }

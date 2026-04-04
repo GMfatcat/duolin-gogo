@@ -386,6 +386,7 @@ Suggested review scheduling:
 - preview should show parsed content, language switching, and validation results
 - the first implementation can live inside the settings panel as an authoring preview block with file selection and per-card diagnostics
 - AI-generated drafts should be reviewable against the same schema before saving into `knowledge/`
+- the first AI-draft implementation can use a pasted Markdown textarea plus normalized preview and diagnostics before any save flow exists
 - whole-deck validation should later support grouped warning/error review for batch AI generation
 
 ## 12. Local Storage Strategy

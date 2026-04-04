@@ -16,6 +16,8 @@ export function PreviewKnowledgeCard(arg1:string):Promise<main.AuthoringPreviewD
 
 export function RescanKnowledge():Promise<main.ActionStatus>;
 
+export function ReviewDraft(arg1:string):Promise<main.DraftReviewData>;
+
 export function SendTestNotification():Promise<main.ActionStatus>;
 
 export function SnoozeNotifications():Promise<main.ActionStatus>;

@@ -448,6 +448,44 @@ Only zh body.`
 	}
 }
 
+func TestReviewDraftReturnsPreviewAndDiagnostics(t *testing.T) {
+	app := newTestApp(t)
+
+	raw := `---
+id: git-ai-draft
+title: AI Draft
+type: single-choice
+question: "Which command downloads remote refs without merging?"
+choices:
+  - "git fetch"
+  - "git pull"
+answer: 0
+---
+
+## zh-TW
+
+這是一張 AI 草稿卡，使用 fallback 欄位。
+
+## en
+
+This AI draft card relies on fallback fields.`
+
+	result, err := app.ReviewDraft(raw)
+	if err != nil {
+		t.Fatalf("review draft failed: %v", err)
+	}
+
+	if result.CurrentCard == nil {
+		t.Fatal("expected normalized draft card")
+	}
+	if result.CurrentCard.ID != "git-ai-draft" {
+		t.Fatalf("unexpected draft card id: %s", result.CurrentCard.ID)
+	}
+	if len(result.ImportErrors) == 0 {
+		t.Fatal("expected draft diagnostics")
+	}
+}
+
 func TestUpdateNotificationSettingsPersistsValues(t *testing.T) {
 	app := newTestApp(t)
 

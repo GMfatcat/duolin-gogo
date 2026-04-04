@@ -6,6 +6,7 @@ import {
   loadAuthoringPreview,
   loadDashboard,
   previewKnowledgeCard,
+  reviewDraft,
   rescanKnowledge,
   sendTestNotification,
   snoozeNotifications,
@@ -80,6 +81,11 @@ const translations = {
     previewFile: '卡片檔案',
     previewDiagnostics: '這張卡的診斷',
     noPreviewDiagnostics: '這張卡目前沒有額外診斷。',
+    aiDraftReview: 'AI 草稿審查',
+    draftInput: '貼上 AI 產生的 Markdown',
+    reviewDraft: '審查草稿',
+    draftPreview: '草稿預覽',
+    noDraftYet: '貼上草稿後，就可以在這裡看到 normalized preview 與診斷。',
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
@@ -144,6 +150,11 @@ const translations = {
     previewFile: 'Card file',
     previewDiagnostics: 'Diagnostics for this card',
     noPreviewDiagnostics: 'No diagnostics for this card.',
+    aiDraftReview: 'AI draft review',
+    draftInput: 'Paste AI-generated Markdown',
+    reviewDraft: 'Review draft',
+    draftPreview: 'Draft preview',
+    noDraftYet: 'Paste a draft to inspect the normalized preview and diagnostics here.',
   },
 }
 
@@ -162,6 +173,11 @@ const settingsOpen = ref(false)
 const authoringPreview = ref({
   files: [],
   selectedPath: '',
+  currentCard: null,
+  importErrors: [],
+})
+const draftReview = ref({
+  raw: '',
   currentCard: null,
   importErrors: [],
 })
@@ -195,6 +211,8 @@ const scheduleSettings = computed(() =>
 const previewCard = computed(() => authoringPreview.value?.currentCard ?? null)
 const previewFiles = computed(() => authoringPreview.value?.files ?? [])
 const previewErrors = computed(() => authoringPreview.value?.importErrors ?? [])
+const draftReviewErrors = computed(() => draftReview.value?.importErrors ?? [])
+const draftReviewCard = computed(() => draftReview.value?.currentCard ?? null)
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
 
 const currentPhaseLabel = computed(() => {
@@ -407,6 +425,15 @@ async function handleValidateKnowledge() {
 
 async function handlePreviewSelection(path) {
   await refreshAuthoringPreview(path)
+}
+
+async function handleDraftReview() {
+  const result = await reviewDraft(draftReview.value.raw)
+  draftReview.value = {
+    ...draftReview.value,
+    currentCard: result.currentCard ?? null,
+    importErrors: result.importErrors ?? [],
+  }
 }
 
 async function handleNotificationSettingChange(field, value) {
@@ -685,6 +712,57 @@ function toggleSettings() {
                 <article
                   v-for="item in previewErrors"
                   :key="`preview-${item.source_path}-${item.code}-${item.field || ''}`"
+                  class="diagnostic-item"
+                  :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'"
+                >
+                  <div class="diagnostic-head">
+                    <span class="severity-pill" :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'">
+                      {{ severityLabel(item) }}
+                    </span>
+                    <strong>{{ item.code }}</strong>
+                  </div>
+                  <p>{{ item.message }}</p>
+                </article>
+              </div>
+              <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
+            </div>
+          </section>
+
+          <section class="study-card inset-card preview-panel">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ t.aiDraftReview }}</p>
+                <h2>{{ t.aiDraftReview }}</h2>
+              </div>
+            </div>
+
+            <label class="settings-field">
+              <span>{{ t.draftInput }}</span>
+              <textarea
+                v-model="draftReview.raw"
+                class="draft-input"
+                rows="12"
+                spellcheck="false"
+              />
+            </label>
+
+            <button class="phase-button" type="button" @click="handleDraftReview">{{ t.reviewDraft }}</button>
+
+            <div v-if="draftReviewCard" class="preview-card">
+              <p class="label">{{ t.draftPreview }}</p>
+              <strong>{{ selectedLanguage === 'en' ? draftReviewCard.titleEn : draftReviewCard.titleZh }}</strong>
+              <p class="callout compact">{{ selectedLanguage === 'en' ? draftReviewCard.clickbaitEn : draftReviewCard.clickbaitZh }}</p>
+              <p class="explanation compact">{{ selectedLanguage === 'en' ? draftReviewCard.explanationEn : draftReviewCard.explanationZh }}</p>
+              <p class="label">{{ selectedLanguage === 'en' ? draftReviewCard.questionTextEn : draftReviewCard.questionTextZh }}</p>
+            </div>
+            <p v-else class="explanation">{{ t.noDraftYet }}</p>
+
+            <div class="preview-diagnostics">
+              <span class="label">{{ t.previewDiagnostics }}</span>
+              <div v-if="draftReviewErrors.length" class="diagnostics-list compact">
+                <article
+                  v-for="item in draftReviewErrors"
+                  :key="`draft-${item.source_path}-${item.code}-${item.field || ''}`"
                   class="diagnostic-item"
                   :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'"
                 >

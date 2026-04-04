@@ -117,6 +117,7 @@ Current useful controls:
 - `Rescan knowledge`
 - `Validate knowledge`
 - `Authoring preview` inside settings for single-card inspection
+- `AI draft review` inside settings for pasted Markdown inspection
 - `zh-TW` / `en` language toggle
 - answer submission
 

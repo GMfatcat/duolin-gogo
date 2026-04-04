@@ -457,6 +457,7 @@ Deliverables:
 - draft input area for pasted AI Markdown
 - schema validation result for the draft
 - normalized preview of parsed card data
+- first slice implemented inside settings popout for pasted Markdown review
 - save flow for accepted drafts
 - support for the reusable prompt and review prompt from `AI_CARD_PROMPT.md`
 
@@ -468,7 +469,7 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
 
 ### Next Phase A3: Batch Validation Report
 

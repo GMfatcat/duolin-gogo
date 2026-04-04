@@ -69,6 +69,11 @@ type AuthoringPreviewData struct {
 	ImportErrors []diagnostics.Error    `json:"importErrors"`
 }
 
+type DraftReviewData struct {
+	CurrentCard  *StudyCard          `json:"currentCard"`
+	ImportErrors []diagnostics.Error `json:"importErrors"`
+}
+
 type AnswerChoice struct {
 	Value   string `json:"value"`
 	LabelZH string `json:"labelZh"`
@@ -430,6 +435,34 @@ func (a *App) PreviewKnowledgeCard(path string) (AuthoringPreviewData, error) {
 	}
 
 	return a.previewKnowledgeCard(path, files)
+}
+
+func (a *App) ReviewDraft(raw string) (DraftReviewData, error) {
+	result, err := cards.PreviewDraft("draft://ai-card.md", raw)
+	if err != nil {
+		return DraftReviewData{}, err
+	}
+
+	diagnosticItems := make([]diagnostics.Error, 0, len(result.Errors))
+	for _, item := range result.Errors {
+		diagnosticItems = append(diagnosticItems, diagnostics.Error{
+			SourcePath: item.SourcePath,
+			Severity:   item.Severity,
+			Code:       item.Code,
+			Field:      item.Field,
+			Message:    item.Message,
+		})
+	}
+
+	var previewCard *StudyCard
+	if result.Card != nil {
+		previewCard = studyCardFromCard(*result.Card, a.nowFunc())
+	}
+
+	return DraftReviewData{
+		CurrentCard:  previewCard,
+		ImportErrors: diagnosticItems,
+	}, nil
 }
 
 func (a *App) UpdateNotificationSettings(style string, titleMode string) (ActionStatus, error) {

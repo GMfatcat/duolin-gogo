@@ -241,6 +241,46 @@ func PreviewFile(path string) (PreviewResult, error) {
 	return result, nil
 }
 
+func PreviewDraft(sourcePath string, raw string) (PreviewResult, error) {
+	fmContent, body, err := splitFrontmatter(raw)
+	if err != nil {
+		return PreviewResult{
+			Errors: []ImportError{{
+				SourcePath: sourcePath,
+				Severity:   "error",
+				Code:       "frontmatter_parse_failed",
+				Field:      "frontmatter",
+				Message:    err.Error(),
+			}},
+		}, nil
+	}
+
+	var fm frontmatter
+	if err := yaml.Unmarshal([]byte(fmContent), &fm); err != nil {
+		return PreviewResult{
+			Errors: []ImportError{{
+				SourcePath: sourcePath,
+				Severity:   "error",
+				Code:       "frontmatter_parse_failed",
+				Field:      "frontmatter",
+				Message:    err.Error(),
+			}},
+		}, nil
+	}
+
+	card, diagnostics, importErr := buildCard(sourcePath, fm, body)
+	result := PreviewResult{
+		Errors: diagnostics,
+	}
+	if importErr != nil {
+		result.Errors = append(result.Errors, *importErr)
+		return result, nil
+	}
+
+	result.Card = &card
+	return result, nil
+}
+
 func parseFile(path string) (Card, []ImportError, *ImportError) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
