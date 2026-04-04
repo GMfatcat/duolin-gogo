@@ -14,25 +14,8 @@ import {
 
 const translations = {
   'zh-TW': {
-    summary:
-      '用本地雙語 Markdown 筆記打造的微學習工具，結合 Windows 通知、輕量複習與自適應重複。',
-    contentMode: '內容模式',
+    summary: '把你的雙語 Markdown 筆記變成定時提醒、微學習卡片與複習節奏。',
     bilingualCards: '雙語知識卡',
-    languageMode: '語言模式',
-    learningMode: '學習模式',
-    tddMode: 'TDD 模式',
-    sessionMode: '目前階段',
-    reviewSession: '複習模式',
-    learnSession: '學習模式',
-    sendTestNotification: '送出測試通知',
-    snoozeNotifications: '稍後 15 分鐘',
-    rescanKnowledge: '重新掃描知識庫',
-    notificationSettings: '通知設定',
-    hookMode: 'Hook 模式',
-    style: '風格',
-    titleSource: '標題來源',
-    loading: '載入中',
-    preparingCard: '正在準備下一張卡片...',
     reviewCard: '複習卡',
     nextCard: '下一張卡',
     reviewSessionActive: '目前正在複習，佇列數量：',
@@ -46,45 +29,39 @@ const translations = {
     correctPrefix: '正確答案：',
     noCardsLabel: '目前沒有可用卡片',
     noCardsTitle: '知識匯入需要處理',
-    noCardsBody: '請新增有效的雙語知識卡，或檢查右側 diagnostics 修正匯入問題。',
+    noCardsBody: '請新增有效的雙語知識卡，或透過右上角設定檢查匯入問題。',
     studiedToday: '今日作答',
     correctRate: '正答率',
     reviewQueue: '複習佇列',
     nextReview: '下次複習',
     notScheduled: '尚未排程',
-    weakTopicsLabel: '弱點主題',
+    weakTopicsLabel: '弱勢主題',
     weakTopicsTitle: '概念複習重點',
-    noWeakTopics: '目前還沒有弱點主題，繼續學習後會逐漸出現。',
+    noWeakTopics: '目前還沒有弱勢主題，繼續學習後會逐漸出現。',
+    notificationSettings: '通知設定',
+    hookMode: 'Hook 模式',
+    style: '風格',
+    titleSource: '標題來源',
     diagnosticsLabel: '匯入診斷',
     diagnosticsTitle: '知識檔案健康度',
     noDiagnostics: '目前沒有匯入問題。',
+    sendTestNotification: '送出測試通知',
+    snoozeNotifications: '稍後 15 分鐘',
+    rescanKnowledge: '重新掃描知識庫',
+    loading: '載入中',
+    preparingCard: '正在準備下一張卡片...',
     shellLanguageUpdated: 'Language updated.',
     correctFeedback: '答對了。',
     incorrectFeedback: '再想一下。',
     trueLabel: '是',
     falseLabel: '否',
     accuracySuffix: '正確率',
+    settingsLabel: '設定',
+    close: '關閉',
   },
   en: {
-    summary:
-      'A local-first micro-learning tool built from bilingual Markdown notes, with Windows notifications, lightweight review, and adaptive repetition.',
-    contentMode: 'Content mode',
+    summary: 'Turn your bilingual Markdown notes into timed nudges, micro-lessons, and review rhythm.',
     bilingualCards: 'Bilingual knowledge cards',
-    languageMode: 'Language mode',
-    learningMode: 'Development mode',
-    tddMode: 'TDD mode',
-    sessionMode: 'Session mode',
-    reviewSession: 'Review session',
-    learnSession: 'Learn session',
-    sendTestNotification: 'Send test notification',
-    snoozeNotifications: 'Snooze 15 min',
-    rescanKnowledge: 'Rescan knowledge',
-    notificationSettings: 'Notification settings',
-    hookMode: 'Hook mode',
-    style: 'Style',
-    titleSource: 'Title source',
-    loading: 'Loading',
-    preparingCard: 'Preparing the next card...',
     reviewCard: 'Review card',
     nextCard: 'Next card',
     reviewSessionActive: 'Review session active. Queue size:',
@@ -98,8 +75,7 @@ const translations = {
     correctPrefix: 'Correct answer:',
     noCardsLabel: 'No cards available',
     noCardsTitle: 'Knowledge import needs attention',
-    noCardsBody:
-      'Add valid bilingual knowledge cards, or inspect the diagnostics on the right to fix malformed files.',
+    noCardsBody: 'Add valid bilingual knowledge cards, or inspect import issues from the settings popout.',
     studiedToday: 'Studied today',
     correctRate: 'Correct rate',
     reviewQueue: 'Review queue',
@@ -108,15 +84,26 @@ const translations = {
     weakTopicsLabel: 'Weak topics',
     weakTopicsTitle: 'Concepts to revisit',
     noWeakTopics: 'No weak topics yet. Keep studying to generate insights.',
+    notificationSettings: 'Notification settings',
+    hookMode: 'Hook mode',
+    style: 'Style',
+    titleSource: 'Title source',
     diagnosticsLabel: 'Import diagnostics',
     diagnosticsTitle: 'Knowledge file health',
     noDiagnostics: 'No import issues detected.',
+    sendTestNotification: 'Send test notification',
+    snoozeNotifications: 'Snooze 15 min',
+    rescanKnowledge: 'Rescan knowledge',
+    loading: 'Loading',
+    preparingCard: 'Preparing the next card...',
     shellLanguageUpdated: 'Language updated.',
     correctFeedback: 'Correct.',
     incorrectFeedback: 'Not quite.',
     trueLabel: 'True',
     falseLabel: 'False',
     accuracySuffix: 'accuracy',
+    settingsLabel: 'Settings',
+    close: 'Close',
   },
 }
 
@@ -130,95 +117,73 @@ const submitting = ref(false)
 const savingNotificationSettings = ref(false)
 const changingLanguage = ref(false)
 const phase = ref('learn')
+const settingsOpen = ref(false)
 let unsubscribe = null
 
 const card = computed(() => dashboard.value?.currentCard ?? null)
 const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
 const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
-const summary = computed(() => summaryFallback(dashboard.value?.summary))
+const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [] })
 const importErrors = computed(() => dashboard.value?.importErrors ?? [])
 const notificationSettings = computed(() =>
   dashboard.value?.notificationSettings ?? { style: 'playful', titleMode: 'prefer_manual' },
 )
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
+
 const currentPhaseLabel = computed(() => {
-  if (phase.value === 'answer') {
-    return t.value.answerPhase
-  }
-  if (phase.value === 'feedback') {
-    return t.value.feedbackPhase
-  }
+  if (phase.value === 'answer') return t.value.answerPhase
+  if (phase.value === 'feedback') return t.value.feedbackPhase
   return t.value.learnPhase
 })
+
 const titleText = computed(() => {
-  if (!card.value) {
-    return ''
-  }
+  if (!card.value) return ''
   return selectedLanguage.value === 'en' ? card.value.titleEn : card.value.titleZh
 })
+
 const questionText = computed(() => {
-  if (!card.value) {
-    return ''
-  }
+  if (!card.value) return ''
   return selectedLanguage.value === 'en' ? card.value.questionTextEn : card.value.questionTextZh
 })
+
 const clickbaitText = computed(() => {
-  if (!card.value) {
-    return ''
-  }
+  if (!card.value) return ''
   return selectedLanguage.value === 'en' ? card.value.clickbaitEn : card.value.clickbaitZh
 })
+
 const localizedChoices = computed(() =>
   (card.value?.choices ?? []).map((choice) => ({
     value: choice.value,
     label: selectedLanguage.value === 'en' ? choice.labelEn : choice.labelZh,
   })),
 )
+
 const explanation = computed(() => {
-  if (!card.value) {
-    return ''
-  }
+  if (!card.value) return ''
   return selectedLanguage.value === 'en' ? card.value.explanationEn : card.value.explanationZh
 })
+
 const reviewHintText = computed(() => {
-  if (!card.value) {
-    return ''
-  }
+  if (!card.value) return ''
   return selectedLanguage.value === 'en' ? card.value.reviewHintEn : card.value.reviewHintZh
 })
+
 const formattedCorrectRate = computed(() => `${Math.round((stats.value.correctRate ?? 0) * 100)}%`)
-const nextReviewText = computed(() => summary.value.nextReviewAt || t.value.notScheduled)
-const sessionModeText = computed(() => (reviewMode.value ? t.value.reviewSession : t.value.learnSession))
+const nextReviewText = computed(() => formatDisplayTime(summary.value.nextReviewAt, t.value.notScheduled))
+
 const correctAnswerLabel = computed(() => {
-  if (!feedback.value || !card.value) {
-    return ''
-  }
-
+  if (!feedback.value) return ''
   const matchingChoice = localizedChoices.value.find((choice) => choice.value === feedback.value.correctAnswer)
-  if (matchingChoice) {
-    return matchingChoice.label
-  }
-
-  if (feedback.value.correctAnswer === 'true') {
-    return t.value.trueLabel
-  }
-  if (feedback.value.correctAnswer === 'false') {
-    return t.value.falseLabel
-  }
+  if (matchingChoice) return matchingChoice.label
+  if (feedback.value.correctAnswer === 'true') return t.value.trueLabel
+  if (feedback.value.correctAnswer === 'false') return t.value.falseLabel
   return feedback.value.correctAnswer
 })
+
 const feedbackMessage = computed(() => {
-  if (!feedback.value) {
-    return ''
-  }
-  return selectedLanguage.value === 'en'
-    ? feedback.value.isCorrect
-      ? t.value.correctFeedback
-      : t.value.incorrectFeedback
-    : feedback.value.isCorrect
-      ? t.value.correctFeedback
-      : t.value.incorrectFeedback
+  if (!feedback.value) return ''
+  return feedback.value.isCorrect ? t.value.correctFeedback : t.value.incorrectFeedback
 })
 
 onMounted(async () => {
@@ -255,10 +220,22 @@ function resetStudyFlow() {
   selectedAnswer.value = ''
 }
 
+function formatDisplayTime(value, fallback) {
+  if (!value) return fallback
+
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return fallback
+
+  const year = parsed.getFullYear()
+  const month = `${parsed.getMonth() + 1}`.padStart(2, '0')
+  const day = `${parsed.getDate()}`.padStart(2, '0')
+  const hours = `${parsed.getHours()}`.padStart(2, '0')
+  const minutes = `${parsed.getMinutes()}`.padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}`
+}
+
 async function handleSubmit() {
-  if (!card.value || !selectedAnswer.value) {
-    return
-  }
+  if (!card.value || !selectedAnswer.value) return
 
   submitting.value = true
   const result = await submitAnswer({
@@ -330,9 +307,7 @@ async function handleNotificationSettingChange(field, value) {
 }
 
 async function handleLanguageChange(language) {
-  if (selectedLanguage.value === language) {
-    return
-  }
+  if (selectedLanguage.value === language) return
 
   try {
     changingLanguage.value = true
@@ -352,8 +327,8 @@ async function handleLanguageChange(language) {
   }
 }
 
-function summaryFallback(summary) {
-  return summary ?? { nextReviewAt: '', weakTopics: [] }
+function toggleSettings() {
+  settingsOpen.value = !settingsOpen.value
 }
 </script>
 
@@ -363,26 +338,31 @@ function summaryFallback(summary) {
       <div class="hero-copy">
         <p class="eyebrow">duolin-gogo</p>
         <h1>duolin-gogo</h1>
-        <p class="summary">
-          {{ t.summary }}
-        </p>
+        <p class="summary">{{ t.summary }}</p>
       </div>
-      <div class="language-toggle hero-toggle">
-        <button
-          :class="{ active: selectedLanguage === 'zh-TW' }"
-          :disabled="changingLanguage"
-          type="button"
-          @click="handleLanguageChange('zh-TW')"
-        >
-          zh-TW
-        </button>
-        <button
-          :class="{ active: selectedLanguage === 'en' }"
-          :disabled="changingLanguage"
-          type="button"
-          @click="handleLanguageChange('en')"
-        >
-          en
+
+      <div class="hero-actions">
+        <div class="language-toggle hero-toggle">
+          <button
+            :class="{ active: selectedLanguage === 'zh-TW' }"
+            :disabled="changingLanguage"
+            type="button"
+            @click="handleLanguageChange('zh-TW')"
+          >
+            zh-TW
+          </button>
+          <button
+            :class="{ active: selectedLanguage === 'en' }"
+            :disabled="changingLanguage"
+            type="button"
+            @click="handleLanguageChange('en')"
+          >
+            en
+          </button>
+        </div>
+
+        <button class="settings-button" type="button" @click="toggleSettings">
+          ⚙
         </button>
       </div>
     </section>
@@ -458,26 +438,63 @@ function summaryFallback(summary) {
       </div>
 
       <aside class="sidebar-column">
-        <section class="status-grid">
+        <section class="status-card lead-card">
+          <span class="label">{{ t.bilingualCards }}</span>
+          <strong>{{ t.nextReview }}</strong>
+          <p class="sidebar-time">{{ nextReviewText }}</p>
+        </section>
+
+        <section class="status-grid compact">
           <article class="status-card">
-            <span class="label">{{ t.contentMode }}</span>
-            <strong>{{ t.bilingualCards }}</strong>
+            <span class="label">{{ t.studiedToday }}</span>
+            <strong>{{ stats.studiedToday }}</strong>
           </article>
           <article class="status-card">
-            <span class="label">{{ t.languageMode }}</span>
-            <strong>{{ selectedLanguage }}</strong>
+            <span class="label">{{ t.correctRate }}</span>
+            <strong>{{ formattedCorrectRate }}</strong>
           </article>
           <article class="status-card">
-            <span class="label">{{ t.learningMode }}</span>
-            <strong>{{ t.tddMode }}</strong>
+            <span class="label">{{ t.reviewQueue }}</span>
+            <strong>{{ reviewQueue.length }}</strong>
           </article>
           <article class="status-card">
-            <span class="label">{{ t.sessionMode }}</span>
-            <strong>{{ sessionModeText }}</strong>
+            <span class="label">{{ t.nextReview }}</span>
+            <strong>{{ nextReviewText }}</strong>
           </article>
         </section>
 
-        <section class="study-card">
+        <section class="study-card sidebar-panel">
+          <div class="study-header">
+            <div>
+              <p class="label">{{ t.weakTopicsLabel }}</p>
+              <h2>{{ t.weakTopicsTitle }}</h2>
+            </div>
+          </div>
+
+          <div v-if="summary.weakTopics.length" class="weak-topics">
+            <article v-for="topic in summary.weakTopics" :key="topic.tag" class="topic-chip">
+              <strong>{{ topic.tag }}</strong>
+              <span>{{ Math.round(topic.accuracy * 100) }}% {{ t.accuracySuffix }}</span>
+            </article>
+          </div>
+          <p v-else class="explanation">{{ t.noWeakTopics }}</p>
+        </section>
+      </aside>
+    </section>
+
+    <div v-if="settingsOpen" class="settings-overlay" @click.self="toggleSettings">
+      <section class="settings-popout">
+        <div class="study-header">
+          <div>
+            <p class="label">{{ t.notificationSettings }}</p>
+            <h2>{{ t.settingsLabel }}</h2>
+          </div>
+          <button class="close-button" type="button" @click="toggleSettings">
+            {{ t.close }}
+          </button>
+        </div>
+
+        <section class="study-card inset-card">
           <div class="toolbar">
             <button class="toolbar-button" type="button" @click="handleSendTestNotification">
               {{ t.sendTestNotification }}
@@ -492,7 +509,7 @@ function summaryFallback(summary) {
           <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
         </section>
 
-        <section class="study-card">
+        <section class="study-card inset-card">
           <div class="study-header">
             <div>
               <p class="label">{{ t.notificationSettings }}</p>
@@ -529,43 +546,7 @@ function summaryFallback(summary) {
           </div>
         </section>
 
-        <section class="status-grid compact">
-          <article class="status-card">
-            <span class="label">{{ t.studiedToday }}</span>
-            <strong>{{ stats.studiedToday }}</strong>
-          </article>
-          <article class="status-card">
-            <span class="label">{{ t.correctRate }}</span>
-            <strong>{{ formattedCorrectRate }}</strong>
-          </article>
-          <article class="status-card">
-            <span class="label">{{ t.reviewQueue }}</span>
-            <strong>{{ reviewQueue.length }}</strong>
-          </article>
-          <article class="status-card">
-            <span class="label">{{ t.nextReview }}</span>
-            <strong>{{ nextReviewText }}</strong>
-          </article>
-        </section>
-
-        <section class="study-card">
-          <div class="study-header">
-            <div>
-              <p class="label">{{ t.weakTopicsLabel }}</p>
-              <h2>{{ t.weakTopicsTitle }}</h2>
-            </div>
-          </div>
-
-          <div v-if="summary.weakTopics.length" class="weak-topics">
-            <article v-for="topic in summary.weakTopics" :key="topic.tag" class="topic-chip">
-              <strong>{{ topic.tag }}</strong>
-              <span>{{ Math.round(topic.accuracy * 100) }}% {{ t.accuracySuffix }}</span>
-            </article>
-          </div>
-          <p v-else class="explanation">{{ t.noWeakTopics }}</p>
-        </section>
-
-        <section class="study-card">
+        <section class="study-card inset-card">
           <div class="study-header">
             <div>
               <p class="label">{{ t.diagnosticsLabel }}</p>
@@ -582,7 +563,7 @@ function summaryFallback(summary) {
           </div>
           <p v-else class="explanation">{{ t.noDiagnostics }}</p>
         </section>
-      </aside>
-    </section>
+      </section>
+    </div>
   </main>
 </template>

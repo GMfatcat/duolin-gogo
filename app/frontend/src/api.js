@@ -83,7 +83,14 @@ export async function submitAnswer({ cardId, sessionType, selectedAnswer, shownA
     cardId,
     isCorrect,
     correctAnswer: 'true',
-    feedback: preferredLanguage === 'zh-TW' ? (isCorrect ? '答對了。' : '再想一下。') : isCorrect ? 'Correct.' : 'Not quite.',
+    feedback:
+      preferredLanguage === 'zh-TW'
+        ? isCorrect
+          ? '答對了。'
+          : '再想一下。'
+        : isCorrect
+          ? 'Correct.'
+          : 'Not quite.',
     reviewHint:
       preferredLanguage === 'zh-TW'
         ? fallbackDashboard.currentCard.reviewHintZh
