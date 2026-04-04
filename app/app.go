@@ -52,6 +52,9 @@ type NotificationSettings struct {
 type ScheduleSettings struct {
 	NotificationIntervalMinutes int    `json:"notificationIntervalMinutes"`
 	ReviewTime                  string `json:"reviewTime"`
+	ActiveHoursEnabled          bool   `json:"activeHoursEnabled"`
+	ActiveHoursStart            string `json:"activeHoursStart"`
+	ActiveHoursEnd              string `json:"activeHoursEnd"`
 }
 
 type AnswerChoice struct {
@@ -183,6 +186,9 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		ScheduleSettings: ScheduleSettings{
 			NotificationIntervalMinutes: normalizeNotificationInterval(a.mustLoadSettings().NotificationIntervalMinutes),
 			ReviewTime:                  normalizeReviewTime(a.mustLoadSettings().ReviewSchedule.Time),
+			ActiveHoursEnabled:          a.mustLoadSettings().ActiveHours.Enabled,
+			ActiveHoursStart:            normalizeClockTime(a.mustLoadSettings().ActiveHours.Start, "09:00"),
+			ActiveHoursEnd:              normalizeClockTime(a.mustLoadSettings().ActiveHours.End, "22:00"),
 		},
 		CurrentCard: currentCard,
 		ReviewQueue: reviewQueue,
@@ -390,7 +396,7 @@ func (a *App) UpdatePreferredLanguage(language string) (ActionStatus, error) {
 	return ActionStatus{Message: "Language updated."}, nil
 }
 
-func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime string) (ActionStatus, error) {
+func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime string, activeHoursEnabled bool, activeHoursStart string, activeHoursEnd string) (ActionStatus, error) {
 	path := filepath.Join(a.dataDir, "settings.json")
 	file, err := settings.Load(path)
 	if err != nil {
@@ -399,6 +405,9 @@ func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime
 
 	file.NotificationIntervalMinutes = normalizeNotificationInterval(notificationIntervalMinutes)
 	file.ReviewSchedule.Time = normalizeReviewTime(reviewTime)
+	file.ActiveHours.Enabled = activeHoursEnabled
+	file.ActiveHours.Start = normalizeClockTime(activeHoursStart, "09:00")
+	file.ActiveHours.End = normalizeClockTime(activeHoursEnd, "22:00")
 
 	if err := writeSettingsFile(path, file); err != nil {
 		return ActionStatus{}, err
@@ -502,14 +511,18 @@ func normalizeNotificationInterval(minutes int) int {
 }
 
 func normalizeReviewTime(value string) string {
+	return normalizeClockTime(value, "21:00")
+}
+
+func normalizeClockTime(value string, fallback string) string {
 	if len(value) != 5 || value[2] != ':' {
-		return "21:00"
+		return fallback
 	}
 
 	hour := value[:2]
 	minute := value[3:]
 	if hour < "00" || hour > "23" || minute < "00" || minute > "59" {
-		return "21:00"
+		return fallback
 	}
 
 	return value

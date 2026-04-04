@@ -396,7 +396,7 @@ func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
 	app.schedulerState.LastNotificationAt = &previous
 	app.schedulerState.SnoozedUntil = &snoozedUntil
 
-	status, err := app.UpdateScheduleSettings(30, "20:30")
+	status, err := app.UpdateScheduleSettings(30, "20:30", true, "08:30", "23:30")
 	if err != nil {
 		t.Fatalf("update schedule settings failed: %v", err)
 	}
@@ -415,6 +415,15 @@ func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
 	}
 	if dashboard.ScheduleSettings.ReviewTime != "20:30" {
 		t.Fatalf("expected review time 20:30, got %s", dashboard.ScheduleSettings.ReviewTime)
+	}
+	if !dashboard.ScheduleSettings.ActiveHoursEnabled {
+		t.Fatal("expected active hours to stay enabled")
+	}
+	if dashboard.ScheduleSettings.ActiveHoursStart != "08:30" {
+		t.Fatalf("expected active hours start 08:30, got %s", dashboard.ScheduleSettings.ActiveHoursStart)
+	}
+	if dashboard.ScheduleSettings.ActiveHoursEnd != "23:30" {
+		t.Fatalf("expected active hours end 23:30, got %s", dashboard.ScheduleSettings.ActiveHoursEnd)
 	}
 
 	if app.schedulerState.LastNotificationAt == nil {

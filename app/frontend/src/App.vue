@@ -15,58 +15,63 @@ import {
 
 const translations = {
   'zh-TW': {
-    summary: '把你的雙語 Markdown 筆記變成定時提醒、微學習卡片與複習節奏。',
+    summary: '把筆記變成定時提醒、微課與複習節奏。',
     reviewCard: '複習卡',
     nextCard: '下一張卡',
-    reviewSessionActive: '目前正在複習，佇列數量：',
-    learnPhase: '閱讀知識',
+    reviewSessionActive: '複習模式進行中，待答題數：',
+    learnPhase: '先看觀念',
     answerPhase: '開始作答',
     feedbackPhase: '作答回饋',
     quickQuestion: '快速問題',
     submitAnswer: '送出答案',
-    checking: '判斷中...',
-    nextStep: '下一題',
+    checking: '檢查中...',
+    nextStep: '下一張卡',
     correctPrefix: '正確答案：',
-    noCardsLabel: '目前沒有可用卡片',
-    noCardsTitle: '知識匯入需要處理',
-    noCardsBody: '請新增有效的雙語知識卡，或透過右上角設定檢查匯入問題。',
+    noCardsLabel: '目前沒有卡片',
+    noCardsTitle: '知識匯入需要留意',
+    noCardsBody: '請加入有效的雙語知識卡，或從設定面板查看匯入問題。',
     studiedToday: '今日作答',
     correctRate: '正答率',
     reviewQueue: '複習佇列',
     nextReview: '下次複習',
-    notScheduled: '尚未排程',
+    notScheduled: '尚未安排',
     weakTopicsLabel: '弱勢主題',
-    weakTopicsTitle: '概念複習重點',
-    noWeakTopics: '目前還沒有弱勢主題，繼續學習後會逐漸出現。',
-    notificationSettings: '通知設定',
-    hookMode: 'Hook 模式',
+    weakTopicsTitle: '建議多看幾次',
+    noWeakTopics: '目前沒有特別弱勢的主題，繼續作答就會慢慢產生洞察。',
+    notificationSettings: '設定',
+    hookMode: '通知 hook',
     style: '風格',
     titleSource: '標題來源',
-    scheduleLabel: '排程設定',
+    scheduleLabel: '排程',
     reviewTime: '複習時間',
     intervalMinutes: '通知間隔（分鐘）',
-    diagnosticsLabel: '匯入診斷',
-    diagnosticsTitle: '知識檔案健康度',
+    activeHours: '推送時段',
+    activeHoursEnabled: '限制在這段時間內推送',
+    activeHoursStart: '開始時間',
+    activeHoursEnd: '結束時間',
+    diagnosticsTitle: '匯入診斷',
     noDiagnostics: '目前沒有匯入問題。',
     importHealthOk: '匯入正常',
-    importHealthIssues: '匯入問題',
+    importHealthIssues: '筆匯入問題',
     sendTestNotification: '送出測試通知',
-    snoozeNotifications: '稍後 15 分鐘',
+    snoozeNotifications: '延後 15 分鐘',
     rescanKnowledge: '重新掃描知識庫',
     loading: '載入中',
-    preparingCard: '正在準備下一張卡片...',
-    shellLanguageUpdated: 'Language updated.',
+    preparingCard: '正在準備下一張卡...',
+    shellLanguageUpdated: '語言已更新。',
     correctFeedback: '答對了。',
-    incorrectFeedback: '再想一下。',
+    incorrectFeedback: '這題還差一點。',
     trueLabel: '是',
     falseLabel: '否',
-    accuracySuffix: '正確率',
+    accuracySuffix: '正答率',
     settingsLabel: '設定',
     close: '關閉',
     saveSchedule: '儲存排程',
+    openSettings: '開啟設定',
+    toolsLabel: '工具',
   },
   en: {
-    summary: 'Turn Markdown notes into timely study nudges and review loops.',
+    summary: 'Turn notes into study nudges and review loops.',
     reviewCard: 'Review card',
     nextCard: 'Next card',
     reviewSessionActive: 'Review session active. Queue size:',
@@ -77,10 +82,10 @@ const translations = {
     submitAnswer: 'Submit answer',
     checking: 'Checking...',
     nextStep: 'Next card',
-    correctPrefix: 'Correct answer:',
+    correctPrefix: 'Correct answer: ',
     noCardsLabel: 'No cards available',
     noCardsTitle: 'Knowledge import needs attention',
-    noCardsBody: 'Add valid bilingual knowledge cards, or inspect import issues from the settings popout.',
+    noCardsBody: 'Add valid bilingual knowledge cards, or inspect import issues from the settings panel.',
     studiedToday: 'Studied today',
     correctRate: 'Correct rate',
     reviewQueue: 'Review queue',
@@ -89,15 +94,18 @@ const translations = {
     weakTopicsLabel: 'Weak topics',
     weakTopicsTitle: 'Concepts to revisit',
     noWeakTopics: 'No weak topics yet. Keep studying to generate insights.',
-    notificationSettings: 'Notification settings',
-    hookMode: 'Hook mode',
+    notificationSettings: 'Settings',
+    hookMode: 'Notification hooks',
     style: 'Style',
     titleSource: 'Title source',
-    scheduleLabel: 'Schedule settings',
+    scheduleLabel: 'Schedule',
     reviewTime: 'Review time',
     intervalMinutes: 'Notification interval (minutes)',
-    diagnosticsLabel: 'Import diagnostics',
-    diagnosticsTitle: 'Knowledge file health',
+    activeHours: 'Active hours',
+    activeHoursEnabled: 'Only notify during this time range',
+    activeHoursStart: 'Start time',
+    activeHoursEnd: 'End time',
+    diagnosticsTitle: 'Import diagnostics',
     noDiagnostics: 'No import issues detected.',
     importHealthOk: 'import OK',
     importHealthIssues: 'import issues',
@@ -115,6 +123,8 @@ const translations = {
     settingsLabel: 'Settings',
     close: 'Close',
     saveSchedule: 'Save schedule',
+    openSettings: 'Open settings',
+    toolsLabel: 'Tools',
   },
 }
 
@@ -133,6 +143,9 @@ const settingsOpen = ref(false)
 const scheduleForm = ref({
   notificationIntervalMinutes: 10,
   reviewTime: '21:00',
+  activeHoursEnabled: true,
+  activeHoursStart: '09:00',
+  activeHoursEnd: '22:00',
 })
 let unsubscribe = null
 
@@ -146,7 +159,13 @@ const notificationSettings = computed(() =>
   dashboard.value?.notificationSettings ?? { style: 'playful', titleMode: 'prefer_manual' },
 )
 const scheduleSettings = computed(() =>
-  dashboard.value?.scheduleSettings ?? { notificationIntervalMinutes: 10, reviewTime: '21:00' },
+  dashboard.value?.scheduleSettings ?? {
+    notificationIntervalMinutes: 10,
+    reviewTime: '21:00',
+    activeHoursEnabled: true,
+    activeHoursStart: '09:00',
+    activeHoursEnd: '22:00',
+  },
 )
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
 
@@ -156,7 +175,9 @@ const currentPhaseLabel = computed(() => {
   return t.value.learnPhase
 })
 
-const titleText = computed(() => (card.value ? (selectedLanguage.value === 'en' ? card.value.titleEn : card.value.titleZh) : ''))
+const titleText = computed(() =>
+  card.value ? (selectedLanguage.value === 'en' ? card.value.titleEn : card.value.titleZh) : '',
+)
 const questionText = computed(() =>
   card.value ? (selectedLanguage.value === 'en' ? card.value.questionTextEn : card.value.questionTextZh) : '',
 )
@@ -185,6 +206,12 @@ const diagnosticsSummary = computed(() => {
   }
   return `(${importErrors.value.length} ${t.value.importHealthIssues})`
 })
+const activeHoursSummary = computed(() => {
+  if (!scheduleForm.value.activeHoursEnabled) {
+    return t.value.notScheduled
+  }
+  return `${scheduleForm.value.activeHoursStart} - ${scheduleForm.value.activeHoursEnd}`
+})
 
 const correctAnswerLabel = computed(() => {
   if (!feedback.value) return ''
@@ -195,7 +222,9 @@ const correctAnswerLabel = computed(() => {
   return feedback.value.correctAnswer
 })
 
-const feedbackMessage = computed(() => (feedback.value ? (feedback.value.isCorrect ? t.value.correctFeedback : t.value.incorrectFeedback) : ''))
+const feedbackMessage = computed(() =>
+  feedback.value ? (feedback.value.isCorrect ? t.value.correctFeedback : t.value.incorrectFeedback) : '',
+)
 
 onMounted(async () => {
   await refreshDashboard()
@@ -224,6 +253,9 @@ async function refreshDashboard() {
   scheduleForm.value = {
     notificationIntervalMinutes: scheduleSettings.value.notificationIntervalMinutes,
     reviewTime: scheduleSettings.value.reviewTime,
+    activeHoursEnabled: scheduleSettings.value.activeHoursEnabled,
+    activeHoursStart: scheduleSettings.value.activeHoursStart,
+    activeHoursEnd: scheduleSettings.value.activeHoursEnd,
   }
   resetStudyFlow()
   loading.value = false
@@ -322,16 +354,17 @@ async function handleNotificationSettingChange(field, value) {
 async function handleScheduleSave() {
   try {
     savingScheduleSettings.value = true
-    const result = await updateScheduleSettings({
+    const nextSettings = {
       notificationIntervalMinutes: Number(scheduleForm.value.notificationIntervalMinutes),
       reviewTime: scheduleForm.value.reviewTime,
-    })
+      activeHoursEnabled: scheduleForm.value.activeHoursEnabled,
+      activeHoursStart: scheduleForm.value.activeHoursStart,
+      activeHoursEnd: scheduleForm.value.activeHoursEnd,
+    }
+    const result = await updateScheduleSettings(nextSettings)
     dashboard.value = {
       ...dashboard.value,
-      scheduleSettings: {
-        notificationIntervalMinutes: Number(scheduleForm.value.notificationIntervalMinutes),
-        reviewTime: scheduleForm.value.reviewTime,
-      },
+      scheduleSettings: nextSettings,
     }
     actionMessage.value = result.message
   } catch (error) {
@@ -378,12 +411,31 @@ function toggleSettings() {
 
       <div class="hero-actions">
         <div class="language-toggle hero-toggle">
-          <button :class="{ active: selectedLanguage === 'zh-TW' }" :disabled="changingLanguage" type="button" @click="handleLanguageChange('zh-TW')">zh-TW</button>
-          <button :class="{ active: selectedLanguage === 'en' }" :disabled="changingLanguage" type="button" @click="handleLanguageChange('en')">en</button>
+          <button
+            :class="{ active: selectedLanguage === 'zh-TW' }"
+            :disabled="changingLanguage"
+            type="button"
+            @click="handleLanguageChange('zh-TW')"
+          >
+            zh-TW
+          </button>
+          <button
+            :class="{ active: selectedLanguage === 'en' }"
+            :disabled="changingLanguage"
+            type="button"
+            @click="handleLanguageChange('en')"
+          >
+            en
+          </button>
         </div>
 
-        <button class="settings-button" type="button" @click="toggleSettings" aria-label="settings">
-          S
+        <button class="settings-button" type="button" :aria-label="t.openSettings" @click="toggleSettings">
+          <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.83 14.52a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.39 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.58-.23 1.13-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"
+              fill="currentColor"
+            />
+          </svg>
         </button>
       </div>
     </section>
@@ -501,67 +553,96 @@ function toggleSettings() {
           <button class="close-button" type="button" @click="toggleSettings">{{ t.close }}</button>
         </div>
 
-        <section class="study-card inset-card">
-          <div class="toolbar">
-            <button class="toolbar-button" type="button" @click="handleSendTestNotification">{{ t.sendTestNotification }}</button>
-            <button class="toolbar-button secondary" type="button" @click="handleSnooze">{{ t.snoozeNotifications }}</button>
-            <button class="toolbar-button secondary" type="button" @click="handleRescanKnowledge">{{ t.rescanKnowledge }}</button>
-          </div>
-          <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
-        </section>
-
-        <section class="study-card inset-card">
-          <div class="study-header">
-            <div>
-              <p class="label">{{ t.notificationSettings }}</p>
-              <h2>{{ t.hookMode }}</h2>
+        <div class="settings-layout">
+          <section class="study-card inset-card tools-panel">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ t.toolsLabel }}</p>
+                <h2>{{ t.settingsLabel }}</h2>
+              </div>
             </div>
-          </div>
 
-          <div class="settings-grid">
-            <label class="settings-field">
-              <span>{{ t.style }}</span>
-              <select :value="notificationSettings.style" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('style', $event.target.value)">
-                <option value="safe">safe</option>
-                <option value="playful">playful</option>
-                <option value="aggressive">aggressive</option>
-                <option value="chaotic">chaotic</option>
-              </select>
-            </label>
-
-            <label class="settings-field">
-              <span>{{ t.titleSource }}</span>
-              <select :value="notificationSettings.titleMode" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('titleMode', $event.target.value)">
-                <option value="prefer_manual">prefer_manual</option>
-                <option value="prefer_generated">prefer_generated</option>
-              </select>
-            </label>
-          </div>
-        </section>
-
-        <section class="study-card inset-card">
-          <div class="study-header">
-            <div>
-              <p class="label">{{ t.scheduleLabel }}</p>
-              <h2>{{ t.scheduleLabel }}</h2>
+            <div class="toolbar">
+              <button class="toolbar-button" type="button" @click="handleSendTestNotification">{{ t.sendTestNotification }}</button>
+              <button class="toolbar-button secondary" type="button" @click="handleSnooze">{{ t.snoozeNotifications }}</button>
+              <button class="toolbar-button secondary" type="button" @click="handleRescanKnowledge">{{ t.rescanKnowledge }}</button>
             </div>
-          </div>
+            <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
+          </section>
 
-          <div class="settings-grid">
-            <label class="settings-field">
-              <span>{{ t.intervalMinutes }}</span>
-              <input v-model="scheduleForm.notificationIntervalMinutes" type="number" min="5" max="120">
-            </label>
-            <label class="settings-field">
-              <span>{{ t.reviewTime }}</span>
-              <input v-model="scheduleForm.reviewTime" type="time">
-            </label>
-          </div>
+          <section class="study-card inset-card">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ t.notificationSettings }}</p>
+                <h2>{{ t.hookMode }}</h2>
+              </div>
+            </div>
 
-          <button class="phase-button save-button" type="button" :disabled="savingScheduleSettings" @click="handleScheduleSave">
-            {{ t.saveSchedule }}
-          </button>
-        </section>
+            <div class="settings-grid">
+              <label class="settings-field">
+                <span>{{ t.style }}</span>
+                <select :value="notificationSettings.style" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('style', $event.target.value)">
+                  <option value="safe">safe</option>
+                  <option value="playful">playful</option>
+                  <option value="aggressive">aggressive</option>
+                  <option value="chaotic">chaotic</option>
+                </select>
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.titleSource }}</span>
+                <select :value="notificationSettings.titleMode" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('titleMode', $event.target.value)">
+                  <option value="prefer_manual">prefer_manual</option>
+                  <option value="prefer_generated">prefer_generated</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="study-card inset-card">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ t.scheduleLabel }}</p>
+                <h2>{{ t.scheduleLabel }}</h2>
+              </div>
+              <span class="phase-pill schedule-pill">{{ activeHoursSummary }}</span>
+            </div>
+
+            <div class="settings-grid schedule-grid">
+              <label class="settings-field">
+                <span>{{ t.intervalMinutes }}</span>
+                <input v-model="scheduleForm.notificationIntervalMinutes" type="number" min="5" max="120">
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.reviewTime }}</span>
+                <input v-model="scheduleForm.reviewTime" type="time">
+              </label>
+
+              <label class="settings-field settings-field-wide checkbox-field">
+                <span>{{ t.activeHours }}</span>
+                <label class="toggle-line">
+                  <input v-model="scheduleForm.activeHoursEnabled" type="checkbox">
+                  <span>{{ t.activeHoursEnabled }}</span>
+                </label>
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.activeHoursStart }}</span>
+                <input v-model="scheduleForm.activeHoursStart" type="time" :disabled="!scheduleForm.activeHoursEnabled">
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.activeHoursEnd }}</span>
+                <input v-model="scheduleForm.activeHoursEnd" type="time" :disabled="!scheduleForm.activeHoursEnabled">
+              </label>
+            </div>
+
+            <button class="phase-button save-button" type="button" :disabled="savingScheduleSettings" @click="handleScheduleSave">
+              {{ t.saveSchedule }}
+            </button>
+          </section>
+        </div>
 
         <details v-if="importErrors.length" class="diagnostics-disclosure">
           <summary>{{ t.diagnosticsTitle }}</summary>

@@ -193,6 +193,9 @@ export namespace main {
 	export class ScheduleSettings {
 	    notificationIntervalMinutes: number;
 	    reviewTime: string;
+	    activeHoursEnabled: boolean;
+	    activeHoursStart: string;
+	    activeHoursEnd: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new ScheduleSettings(source);
@@ -202,6 +205,9 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.notificationIntervalMinutes = source["notificationIntervalMinutes"];
 	        this.reviewTime = source["reviewTime"];
+	        this.activeHoursEnabled = source["activeHoursEnabled"];
+	        this.activeHoursStart = source["activeHoursStart"];
+	        this.activeHoursEnd = source["activeHoursEnd"];
 	    }
 	}
 	export class NotificationSettings {

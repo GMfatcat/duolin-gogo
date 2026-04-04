@@ -392,4 +392,4 @@ TDD focus:
 
 Current status:
 
-- in_progress
+- completed

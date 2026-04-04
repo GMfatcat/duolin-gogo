@@ -56,5 +56,6 @@ Next target:
 - widen the settings popout and lay out controls horizontally enough to avoid routine vertical scrolling on desktop
 - summarize import health inline in the settings header, with expandable details only when there are actual issues
 - replace raw ISO timestamps in the visible UI with local `YYYY-MM-DD HH:mm` formatting
+- keep active-hours scheduling editable from the same settings popout so notification timing can be debugged without hand-editing JSON
 - tighten large-screen density so the app feels more like a desktop tool than a landing page
 - reduce layout shift when switching hero summary copy between Chinese and English

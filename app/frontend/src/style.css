@@ -31,7 +31,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 1480px;
+  max-width: 1500px;
   margin: 0 auto;
 }
 
@@ -46,8 +46,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-width: 52ch;
-  min-height: 112px;
+  max-width: 46ch;
+  min-height: 100px;
 }
 
 .eyebrow {
@@ -68,7 +68,8 @@ body {
   margin: 0;
   color: #d4dde5;
   font-size: 0.98rem;
-  line-height: 1.6;
+  line-height: 1.55;
+  min-height: 3.2em;
 }
 
 .hero-actions {
@@ -79,7 +80,7 @@ body {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.75fr);
+  grid-template-columns: minmax(0, 1.72fr) minmax(300px, 0.78fr);
   gap: 20px;
   align-items: start;
 }
@@ -111,16 +112,6 @@ body {
   min-height: 470px;
 }
 
-.lead-card {
-  background: linear-gradient(180deg, rgba(18, 33, 47, 0.95), rgba(11, 20, 28, 0.88));
-}
-
-.sidebar-time {
-  margin: 8px 0 0;
-  color: #e9c46a;
-  font-size: 1.05rem;
-}
-
 .sidebar-panel {
   background: rgba(11, 20, 28, 0.74);
 }
@@ -146,6 +137,10 @@ body {
   background: rgba(233, 196, 106, 0.12);
   color: #f7f3e8;
   font-size: 0.9rem;
+}
+
+.schedule-pill {
+  color: #e9c46a;
 }
 
 .callout {
@@ -226,13 +221,19 @@ body {
 }
 
 .settings-button {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(28, 51, 69, 0.9);
   color: #f7f3e8;
-  font-size: 0.95rem;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .close-button {
@@ -309,6 +310,7 @@ body {
 
 .review-highlight strong {
   color: #e9c46a;
+  font-size: 1.06rem;
 }
 
 .weak-topics {
@@ -335,14 +337,14 @@ body {
   position: fixed;
   inset: 0;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-start;
   padding: 24px;
   background: rgba(4, 10, 15, 0.46);
 }
 
 .settings-popout {
-  width: min(560px, calc(100vw - 32px));
+  width: min(980px, calc(100vw - 32px));
   max-height: calc(100vh - 48px);
   overflow: auto;
   padding: 18px;
@@ -353,6 +355,17 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.tools-panel {
+  grid-column: 1 / -1;
 }
 
 .inset-card {
@@ -389,7 +402,11 @@ body {
 .settings-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.schedule-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .settings-field {
@@ -399,15 +416,24 @@ body {
   color: #d4dde5;
 }
 
-.settings-field select {
-  padding: 10px 12px;
-  border: 1px solid rgba(233, 196, 106, 0.18);
-  border-radius: 14px;
-  background: rgba(28, 51, 69, 0.7);
-  color: #f7f3e8;
-  font: inherit;
+.settings-field-wide {
+  grid-column: 1 / -1;
 }
 
+.checkbox-field {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(233, 196, 106, 0.18);
+  background: rgba(28, 51, 69, 0.45);
+}
+
+.toggle-line {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.settings-field select,
 .settings-field input {
   padding: 10px 12px;
   border: 1px solid rgba(233, 196, 106, 0.18);
@@ -465,6 +491,10 @@ body {
   .study-card.emphasis {
     min-height: 0;
   }
+
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {
@@ -481,7 +511,10 @@ body {
     justify-content: space-between;
   }
 
-  .status-grid {
+  .status-grid,
+  .settings-grid,
+  .schedule-grid,
+  .toolbar {
     grid-template-columns: 1fr;
   }
 
@@ -491,9 +524,5 @@ body {
 
   .settings-overlay {
     padding: 12px;
-  }
-
-  .toolbar {
-    grid-template-columns: 1fr;
   }
 }
