@@ -37,6 +37,45 @@ func TestAppInfo(t *testing.T) {
 	}
 }
 
+func TestDefaultAppPathsFindsRepoRootFromExecutableTree(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "knowledge"), 0o755); err != nil {
+		t.Fatalf("mkdir knowledge failed: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "data"), 0o755); err != nil {
+		t.Fatalf("mkdir data failed: %v", err)
+	}
+
+	executablePath := filepath.Join(root, "app", "build", "bin", "app.exe")
+	knowledgeDir, dataDir := defaultAppPaths(func() (string, error) {
+		return executablePath, nil
+	}, func() (string, error) {
+		return filepath.Join(root, "app", "build", "bin"), nil
+	})
+
+	if knowledgeDir != filepath.Join(root, "knowledge") {
+		t.Fatalf("unexpected knowledge dir: %s", knowledgeDir)
+	}
+	if dataDir != filepath.Join(root, "data") {
+		t.Fatalf("unexpected data dir: %s", dataDir)
+	}
+}
+
+func TestDefaultAppPathsFallsBackToRelativePaths(t *testing.T) {
+	knowledgeDir, dataDir := defaultAppPaths(func() (string, error) {
+		return "", os.ErrNotExist
+	}, func() (string, error) {
+		return "", os.ErrNotExist
+	})
+
+	if knowledgeDir != filepath.Clean(filepath.Join("..", "knowledge")) {
+		t.Fatalf("unexpected fallback knowledge dir: %s", knowledgeDir)
+	}
+	if dataDir != filepath.Clean(filepath.Join("..", "data")) {
+		t.Fatalf("unexpected fallback data dir: %s", dataDir)
+	}
+}
+
 func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 	app := newTestApp(t)
 

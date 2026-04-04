@@ -89,7 +89,8 @@ type ActionStatus struct {
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return NewAppWithPaths(filepath.Clean(filepath.Join("..", "knowledge")), filepath.Clean(filepath.Join("..", "data")))
+	knowledgeDir, dataDir := defaultAppPaths(os.Executable, os.Getwd)
+	return NewAppWithPaths(knowledgeDir, dataDir)
 }
 
 func NewAppWithPaths(knowledgeDir, dataDir string) *App {
@@ -483,4 +484,59 @@ func (a *App) revealWindow() {
 	runtime.WindowSetAlwaysOnTop(a.ctx, true)
 	time.Sleep(150 * time.Millisecond)
 	runtime.WindowSetAlwaysOnTop(a.ctx, false)
+}
+
+func defaultAppPaths(executablePathFunc func() (string, error), workingDirFunc func() (string, error)) (string, string) {
+	const (
+		knowledgeName = "knowledge"
+		dataName      = "data"
+	)
+
+	fallbackKnowledge := filepath.Clean(filepath.Join("..", knowledgeName))
+	fallbackData := filepath.Clean(filepath.Join("..", dataName))
+
+	searchRoots := []string{}
+
+	if executablePath, err := executablePathFunc(); err == nil && executablePath != "" {
+		searchRoots = append(searchRoots, filepath.Dir(executablePath))
+	}
+
+	if workingDir, err := workingDirFunc(); err == nil && workingDir != "" {
+		searchRoots = append(searchRoots, workingDir)
+	}
+
+	for _, root := range searchRoots {
+		if knowledgeDir, dataDir, ok := findResourceDirs(root, knowledgeName, dataName); ok {
+			return knowledgeDir, dataDir
+		}
+	}
+
+	return fallbackKnowledge, fallbackData
+}
+
+func findResourceDirs(startDir string, knowledgeName string, dataName string) (string, string, bool) {
+	current := filepath.Clean(startDir)
+
+	for {
+		knowledgeDir := filepath.Join(current, knowledgeName)
+		dataDir := filepath.Join(current, dataName)
+
+		if isDirectory(knowledgeDir) && isDirectory(dataDir) {
+			return knowledgeDir, dataDir, true
+		}
+
+		parent := filepath.Dir(current)
+		if parent == current {
+			return "", "", false
+		}
+		current = parent
+	}
+}
+
+func isDirectory(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
 }
