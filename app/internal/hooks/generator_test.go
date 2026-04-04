@@ -7,7 +7,7 @@ import (
 	"duolin-gogo/internal/cards"
 )
 
-func TestGenerateUsesMetaphorAndStyleDeterministically(t *testing.T) {
+func TestGeneratePlayfulUsesMetaphorDeterministically(t *testing.T) {
 	card := cards.Card{
 		ID:             "git-fetch-basic",
 		TitleZH:        "git fetch 的用途",
@@ -30,6 +30,44 @@ func TestGenerateUsesMetaphorAndStyleDeterministically(t *testing.T) {
 	}
 	if !strings.Contains(body, "git fetch") {
 		t.Fatalf("expected card question/body context, got %q", body)
+	}
+}
+
+func TestGenerateAggressiveUsesComparisonWhenAvailable(t *testing.T) {
+	card := cards.Card{
+		ID:             "git-pull-composition",
+		TitleZH:        "git pull 的組成",
+		TitleEN:        "Git Pull",
+		QuestionTextZH: "`git pull` 通常等於什麼？",
+		QuestionTextEN: "What is `git pull` usually made of?",
+		Tags:           []string{"git", "remote"},
+		ConfusionWith:  []string{"git-fetch-basic"},
+		HookStyleTags:  []string{"comparison", "misunderstood"},
+	}
+
+	title, _ := Generate(card, "en", "aggressive")
+
+	if !strings.Contains(strings.ToLower(title), "fetch basic") && !strings.Contains(strings.ToLower(title), "fetch") {
+		t.Fatalf("expected comparison-oriented aggressive title, got %q", title)
+	}
+}
+
+func TestGenerateChaoticFeelsMoreHeadlineLike(t *testing.T) {
+	card := cards.Card{
+		ID:             "git-checkout-legacy",
+		TitleZH:        "git checkout 的舊式用途",
+		TitleEN:        "Git Checkout",
+		QuestionTextZH: "`git checkout` 可以做不只一件事。",
+		QuestionTextEN: "`git checkout` can do more than one job.",
+		Tags:           []string{"git", "branches"},
+		MetaphorSeed:   []string{"瑞士刀"},
+		HookStyleTags:  []string{"chaotic", "misunderstood"},
+	}
+
+	title, _ := Generate(card, "zh-TW", "chaotic")
+
+	if !strings.Contains(title, "瑞士刀") && !strings.Contains(title, "事故") && !strings.Contains(title, "心測") {
+		t.Fatalf("expected headline-like chaotic title, got %q", title)
 	}
 }
 
