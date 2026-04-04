@@ -403,6 +403,7 @@ Goal:
 Deliverables:
 
 - more Git cards beyond the current baseline deck
+- current expansion set now includes `clone`, `init`, `branch`, `log`, `reset`, and `diff`
 - authoring-oriented validation for `knowledge/` files
 - preview-friendly card diagnostics for missing bilingual fields
 - clearer import feedback for malformed card content

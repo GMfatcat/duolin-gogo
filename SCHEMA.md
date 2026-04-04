@@ -16,6 +16,12 @@ knowledge/
   git/
     rebase.md
     cherry-pick.md
+    clone.md
+    init.md
+    branch.md
+    log.md
+    reset.md
+    diff.md
 
 data/
   settings.json
