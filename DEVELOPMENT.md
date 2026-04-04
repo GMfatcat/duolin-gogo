@@ -50,6 +50,7 @@ Current completed milestone:
 
 Next target:
 
-- refresh the desktop study flow with a two-column layout
-- add global shell-level i18n for `zh-TW` and `en`
-- convert the study card into a staged `Learn -> Answer -> Feedback` flow with explicit next-step controls
+- simplify the main sidebar so it only shows answer-related stats and weak topics
+- move utility controls, hook settings, and import diagnostics into a top-right settings popout
+- replace raw ISO timestamps in the visible UI with local `YYYY-MM-DD HH:mm` formatting
+- tighten large-screen density so the app feels more like a desktop tool than a landing page

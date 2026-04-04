@@ -373,13 +373,18 @@ Deliverables:
 - shell copy localized consistently except for `duolin-gogo`
 - staged study flow with `Learn`, `Answer`, and `Feedback` states
 - explicit next-step action after answer submission
+- settings icon plus popout for utility actions, hook controls, and import diagnostics
+- human-readable local date/time formatting in the UI
+- tighter density on large screens
 
 TDD focus:
 
 - frontend tests for global language switching across shell copy
 - component tests for staged visibility of explanation, question, and feedback
 - interaction tests for answer submission followed by `Next card`
+- component tests for settings popout visibility and sidebar simplification
+- formatting tests for visible date/time strings
 
 Current status:
 
-- planned
+- in_progress

@@ -414,6 +414,7 @@ Responsibilities:
 - global language toggle
 - staged `Learn -> Answer -> Feedback` flow
 - left-heavy study area with explicit next-step controls
+- human-readable local time formatting instead of raw ISO strings
 
 ### Review View
 
@@ -435,7 +436,9 @@ Recommended direction:
 
 - two-column layout
 - left column reserved for the active study flow
-- right column reserved for progress, weak topics, next review, diagnostics, and notification controls
+- right column reserved for answer-related stats and weak topics
+- a compact settings trigger should live in the top-right chrome next to the global language toggle
+- utility controls and diagnostics should live in a settings popout instead of the main sidebar
 
 Recommended study-state model:
 
@@ -448,6 +451,17 @@ Recommended i18n rule:
 - `duolin-gogo` remains fixed
 - all other shell copy should follow a global UI language setting
 - card content and notification language should default to that same global setting
+
+Recommended density rule:
+
+- large screens should feel denser and more tool-like, not like a stretched landing page
+- reduce hero weight and oversized spacing
+- keep the main study card visually dominant while making the sidebar lighter
+
+Recommended time-format rule:
+
+- use local human-readable timestamps such as `2026-04-05 21:00`
+- do not expose raw ISO date strings in visible UI copy
 ## 18. Card Selection Logic For MVP
 
 Use a simple priority model.

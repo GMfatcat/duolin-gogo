@@ -193,13 +193,16 @@ Question types deferred until later:
 - Card content language should follow the current global language by default
 - Layout should prefer a two-column structure:
   - left side for the active study flow
-  - right side for dashboard, review timing, diagnostics, and settings context
+  - right side for answer-related stats and weak-topic context only
+- Utility controls and diagnostics should move out of the main sidebar and into a settings popout triggered from the top-right app chrome
 - During the `Learn` phase, the explanation is visible and the question is hidden
 - During the `Answer` phase, the question and answer choices are visible and the explanation is hidden
 - User can submit an answer
 - During the `Feedback` phase, the app immediately shows whether the answer is correct
 - The feedback state should restore a short explanation or hint after submission
 - The feedback state must provide a clear next-step action such as `Next card`
+- Displayed times should use a human-readable local format like `2026-04-05 21:00`
+- Avoid raw ISO timestamps in the visible UI
 - User can dismiss and return later
 
 ### 8.4 Progress Tracking
@@ -352,9 +355,12 @@ Suggested review scheduling:
 ### 11.6 Proposed UI Refinement
 
 - left panel: study flow only
-- right panel: cards imported, studied today, correct rate, next review, weak topics, diagnostics, notification settings
+- right panel: answer-related stats and weak topics only
+- top-right chrome: language toggle plus a settings icon button
+- settings popout: test notification, snooze, rescan, hook settings, import diagnostics
 - keep `duolin-gogo` as the only fixed product label across languages
 - all other shell copy should follow the selected global UI language
+- visible time values should use `YYYY-MM-DD HH:mm` style formatting
 
 ### 11.4 Review Session Screen
 
