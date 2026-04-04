@@ -5,6 +5,7 @@ import {
   SendTestNotification,
   SnoozeNotifications,
   SubmitAnswer,
+  UpdateNotificationSettings,
 } from '../wailsjs/go/main/App'
 
 const fallbackDashboard = {
@@ -26,6 +27,10 @@ const fallbackDashboard = {
       { tag: 'branching', wrongCount: 3, seenCount: 6, accuracy: 0.5 },
       { tag: 'commits', wrongCount: 1, seenCount: 4, accuracy: 0.75 },
     ],
+  },
+  notificationSettings: {
+    style: 'playful',
+    titleMode: 'prefer_manual',
   },
   importErrors: [],
   currentCard: {
@@ -114,4 +119,13 @@ export async function rescanKnowledge() {
   }
 
   return { message: 'Knowledge refreshed: 2 cards, 0 errors.' }
+}
+
+export async function updateNotificationSettings({ style, titleMode }) {
+  if (hasBackend()) {
+    return UpdateNotificationSettings(style, titleMode)
+  }
+
+  fallbackDashboard.notificationSettings = { style, titleMode }
+  return { message: 'Notification settings updated.' }
 }

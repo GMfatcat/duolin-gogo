@@ -1,7 +1,15 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
-import { getStudyCard, loadDashboard, rescanKnowledge, sendTestNotification, snoozeNotifications, submitAnswer } from './api'
+import {
+  getStudyCard,
+  loadDashboard,
+  rescanKnowledge,
+  sendTestNotification,
+  snoozeNotifications,
+  submitAnswer,
+  updateNotificationSettings,
+} from './api'
 
 const dashboard = ref(null)
 const selectedLanguage = ref('zh-TW')
@@ -10,6 +18,7 @@ const feedback = ref(null)
 const actionMessage = ref('')
 const loading = ref(true)
 const submitting = ref(false)
+const savingNotificationSettings = ref(false)
 let unsubscribe = null
 
 const card = computed(() => dashboard.value?.currentCard ?? null)
@@ -18,6 +27,9 @@ const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
 const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [] })
 const importErrors = computed(() => dashboard.value?.importErrors ?? [])
+const notificationSettings = computed(() =>
+  dashboard.value?.notificationSettings ?? { style: 'playful', titleMode: 'prefer_manual' },
+)
 const titleText = computed(() => {
   if (!card.value) {
     return ''
@@ -129,6 +141,27 @@ async function handleRescanKnowledge() {
     actionMessage.value = `Rescan failed: ${error?.message ?? String(error)}`
   }
 }
+
+async function handleNotificationSettingChange(field, value) {
+  try {
+    savingNotificationSettings.value = true
+    const nextSettings = {
+      style: notificationSettings.value.style,
+      titleMode: notificationSettings.value.titleMode,
+      [field]: value,
+    }
+    const result = await updateNotificationSettings(nextSettings)
+    dashboard.value = {
+      ...dashboard.value,
+      notificationSettings: nextSettings,
+    }
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Settings update failed: ${error?.message ?? String(error)}`
+  } finally {
+    savingNotificationSettings.value = false
+  }
+}
 </script>
 
 <template>
@@ -172,6 +205,43 @@ async function handleRescanKnowledge() {
         Rescan knowledge
       </button>
       <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
+    </section>
+
+    <section class="study-card">
+      <div class="study-header">
+        <div>
+          <p class="label">Notification settings</p>
+          <h2>Hook mode</h2>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <label class="settings-field">
+          <span>Style</span>
+          <select
+            :value="notificationSettings.style"
+            :disabled="savingNotificationSettings"
+            @change="handleNotificationSettingChange('style', $event.target.value)"
+          >
+            <option value="safe">safe</option>
+            <option value="playful">playful</option>
+            <option value="aggressive">aggressive</option>
+            <option value="chaotic">chaotic</option>
+          </select>
+        </label>
+
+        <label class="settings-field">
+          <span>Title source</span>
+          <select
+            :value="notificationSettings.titleMode"
+            :disabled="savingNotificationSettings"
+            @change="handleNotificationSettingChange('titleMode', $event.target.value)"
+          >
+            <option value="prefer_manual">prefer_manual</option>
+            <option value="prefer_generated">prefer_generated</option>
+          </select>
+        </label>
+      </div>
     </section>
 
     <section v-if="loading" class="study-card">

@@ -120,6 +120,10 @@ func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 		t.Fatal("expected bilingual question and clickbait")
 	}
 
+	if dashboard.NotificationSettings.Style != "playful" {
+		t.Fatalf("expected default notification style playful, got %s", dashboard.NotificationSettings.Style)
+	}
+
 	if len(dashboard.Summary.WeakTopics) == 0 {
 		t.Fatal("expected weak topics summary")
 	}
@@ -334,6 +338,31 @@ enabled: true
 
 	if len(cache.Cards) != 3 {
 		t.Fatalf("expected 3 cached cards after rescan, got %d", len(cache.Cards))
+	}
+}
+
+func TestUpdateNotificationSettingsPersistsValues(t *testing.T) {
+	app := newTestApp(t)
+
+	status, err := app.UpdateNotificationSettings("chaotic", "prefer_generated")
+	if err != nil {
+		t.Fatalf("update notification settings failed: %v", err)
+	}
+
+	if status.Message != "Notification settings updated." {
+		t.Fatalf("unexpected status: %s", status.Message)
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if dashboard.NotificationSettings.Style != "chaotic" {
+		t.Fatalf("expected updated style, got %s", dashboard.NotificationSettings.Style)
+	}
+	if dashboard.NotificationSettings.TitleMode != "prefer_generated" {
+		t.Fatalf("expected updated title mode, got %s", dashboard.NotificationSettings.TitleMode)
 	}
 }
 

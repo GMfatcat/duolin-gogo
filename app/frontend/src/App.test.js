@@ -23,6 +23,8 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Send test notification')
     expect(wrapper.text()).toContain('Snooze 15 min')
     expect(wrapper.text()).toContain('Rescan knowledge')
+    expect(wrapper.text()).toContain('Notification settings')
+    expect(wrapper.text()).toContain('Hook mode')
 
     const languageButtons = wrapper.findAll('.language-toggle button')
     await languageButtons[1].trigger('click')
@@ -49,5 +51,14 @@ describe('App', () => {
     await toolbarButtons[2].trigger('click')
     await flushPromises()
     expect(wrapper.text()).toContain('Knowledge refreshed: 2 cards, 0 errors.')
+
+    const selects = wrapper.findAll('select')
+    await selects[0].setValue('chaotic')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Notification settings updated.')
+
+    await selects[1].setValue('prefer_generated')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Notification settings updated.')
   })
 })

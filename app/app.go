@@ -44,6 +44,11 @@ type DashboardStats struct {
 	CorrectRate  float64 `json:"correctRate"`
 }
 
+type NotificationSettings struct {
+	Style     string `json:"style"`
+	TitleMode string `json:"titleMode"`
+}
+
 type AnswerChoice struct {
 	Value   string `json:"value"`
 	LabelZH string `json:"labelZh"`
@@ -77,6 +82,7 @@ type DashboardData struct {
 	Stats             DashboardStats      `json:"stats"`
 	Summary           dashboard.Summary   `json:"summary"`
 	ImportErrors      []diagnostics.Error `json:"importErrors"`
+	NotificationSettings NotificationSettings `json:"notificationSettings"`
 	CurrentCard       *StudyCard          `json:"currentCard"`
 	ReviewQueue       []StudyCard         `json:"reviewQueue"`
 	ReviewMode        bool                `json:"reviewMode"`
@@ -164,6 +170,10 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		Stats:             calculateStats(state, now),
 		Summary:           dashboard.BuildSummary(cache.Cards, state, now),
 		ImportErrors:      diagnosticFile.Errors,
+		NotificationSettings: NotificationSettings{
+			Style:     normalizeNotificationStyle(a.mustLoadSettings().Notifications.Style),
+			TitleMode: normalizeNotificationTitleMode(a.mustLoadSettings().Notifications.TitleMode),
+		},
 		CurrentCard:       currentCard,
 		ReviewQueue:       reviewQueue,
 		ReviewMode:        reviewMode,
@@ -337,6 +347,27 @@ func (a *App) RescanKnowledge() (ActionStatus, error) {
 	}, nil
 }
 
+func (a *App) UpdateNotificationSettings(style string, titleMode string) (ActionStatus, error) {
+	path := filepath.Join(a.dataDir, "settings.json")
+	file, err := settings.Load(path)
+	if err != nil {
+		return ActionStatus{}, err
+	}
+
+	file.Notifications.Style = normalizeNotificationStyle(style)
+	file.Notifications.TitleMode = normalizeNotificationTitleMode(titleMode)
+
+	bytes, err := json.MarshalIndent(file, "", "  ")
+	if err != nil {
+		return ActionStatus{}, err
+	}
+	if err := os.WriteFile(path, append(bytes, '\n'), 0o644); err != nil {
+		return ActionStatus{}, err
+	}
+
+	return ActionStatus{Message: "Notification settings updated."}, nil
+}
+
 func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error) {
 	if _, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir); err != nil {
 		return cards.CacheFile{}, progress.ProgressFile{}, "", err
@@ -392,6 +423,24 @@ func (a *App) loadPreferredLanguage() string {
 	}
 
 	return file.Language.Default
+}
+
+func normalizeNotificationStyle(style string) string {
+	switch style {
+	case "safe", "playful", "aggressive", "chaotic":
+		return style
+	default:
+		return "playful"
+	}
+}
+
+func normalizeNotificationTitleMode(titleMode string) string {
+	switch titleMode {
+	case "prefer_generated", "prefer_manual":
+		return titleMode
+	default:
+		return "prefer_manual"
+	}
 }
 
 func (a *App) mustLoadSettings() settings.File {
