@@ -393,3 +393,74 @@ TDD focus:
 Current status:
 
 - completed
+
+### Next Phase A: Content Authoring And Validation
+
+Goal:
+
+- make it much easier to grow the knowledge deck without breaking schema or restarting the app
+
+Deliverables:
+
+- more Git cards beyond the current baseline deck
+- authoring-oriented validation for `knowledge/` files
+- preview-friendly card diagnostics for missing bilingual fields
+- clearer import feedback for malformed card content
+- optional card-preview or validate action for local authoring workflows
+
+TDD focus:
+
+- fixture tests for incomplete bilingual card files
+- validation tests for missing hook metadata and choice mismatches
+- refresh tests that preserve healthy cards while reporting bad ones
+
+Current status:
+
+- planned
+
+### Next Phase B: Session And Progress UX
+
+Goal:
+
+- make day-to-day study sessions feel more complete and less repetitive
+
+Deliverables:
+
+- clearer per-session progress cues
+- better transition after finishing a review batch
+- reduced short-term repetition of the same card
+- optional streak or completion messaging
+- lightweight end-of-session summary
+
+TDD focus:
+
+- selection tests for short-term repeat avoidance
+- UI tests for review completion and next-step transitions
+- aggregation tests for session summary data
+
+Current status:
+
+- planned
+
+### Next Phase C: Multi-Topic Expansion
+
+Goal:
+
+- expand `duolin-gogo` beyond Git while keeping the same local-first flow
+
+Deliverables:
+
+- topic-aware card organization
+- optional topic filters in study selection
+- dashboard summaries grouped by topic
+- support for decks such as `javascript`, `typescript`, or `react`
+
+TDD focus:
+
+- parser tests for multi-topic knowledge trees
+- selection tests for topic filtering
+- dashboard tests for per-topic summaries
+
+Current status:
+
+- planned
