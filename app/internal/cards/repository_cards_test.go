@@ -30,13 +30,19 @@ func TestRepositoryKnowledgeCardsImportWithoutErrors(t *testing.T) {
 		"git-init-repository",
 		"git-log-history",
 		"git-merge-purpose",
+		"git-merge-conflict-resolution",
 		"git-pull-composition",
+		"git-push-upstream",
 		"git-rebase-vs-merge",
+		"git-rebase-continue-flow",
+		"git-remote-origin",
+		"git-revert-safe-undo",
 		"git-reset-head",
 		"git-restore-discard",
 		"git-stash-purpose",
 		"git-status-purpose",
 		"git-switch-branch",
+		"git-tag-release-marker",
 	}
 
 	importedIDs := make([]string, 0, len(result.Cards))

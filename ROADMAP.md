@@ -404,6 +404,7 @@ Deliverables:
 
 - more Git cards beyond the current baseline deck
 - current expansion set now includes `clone`, `init`, `branch`, `log`, `reset`, and `diff`
+- second-wave Git deck now also includes `revert`, `tag`, `remote`, `merge conflict`, `rebase --continue`, and `push -u`
 - authoring-oriented validation for `knowledge/` files
 - preview-friendly card diagnostics for missing bilingual fields
 - clearer import feedback for malformed card content
