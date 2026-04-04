@@ -53,7 +53,7 @@ describe('App', () => {
     expect(wrapper.text()).toContain('複習時間')
     expect(wrapper.text()).toContain('推送時段')
     expect(wrapper.find('.settings-layout').exists()).toBe(true)
-    expect(wrapper.findAll('.toolbar-button').length).toBe(4)
+    expect(wrapper.findAll('.toolbar-button').length).toBe(5)
 
     const numberInput = wrapper.find('input[type="number"]')
     const timeInputs = wrapper.findAll('input[type="time"]')
@@ -196,5 +196,45 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     expect(wrapper.text()).toContain('Git Fetch')
     expect(wrapper.text()).toContain('fetch')
+  })
+
+  it('saves a reviewed draft and reports the saved path', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+
+    const draft = `---
+id: git-ai-review
+title_zh: Git Fetch 草稿
+title_en: Git Fetch Draft
+type: true-false
+question_zh: "git fetch 會直接 merge 到目前分支。"
+question_en: "git fetch merges into the current branch."
+clickbait_zh: "這個指令看起來沒做事，但很多人第一步會按它"
+clickbait_en: "This command looks quiet, but it matters"
+review_hint_zh: "fetch 只更新追蹤資訊，不會直接 merge。"
+review_hint_en: "Fetch updates tracking refs without merging."
+answer: false
+---
+
+## zh-TW
+
+git fetch 只會更新遠端追蹤資訊，不會直接合併到目前分支。
+
+## en
+
+git fetch only updates remote-tracking refs and does not merge into the current branch.`
+
+    await wrapper.find('.draft-input').setValue(draft)
+    await wrapper.findAll('.phase-button')[1].trigger('click')
+    await flushPromises()
+    const secondaryButtons = wrapper.findAll('.toolbar-button.secondary')
+    await secondaryButtons[secondaryButtons.length - 1].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Draft saved to')
+    expect(wrapper.text()).toContain('knowledge/git/git-ai-review.md')
   })
 })

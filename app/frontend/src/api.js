@@ -4,6 +4,7 @@ import {
   LoadAuthoringPreview,
   PreviewKnowledgeCard,
   ReviewDraft,
+  SaveDraft,
   RescanKnowledge,
   SendTestNotification,
   SnoozeNotifications,
@@ -252,6 +253,19 @@ export async function reviewDraft(raw) {
       explanationEn: raw.split('## en')[1]?.trim() || fallbackDashboard.currentCard.explanationEn,
     },
     importErrors: [],
+  }
+}
+
+export async function saveDraft({ raw, topic }) {
+  if (hasBackend()) {
+    return SaveDraft(raw, topic)
+  }
+
+  return {
+    message: `Draft saved to D:/duolin-gogo/knowledge/${topic || 'git'}/git-ai-review.md.`,
+    savedPath: `D:/duolin-gogo/knowledge/${topic || 'git'}/git-ai-review.md`,
+    topic: topic || 'git',
+    successful: true,
   }
 }
 

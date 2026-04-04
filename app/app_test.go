@@ -486,6 +486,49 @@ This AI draft card relies on fallback fields.`
 	}
 }
 
+func TestSaveDraftPersistsMarkdownIntoTopicFolder(t *testing.T) {
+	app := newTestApp(t)
+
+	raw := `---
+id: git-save-draft
+title_zh: 儲存草稿
+title_en: Save Draft
+type: true-false
+question_zh: "git fetch 會直接 merge 到目前分支。"
+question_en: "git fetch merges into the current branch."
+clickbait_zh: "這個指令看起來沒做事，但很多人會先按"
+clickbait_en: "This command looks quiet, but many people use it first"
+review_hint_zh: "fetch 不會直接 merge。"
+review_hint_en: "Fetch does not merge directly."
+answer: false
+---
+
+## zh-TW
+
+git fetch 只會更新追蹤資訊，不會直接 merge。
+
+## en
+
+git fetch only updates tracking refs and does not merge directly.`
+
+	status, err := app.SaveDraft(raw, "git")
+	if err != nil {
+		t.Fatalf("save draft failed: %v", err)
+	}
+
+	if !status.Successful {
+		t.Fatal("expected successful save")
+	}
+
+	expectedPath := filepath.Join(app.knowledgeDir, "git", "git-save-draft.md")
+	if status.SavedPath != expectedPath {
+		t.Fatalf("unexpected saved path: %s", status.SavedPath)
+	}
+	if _, err := os.Stat(expectedPath); err != nil {
+		t.Fatalf("expected saved draft file: %v", err)
+	}
+}
+
 func TestUpdateNotificationSettingsPersistsValues(t *testing.T) {
 	app := newTestApp(t)
 

@@ -8,6 +8,7 @@ import {
   previewKnowledgeCard,
   reviewDraft,
   rescanKnowledge,
+  saveDraft,
   sendTestNotification,
   snoozeNotifications,
   submitAnswer,
@@ -86,6 +87,8 @@ const translations = {
     reviewDraft: '審查草稿',
     draftPreview: '草稿預覽',
     noDraftYet: '貼上草稿後，就可以在這裡看到 normalized preview 與診斷。',
+    saveDraft: '儲存草稿',
+    draftTopic: '主題資料夾',
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
@@ -155,6 +158,8 @@ const translations = {
     reviewDraft: 'Review draft',
     draftPreview: 'Draft preview',
     noDraftYet: 'Paste a draft to inspect the normalized preview and diagnostics here.',
+    saveDraft: 'Save draft',
+    draftTopic: 'Topic folder',
   },
 }
 
@@ -180,6 +185,7 @@ const draftReview = ref({
   raw: '',
   currentCard: null,
   importErrors: [],
+  topic: 'git',
 })
 const scheduleForm = ref({
   notificationIntervalMinutes: 10,
@@ -433,6 +439,19 @@ async function handleDraftReview() {
     ...draftReview.value,
     currentCard: result.currentCard ?? null,
     importErrors: result.importErrors ?? [],
+  }
+}
+
+async function handleSaveDraft() {
+  try {
+    const result = await saveDraft({
+      raw: draftReview.value.raw,
+      topic: draftReview.value.topic,
+    })
+    actionMessage.value = result.message
+    await refreshAuthoringPreview(result.savedPath)
+  } catch (error) {
+    actionMessage.value = `Save draft failed: ${error?.message ?? String(error)}`
   }
 }
 
@@ -746,7 +765,24 @@ function toggleSettings() {
               />
             </label>
 
-            <button class="phase-button" type="button" @click="handleDraftReview">{{ t.reviewDraft }}</button>
+            <label class="settings-field">
+              <span>{{ t.draftTopic }}</span>
+              <select v-model="draftReview.topic" class="draft-topic-select">
+                <option value="git">git</option>
+              </select>
+            </label>
+
+            <div class="draft-actions">
+              <button class="phase-button" type="button" @click="handleDraftReview">{{ t.reviewDraft }}</button>
+              <button
+                class="toolbar-button secondary"
+                type="button"
+                :disabled="!draftReviewCard"
+                @click="handleSaveDraft"
+              >
+                {{ t.saveDraft }}
+              </button>
+            </div>
 
             <div v-if="draftReviewCard" class="preview-card">
               <p class="label">{{ t.draftPreview }}</p>

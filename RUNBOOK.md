@@ -118,6 +118,7 @@ Current useful controls:
 - `Validate knowledge`
 - `Authoring preview` inside settings for single-card inspection
 - `AI draft review` inside settings for pasted Markdown inspection
+- `Save draft` from reviewed AI Markdown into `knowledge/<topic>/`
 - `zh-TW` / `en` language toggle
 - answer submission
 

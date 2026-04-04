@@ -18,6 +18,8 @@ export function RescanKnowledge():Promise<main.ActionStatus>;
 
 export function ReviewDraft(arg1:string):Promise<main.DraftReviewData>;
 
+export function SaveDraft(arg1:string,arg2:string):Promise<main.SaveDraftStatus>;
+
 export function SendTestNotification():Promise<main.ActionStatus>;
 
 export function SnoozeNotifications():Promise<main.ActionStatus>;

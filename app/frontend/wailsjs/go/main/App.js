@@ -34,6 +34,10 @@ export function ReviewDraft(arg1) {
   return window['go']['main']['App']['ReviewDraft'](arg1);
 }
 
+export function SaveDraft(arg1, arg2) {
+  return window['go']['main']['App']['SaveDraft'](arg1, arg2);
+}
+
 export function SendTestNotification() {
   return window['go']['main']['App']['SendTestNotification']();
 }

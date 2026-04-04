@@ -74,6 +74,13 @@ type DraftReviewData struct {
 	ImportErrors []diagnostics.Error `json:"importErrors"`
 }
 
+type SaveDraftStatus struct {
+	Message    string `json:"message"`
+	SavedPath  string `json:"savedPath"`
+	Topic      string `json:"topic"`
+	Successful bool   `json:"successful"`
+}
+
 type AnswerChoice struct {
 	Value   string `json:"value"`
 	LabelZH string `json:"labelZh"`
@@ -465,6 +472,35 @@ func (a *App) ReviewDraft(raw string) (DraftReviewData, error) {
 	}, nil
 }
 
+func (a *App) SaveDraft(raw string, topic string) (SaveDraftStatus, error) {
+	result, err := cards.PreviewDraft("draft://ai-card.md", raw)
+	if err != nil {
+		return SaveDraftStatus{}, err
+	}
+
+	if result.Card == nil {
+		return SaveDraftStatus{}, fmt.Errorf("draft has blocking diagnostics")
+	}
+
+	topic = normalizeTopic(topic)
+	targetDir := filepath.Join(a.knowledgeDir, topic)
+	if err := os.MkdirAll(targetDir, 0o755); err != nil {
+		return SaveDraftStatus{}, err
+	}
+
+	targetPath := filepath.Join(targetDir, fmt.Sprintf("%s.md", result.Card.ID))
+	if err := os.WriteFile(targetPath, []byte(raw), 0o644); err != nil {
+		return SaveDraftStatus{}, err
+	}
+
+	return SaveDraftStatus{
+		Message:    fmt.Sprintf("Draft saved to %s.", targetPath),
+		SavedPath:  targetPath,
+		Topic:      topic,
+		Successful: true,
+	}, nil
+}
+
 func (a *App) UpdateNotificationSettings(style string, titleMode string) (ActionStatus, error) {
 	path := filepath.Join(a.dataDir, "settings.json")
 	file, err := settings.Load(path)
@@ -661,6 +697,14 @@ func normalizePreferredLanguage(language string) string {
 	default:
 		return "zh-TW"
 	}
+}
+
+func normalizeTopic(topic string) string {
+	topic = filepath.Base(topic)
+	if topic == "." || topic == "" {
+		return "git"
+	}
+	return topic
 }
 
 func normalizeNotificationInterval(minutes int) int {

@@ -373,6 +373,24 @@ export namespace main {
 		}
 	}
 	
+	export class SaveDraftStatus {
+	    message: string;
+	    savedPath: string;
+	    topic: string;
+	    successful: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new SaveDraftStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.message = source["message"];
+	        this.savedPath = source["savedPath"];
+	        this.topic = source["topic"];
+	        this.successful = source["successful"];
+	    }
+	}
 	
 	
 	export class SubmitAnswerResult {

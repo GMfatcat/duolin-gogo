@@ -67,6 +67,7 @@ Next targets:
   - fourth slice implemented: diagnostics group warnings and errors separately for faster scan-and-fix authoring flow
   - fifth slice implemented: `Authoring preview` inside settings can load one local card, switch files, and show per-card diagnostics
   - sixth slice implemented: `AI draft review` can validate pasted Markdown and show a normalized preview before saving
+  - seventh slice implemented: reviewed drafts can now be saved straight into `knowledge/<topic>/<id>.md`
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues
