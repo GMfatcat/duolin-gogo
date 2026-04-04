@@ -14,6 +14,7 @@ type File struct {
 
 type Error struct {
 	SourcePath string `json:"source_path"`
+	Severity   string `json:"severity,omitempty"`
 	Code       string `json:"code"`
 	Field      string `json:"field,omitempty"`
 	Message    string `json:"message"`

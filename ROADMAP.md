@@ -440,7 +440,7 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
 
 ### Next Phase C: Multi-Topic Expansion
 

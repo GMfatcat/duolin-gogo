@@ -61,6 +61,7 @@ export namespace diagnostics {
 	
 	export class Error {
 	    source_path: string;
+	    severity?: string;
 	    code: string;
 	    field?: string;
 	    message: string;
@@ -72,6 +73,7 @@ export namespace diagnostics {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.source_path = source["source_path"];
+	        this.severity = source["severity"];
 	        this.code = source["code"];
 	        this.field = source["field"];
 	        this.message = source["message"];
@@ -312,6 +314,38 @@ export namespace main {
 	        this.reviewHint = source["reviewHint"];
 	        this.preferredLanguage = source["preferredLanguage"];
 	        this.stats = this.convertValues(source["stats"], DashboardStats);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class ValidationStatus {
+	    message: string;
+	    importErrors: diagnostics.Error[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ValidationStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.message = source["message"];
+	        this.importErrors = this.convertValues(source["importErrors"], diagnostics.Error);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

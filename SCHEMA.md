@@ -778,6 +778,7 @@ Recommended UI behavior:
 
 - settings diagnostics should visually distinguish `warning` and `error`
 - warning items should not look as severe as import-blocking errors
+- an explicit `Validate knowledge` action may update diagnostics without refreshing the active study card
 
 ## 10. In-Memory App Model
 

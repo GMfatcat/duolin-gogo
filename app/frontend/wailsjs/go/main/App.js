@@ -45,3 +45,7 @@ export function UpdatePreferredLanguage(arg1) {
 export function UpdateScheduleSettings(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['main']['App']['UpdateScheduleSettings'](arg1, arg2, arg3, arg4, arg5);
 }
+
+export function ValidateKnowledge() {
+  return window['go']['main']['App']['ValidateKnowledge']();
+}

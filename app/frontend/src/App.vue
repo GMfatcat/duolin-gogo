@@ -11,6 +11,7 @@ import {
   updateNotificationSettings,
   updatePreferredLanguage,
   updateScheduleSettings,
+  validateKnowledge,
 } from './api'
 
 const translations = {
@@ -57,6 +58,7 @@ const translations = {
     sendTestNotification: '送出測試通知',
     snoozeNotifications: '延後 15 分鐘',
     rescanKnowledge: '重新掃描知識庫',
+    validateKnowledge: '檢查題庫格式',
     loading: '載入中',
     preparingCard: '正在準備下一張卡...',
     shellLanguageUpdated: '語言已更新。',
@@ -116,6 +118,7 @@ const translations = {
     sendTestNotification: 'Send test notification',
     snoozeNotifications: 'Snooze 15 min',
     rescanKnowledge: 'Rescan knowledge',
+    validateKnowledge: 'Validate knowledge',
     loading: 'Loading',
     preparingCard: 'Preparing the next card...',
     shellLanguageUpdated: 'Language updated.',
@@ -355,6 +358,19 @@ async function handleRescanKnowledge() {
   }
 }
 
+async function handleValidateKnowledge() {
+  try {
+    const result = await validateKnowledge()
+    dashboard.value = {
+      ...dashboard.value,
+      importErrors: result.importErrors ?? [],
+    }
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Validate failed: ${error?.message ?? String(error)}`
+  }
+}
+
 async function handleNotificationSettingChange(field, value) {
   try {
     savingNotificationSettings.value = true
@@ -591,6 +607,7 @@ function toggleSettings() {
               <button class="toolbar-button" type="button" @click="handleSendTestNotification">{{ t.sendTestNotification }}</button>
               <button class="toolbar-button secondary" type="button" @click="handleSnooze">{{ t.snoozeNotifications }}</button>
               <button class="toolbar-button secondary" type="button" @click="handleRescanKnowledge">{{ t.rescanKnowledge }}</button>
+              <button class="toolbar-button secondary" type="button" @click="handleValidateKnowledge">{{ t.validateKnowledge }}</button>
             </div>
             <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
           </section>

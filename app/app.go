@@ -111,6 +111,11 @@ type ActionStatus struct {
 	Message string `json:"message"`
 }
 
+type ValidationStatus struct {
+	Message      string              `json:"message"`
+	ImportErrors []diagnostics.Error `json:"importErrors"`
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	knowledgeDir, dataDir := defaultAppPaths(os.Executable, os.Getwd)
@@ -360,6 +365,33 @@ func (a *App) RescanKnowledge() (ActionStatus, error) {
 
 	return ActionStatus{
 		Message: fmt.Sprintf("Knowledge refreshed: %d cards, %d errors.", len(result.Cards), len(result.Errors)),
+	}, nil
+}
+
+func (a *App) ValidateKnowledge() (ValidationStatus, error) {
+	result, err := cards.ScanDirectories([]string{a.knowledgeDir})
+	if err != nil {
+		return ValidationStatus{}, err
+	}
+
+	if err := cards.WriteImportErrors(filepath.Join(a.dataDir, "import-errors.json"), result.Errors); err != nil {
+		return ValidationStatus{}, err
+	}
+
+	diagnosticItems := make([]diagnostics.Error, 0, len(result.Errors))
+	for _, item := range result.Errors {
+		diagnosticItems = append(diagnosticItems, diagnostics.Error{
+			SourcePath: item.SourcePath,
+			Severity:   item.Severity,
+			Code:       item.Code,
+			Field:      item.Field,
+			Message:    item.Message,
+		})
+	}
+
+	return ValidationStatus{
+		Message:      fmt.Sprintf("Knowledge validated: %d cards, %d diagnostics.", len(result.Cards), len(result.Errors)),
+		ImportErrors: diagnosticItems,
 	}, nil
 }
 

@@ -341,6 +341,53 @@ enabled: true
 	}
 }
 
+func TestValidateKnowledgeUpdatesDiagnosticsWithoutRefreshingCache(t *testing.T) {
+	app := newTestApp(t)
+
+	cacheBefore, err := loadCache(filepath.Join(app.dataDir, "cards-cache.json"))
+	if err != nil {
+		t.Fatalf("load cache before validate failed: %v", err)
+	}
+
+	broken := `---
+id: git-validate-broken
+title: Broken
+type: true-false
+question: "Broken?"
+answer: true
+---
+
+## zh-TW
+
+只有中文`
+	if err := os.WriteFile(filepath.Join(app.knowledgeDir, "git", "broken.md"), []byte(broken), 0o644); err != nil {
+		t.Fatalf("write broken file failed: %v", err)
+	}
+
+	status, err := app.ValidateKnowledge()
+	if err != nil {
+		t.Fatalf("validate knowledge failed: %v", err)
+	}
+
+	if status.Message != "Knowledge validated: 2 cards, 1 diagnostics." {
+		t.Fatalf("unexpected validate status: %s", status.Message)
+	}
+	if len(status.ImportErrors) != 1 {
+		t.Fatalf("expected 1 diagnostic, got %d", len(status.ImportErrors))
+	}
+	if status.ImportErrors[0].Code != "missing_language_section" {
+		t.Fatalf("unexpected diagnostic code: %s", status.ImportErrors[0].Code)
+	}
+
+	cacheAfter, err := loadCache(filepath.Join(app.dataDir, "cards-cache.json"))
+	if err != nil {
+		t.Fatalf("load cache after validate failed: %v", err)
+	}
+	if len(cacheAfter.Cards) != len(cacheBefore.Cards) {
+		t.Fatalf("expected cache size to stay %d, got %d", len(cacheBefore.Cards), len(cacheAfter.Cards))
+	}
+}
+
 func TestUpdateNotificationSettingsPersistsValues(t *testing.T) {
 	app := newTestApp(t)
 

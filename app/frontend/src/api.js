@@ -8,6 +8,7 @@ import {
   UpdateNotificationSettings,
   UpdatePreferredLanguage,
   UpdateScheduleSettings,
+  ValidateKnowledge,
 } from '../wailsjs/go/main/App'
 
 const fallbackDashboard = {
@@ -139,6 +140,14 @@ export async function rescanKnowledge() {
   }
 
   return { message: 'Knowledge refreshed: 12 cards, 0 errors.' }
+}
+
+export async function validateKnowledge() {
+  if (hasBackend()) {
+    return ValidateKnowledge()
+  }
+
+  return { message: 'Knowledge validated: 12 cards, 0 diagnostics.', importErrors: [] }
 }
 
 export async function updateNotificationSettings({ style, titleMode }) {

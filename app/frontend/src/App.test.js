@@ -48,11 +48,12 @@ describe('App', () => {
 
     expect(wrapper.text()).toContain('送出測試通知')
     expect(wrapper.text()).toContain('重新掃描知識庫')
+    expect(wrapper.text()).toContain('檢查題庫格式')
     expect(wrapper.text()).toContain('通知間隔（分鐘）')
     expect(wrapper.text()).toContain('複習時間')
     expect(wrapper.text()).toContain('推送時段')
     expect(wrapper.find('.settings-layout').exists()).toBe(true)
-    expect(wrapper.findAll('.toolbar-button').length).toBe(3)
+    expect(wrapper.findAll('.toolbar-button').length).toBe(4)
 
     const numberInput = wrapper.find('input[type="number"]')
     const timeInputs = wrapper.findAll('input[type="time"]')
@@ -66,6 +67,23 @@ describe('App', () => {
 
     expect(wrapper.text()).toContain('Schedule settings updated.')
     expect(wrapper.find('.settings-meta').text()).toContain('匯入正常')
+  })
+
+  it('validates knowledge without reloading the current study card', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    const currentTitle = wrapper.find('.study-header h2').text()
+
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+    const buttons = wrapper.findAll('.toolbar-button')
+    await buttons[3].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Knowledge validated: 12 cards, 0 diagnostics.')
+    expect(wrapper.find('.study-header h2').text()).toBe(currentTitle)
   })
 
   it('switches global shell copy to english without changing the product name', async () => {

@@ -56,6 +56,7 @@ Next targets:
   - make import feedback clearer for broken Markdown cards
   - first slice implemented: missing localized fields and bilingual choice mismatches now surface as warnings without blocking import
   - second slice implemented: settings diagnostics visually distinguish warnings from errors
+  - third slice implemented: `Validate knowledge` checks authoring quality without resetting the current study card
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues
