@@ -525,6 +525,12 @@ On validation failure:
 - skip card import
 - add an entry to `data/import-errors.json`
 
+On authoring-quality warnings:
+
+- keep the card importable when possible
+- add a warning entry to `data/import-errors.json`
+- use this for missing localized fields that can safely fall back
+
 ## 5. `data/settings.json` Schema
 
 Purpose:
@@ -727,12 +733,21 @@ Suggested schema:
   "errors": [
     {
       "source_path": "D:\\duolin-gogo\\knowledge\\git\\bad-card.md",
+      "severity": "error",
       "code": "missing_required_field",
       "field": "question",
       "message": "Required field 'question' is missing."
     },
     {
       "source_path": "D:\\duolin-gogo\\knowledge\\git\\weird.md",
+      "severity": "warning",
+      "code": "missing_localized_field",
+      "field": "title_en",
+      "message": "Missing localized field 'title_en'; using fallback title value."
+    },
+    {
+      "source_path": "D:\\duolin-gogo\\knowledge\\git\\weird.md",
+      "severity": "error",
       "code": "answer_out_of_range",
       "field": "answer",
       "message": "Answer index 4 exceeds available choices."
@@ -745,12 +760,19 @@ Suggested schema:
 
 - `frontmatter_parse_failed`
 - `missing_required_field`
+- `missing_localized_field`
+- `bilingual_choice_count_mismatch`
 - `unsupported_type`
 - `missing_choices`
 - `answer_out_of_range`
 - `empty_body`
 - `missing_language_section`
 - `duplicate_id`
+
+### Severity Rules
+
+- `error`: the card cannot be imported safely
+- `warning`: the card can still be imported, but the author should fix the content quality
 
 ## 10. In-Memory App Model
 

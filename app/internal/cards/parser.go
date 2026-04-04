@@ -51,6 +51,7 @@ type Card struct {
 
 type ImportError struct {
 	SourcePath string `json:"source_path"`
+	Severity   string `json:"severity,omitempty"`
 	Code       string `json:"code"`
 	Field      string `json:"field,omitempty"`
 	Message    string `json:"message"`
@@ -119,7 +120,8 @@ func ScanDirectories(paths []string) (ImportResult, error) {
 				return nil
 			}
 
-			card, importErr := parseFile(path)
+			card, diagnostics, importErr := parseFile(path)
+			result.Errors = append(result.Errors, diagnostics...)
 			if importErr != nil {
 				result.Errors = append(result.Errors, *importErr)
 				return nil
@@ -191,11 +193,12 @@ func RefreshKnowledge(knowledgeDir, dataDir string) (ImportResult, error) {
 	return result, nil
 }
 
-func parseFile(path string) (Card, *ImportError) {
+func parseFile(path string) (Card, []ImportError, *ImportError) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return Card{}, &ImportError{
+		return Card{}, nil, &ImportError{
 			SourcePath: path,
+			Severity:   "error",
 			Code:       "read_failed",
 			Message:    err.Error(),
 		}
@@ -203,8 +206,9 @@ func parseFile(path string) (Card, *ImportError) {
 
 	fmContent, body, err := splitFrontmatter(string(raw))
 	if err != nil {
-		return Card{}, &ImportError{
+		return Card{}, nil, &ImportError{
 			SourcePath: path,
+			Severity:   "error",
 			Code:       "frontmatter_parse_failed",
 			Field:      "frontmatter",
 			Message:    err.Error(),
@@ -213,39 +217,41 @@ func parseFile(path string) (Card, *ImportError) {
 
 	var fm frontmatter
 	if err := yaml.Unmarshal([]byte(fmContent), &fm); err != nil {
-		return Card{}, &ImportError{
+		return Card{}, nil, &ImportError{
 			SourcePath: path,
+			Severity:   "error",
 			Code:       "frontmatter_parse_failed",
 			Field:      "frontmatter",
 			Message:    err.Error(),
 		}
 	}
 
-	card, importErr := buildCard(path, fm, body)
+	card, diagnostics, importErr := buildCard(path, fm, body)
 	if importErr != nil {
-		return Card{}, importErr
+		return Card{}, diagnostics, importErr
 	}
 
-	return card, nil
+	return card, diagnostics, nil
 }
 
-func buildCard(path string, fm frontmatter, body string) (Card, *ImportError) {
+func buildCard(path string, fm frontmatter, body string) (Card, []ImportError, *ImportError) {
+	diagnostics := []ImportError{}
 	if strings.TrimSpace(fm.ID) == "" {
-		return Card{}, validationError(path, "missing_required_field", "id", "Required field 'id' is missing.")
+		return Card{}, diagnostics, validationError(path, "missing_required_field", "id", "Required field 'id' is missing.")
 	}
 	if localizeText(fm.TitleZH, fm.Title, fm.TitleEN) == "" {
-		return Card{}, validationError(path, "missing_required_field", "title", "Required field 'title' is missing.")
+		return Card{}, diagnostics, validationError(path, "missing_required_field", "title", "Required field 'title' is missing.")
 	}
 	if strings.TrimSpace(fm.Type) == "" {
-		return Card{}, validationError(path, "missing_required_field", "type", "Required field 'type' is missing.")
+		return Card{}, diagnostics, validationError(path, "missing_required_field", "type", "Required field 'type' is missing.")
 	}
 	if localizeText(fm.QuestionZH, fm.Question, fm.QuestionEN) == "" {
-		return Card{}, validationError(path, "missing_required_field", "question", "Required field 'question' is missing.")
+		return Card{}, diagnostics, validationError(path, "missing_required_field", "question", "Required field 'question' is missing.")
 	}
 
 	questionType := strings.ToLower(strings.TrimSpace(fm.Type))
 	if questionType != "single-choice" && questionType != "true-false" {
-		return Card{}, validationError(path, "unsupported_type", "type", fmt.Sprintf("Unsupported type %q.", fm.Type))
+		return Card{}, diagnostics, validationError(path, "unsupported_type", "type", fmt.Sprintf("Unsupported type %q.", fm.Type))
 	}
 
 	if fm.BodyFormat == "" {
@@ -262,15 +268,18 @@ func buildCard(path string, fm frontmatter, body string) (Card, *ImportError) {
 
 	zh, en, err := extractLanguageSections(body)
 	if err != nil {
-		return Card{}, validationError(path, "missing_language_section", "body", err.Error())
+		return Card{}, diagnostics, validationError(path, "missing_language_section", "body", err.Error())
 	}
+
+	diagnostics = append(diagnostics, localizedFieldWarnings(path, fm)...)
 
 	choicesEN := localizeChoices(fm.ChoicesEN, fm.Choices, fm.ChoicesZH)
 	choicesZH := localizeChoices(fm.ChoicesZH, fm.Choices, fm.ChoicesEN)
+	diagnostics = append(diagnostics, localizedChoiceWarnings(path, fm, choicesZH, choicesEN)...)
 
 	answer, importErr := normalizeAnswer(path, questionType, fm.Answer, choicesEN)
 	if importErr != nil {
-		return Card{}, importErr
+		return Card{}, diagnostics, importErr
 	}
 
 	info, statErr := os.Stat(path)
@@ -311,7 +320,7 @@ func buildCard(path string, fm frontmatter, body string) (Card, *ImportError) {
 		BodyMarkdownEN:   en,
 		BodyPlaintextZH:  toPlaintext(zh),
 		BodyPlaintextEN:  toPlaintext(en),
-	}, nil
+	}, diagnostics, nil
 }
 
 func normalizeAnswer(path, questionType string, raw any, choices []string) (any, *ImportError) {
@@ -377,10 +386,68 @@ func extractLanguageSections(body string) (string, string, error) {
 func validationError(path, code, field, message string) *ImportError {
 	return &ImportError{
 		SourcePath: path,
+		Severity:   "error",
 		Code:       code,
 		Field:      field,
 		Message:    message,
 	}
+}
+
+func warning(path, code, field, message string) ImportError {
+	return ImportError{
+		SourcePath: path,
+		Severity:   "warning",
+		Code:       code,
+		Field:      field,
+		Message:    message,
+	}
+}
+
+func localizedFieldWarnings(path string, fm frontmatter) []ImportError {
+	var out []ImportError
+
+	if strings.TrimSpace(fm.Title) != "" {
+		if strings.TrimSpace(fm.TitleZH) == "" {
+			out = append(out, warning(path, "missing_localized_field", "title_zh", "Missing localized field 'title_zh'; using fallback title value."))
+		}
+		if strings.TrimSpace(fm.TitleEN) == "" {
+			out = append(out, warning(path, "missing_localized_field", "title_en", "Missing localized field 'title_en'; using fallback title value."))
+		}
+	}
+
+	if strings.TrimSpace(fm.Question) != "" {
+		if strings.TrimSpace(fm.QuestionZH) == "" {
+			out = append(out, warning(path, "missing_localized_field", "question_zh", "Missing localized field 'question_zh'; using fallback question value."))
+		}
+		if strings.TrimSpace(fm.QuestionEN) == "" {
+			out = append(out, warning(path, "missing_localized_field", "question_en", "Missing localized field 'question_en'; using fallback question value."))
+		}
+	}
+
+	return out
+}
+
+func localizedChoiceWarnings(path string, fm frontmatter, choicesZH, choicesEN []string) []ImportError {
+	var out []ImportError
+
+	if strings.ToLower(strings.TrimSpace(fm.Type)) != "single-choice" {
+		return out
+	}
+
+	if len(fm.Choices) > 0 {
+		if len(fm.ChoicesZH) == 0 {
+			out = append(out, warning(path, "missing_localized_field", "choices_zh", "Missing localized field 'choices_zh'; using fallback choices."))
+		}
+		if len(fm.ChoicesEN) == 0 {
+			out = append(out, warning(path, "missing_localized_field", "choices_en", "Missing localized field 'choices_en'; using fallback choices."))
+		}
+	}
+
+	if len(choicesZH) > 0 && len(choicesEN) > 0 && len(choicesZH) != len(choicesEN) {
+		out = append(out, warning(path, "bilingual_choice_count_mismatch", "choices", fmt.Sprintf("Localized choice counts differ: zh-TW=%d, en=%d.", len(choicesZH), len(choicesEN))))
+	}
+
+	return out
 }
 
 func normalizeTags(tags []string) []string {

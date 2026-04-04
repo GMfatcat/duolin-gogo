@@ -309,3 +309,117 @@ answer: false
 		t.Fatalf("expected import-errors.json to exist: %v", err)
 	}
 }
+
+func TestScanDirectoriesReportsMissingLocalizedFieldsAsWarnings(t *testing.T) {
+	dir := t.TempDir()
+	knowledgeDir := filepath.Join(dir, "knowledge", "git")
+
+	if err := os.MkdirAll(knowledgeDir, 0o755); err != nil {
+		t.Fatalf("mkdir failed: %v", err)
+	}
+
+	cardPath := filepath.Join(knowledgeDir, "legacy.md")
+	content := `---
+id: git-legacy-card
+title: Legacy Card
+type: single-choice
+question: "Which command updates your index before commit?"
+choices:
+  - "git add"
+  - "git clone"
+answer: 0
+---
+
+## zh-TW
+
+這是一張只有 fallback 欄位的舊卡片。
+
+## en
+
+This is a legacy card that only uses fallback fields.
+`
+
+	if err := os.WriteFile(cardPath, []byte(content), 0o644); err != nil {
+		t.Fatalf("write file failed: %v", err)
+	}
+
+	result, err := ScanDirectories([]string{filepath.Join(dir, "knowledge")})
+	if err != nil {
+		t.Fatalf("scan failed: %v", err)
+	}
+
+	if len(result.Cards) != 1 {
+		t.Fatalf("expected 1 card, got %d", len(result.Cards))
+	}
+
+	if len(result.Errors) != 6 {
+		t.Fatalf("expected 6 warnings, got %d", len(result.Errors))
+	}
+
+	for _, diagnostic := range result.Errors {
+		if diagnostic.Severity != "warning" {
+			t.Fatalf("expected warning severity, got %s", diagnostic.Severity)
+		}
+		if diagnostic.Code != "missing_localized_field" {
+			t.Fatalf("unexpected warning code: %s", diagnostic.Code)
+		}
+	}
+}
+
+func TestScanDirectoriesReportsChoiceCountMismatchAsWarning(t *testing.T) {
+	dir := t.TempDir()
+	knowledgeDir := filepath.Join(dir, "knowledge", "git")
+
+	if err := os.MkdirAll(knowledgeDir, 0o755); err != nil {
+		t.Fatalf("mkdir failed: %v", err)
+	}
+
+	cardPath := filepath.Join(knowledgeDir, "mismatch.md")
+	content := `---
+id: git-choice-mismatch
+title_zh: 選項數量不一致
+title_en: Choice Count Mismatch
+type: single-choice
+question_zh: "哪個指令會抓遠端更新？"
+question_en: "Which command fetches remote updates?"
+choices_zh:
+  - "git fetch"
+choices_en:
+  - "git fetch"
+  - "git pull"
+answer: 0
+---
+
+## zh-TW
+
+這張卡故意讓雙語選項數量不一致。
+
+## en
+
+This card intentionally has mismatched localized choice counts.
+`
+
+	if err := os.WriteFile(cardPath, []byte(content), 0o644); err != nil {
+		t.Fatalf("write file failed: %v", err)
+	}
+
+	result, err := ScanDirectories([]string{filepath.Join(dir, "knowledge")})
+	if err != nil {
+		t.Fatalf("scan failed: %v", err)
+	}
+
+	if len(result.Cards) != 1 {
+		t.Fatalf("expected 1 card, got %d", len(result.Cards))
+	}
+
+	if len(result.Errors) != 1 {
+		t.Fatalf("expected 1 warning, got %d", len(result.Errors))
+	}
+
+	if result.Errors[0].Severity != "warning" {
+		t.Fatalf("expected warning severity, got %s", result.Errors[0].Severity)
+	}
+	if result.Errors[0].Code != "bilingual_choice_count_mismatch" {
+		t.Fatalf("unexpected warning code: %s", result.Errors[0].Code)
+	}
+}

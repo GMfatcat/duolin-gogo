@@ -54,6 +54,7 @@ Next targets:
   - add more Git cards
   - improve authoring-time validation for bilingual card files
   - make import feedback clearer for broken Markdown cards
+  - first slice implemented: missing localized fields and bilingual choice mismatches now surface as warnings without blocking import
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

@@ -416,7 +416,7 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
 
 ### Next Phase B: Session And Progress UX
 
