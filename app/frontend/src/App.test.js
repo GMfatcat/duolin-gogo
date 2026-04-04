@@ -3,41 +3,72 @@ import { describe, expect, it } from 'vitest'
 import App from './App.vue'
 
 describe('App', () => {
-  it('renders the study card shell and supports language toggle plus answer feedback', async () => {
+  it('renders a two-column study workspace with staged learn, answer, and feedback flow', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
 
-    expect(wrapper.text()).toContain('duolin-gogo')
-    expect(wrapper.text()).toContain('Bilingual knowledge cards')
-    expect(wrapper.text()).toContain('TDD mode')
-    expect(wrapper.text()).toContain('Learn session')
-    expect(wrapper.text()).toContain('Cherry-pick 的用途')
-    expect(wrapper.text()).toContain('哪個 Git 指令可以只拿走一個 commit')
-    expect(wrapper.text()).toContain('`git cherry-pick` 會把你指定的一個 commit 套用到目前分支上。')
-    expect(wrapper.text()).toContain('Concepts to revisit')
-    expect(wrapper.text()).toContain('branching')
-    expect(wrapper.text()).toContain('Next review')
-    expect(wrapper.text()).toContain('Knowledge file health')
-    expect(wrapper.text()).toContain('No import issues detected.')
-    expect(wrapper.text()).toContain('Send test notification')
-    expect(wrapper.text()).toContain('Snooze 15 min')
-    expect(wrapper.text()).toContain('Rescan knowledge')
-    expect(wrapper.text()).toContain('Notification settings')
-    expect(wrapper.text()).toContain('Hook mode')
+    expect(wrapper.find('.workspace').exists()).toBe(true)
+    expect(wrapper.find('.study-column').exists()).toBe(true)
+    expect(wrapper.find('.sidebar-column').exists()).toBe(true)
 
-    const languageButtons = wrapper.findAll('.language-toggle button')
-    await languageButtons[1].trigger('click')
-    expect(wrapper.text()).toContain('Cherry-pick Purpose')
-    expect(wrapper.text()).toContain('One Git command can steal just one commit')
-    expect(wrapper.text()).toContain('lets you apply a chosen commit')
+    expect(wrapper.text()).toContain('duolin-gogo')
+    expect(wrapper.text()).toContain('雙語知識卡')
+    expect(wrapper.text()).toContain('學習模式')
+    expect(wrapper.text()).toContain('開始作答')
+
+    expect(wrapper.text()).toContain('Cherry-pick 的用途')
+    expect(wrapper.text()).toContain('`git cherry-pick` 可以把指定的 commit 套用到目前分支上。')
+    expect(wrapper.text()).not.toContain('快速問題')
+    expect(wrapper.findAll('input[type="radio"]').length).toBe(0)
+
+    await wrapper.find('.phase-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('快速問題')
+    expect(wrapper.text()).toContain('`git cherry-pick` 會把指定的 commit 套用到目前分支。')
+    expect(wrapper.findAll('input[type="radio"]').length).toBe(2)
+    expect(wrapper.find('.phase-button').exists()).toBe(false)
 
     await wrapper.find('input[value="true"]').setValue()
     await wrapper.find('.submit-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Correct.')
-    expect(wrapper.text()).toContain('Correct answer: true')
+    expect(wrapper.text()).toContain('答對了。')
+    expect(wrapper.text()).toContain('正確答案：是')
+    expect(wrapper.text()).toContain('下一題')
+    expect(wrapper.text()).toContain('Cherry-pick 會把選定 commit 的變更複製到目前分支。')
+
+    await wrapper.find('.next-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('開始作答')
+    expect(wrapper.text()).not.toContain('答對了。')
+  })
+
+  it('switches shell copy and card language through the global language toggle', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('通知設定')
+    expect(wrapper.text()).toContain('概念複習重點')
+
+    const languageButtons = wrapper.findAll('.language-toggle button')
+    await languageButtons[1].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Bilingual knowledge cards')
+    expect(wrapper.text()).toContain('Notification settings')
+    expect(wrapper.text()).toContain('Concepts to revisit')
+    expect(wrapper.text()).toContain('Cherry-pick Purpose')
+    expect(wrapper.text()).toContain('Start question')
+  })
+
+  it('supports notification controls and settings updates from the sidebar', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
 
     const toolbarButtons = wrapper.findAll('.toolbar-button')
     await toolbarButtons[0].trigger('click')

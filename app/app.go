@@ -77,15 +77,15 @@ type StudyCard struct {
 }
 
 type DashboardData struct {
-	Info              AppInfo             `json:"info"`
-	PreferredLanguage string              `json:"preferredLanguage"`
-	Stats             DashboardStats      `json:"stats"`
-	Summary           dashboard.Summary   `json:"summary"`
-	ImportErrors      []diagnostics.Error `json:"importErrors"`
+	Info                 AppInfo              `json:"info"`
+	PreferredLanguage    string               `json:"preferredLanguage"`
+	Stats                DashboardStats       `json:"stats"`
+	Summary              dashboard.Summary    `json:"summary"`
+	ImportErrors         []diagnostics.Error  `json:"importErrors"`
 	NotificationSettings NotificationSettings `json:"notificationSettings"`
-	CurrentCard       *StudyCard          `json:"currentCard"`
-	ReviewQueue       []StudyCard         `json:"reviewQueue"`
-	ReviewMode        bool                `json:"reviewMode"`
+	CurrentCard          *StudyCard           `json:"currentCard"`
+	ReviewQueue          []StudyCard          `json:"reviewQueue"`
+	ReviewMode           bool                 `json:"reviewMode"`
 }
 
 type SubmitAnswerResult struct {
@@ -174,9 +174,9 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 			Style:     normalizeNotificationStyle(a.mustLoadSettings().Notifications.Style),
 			TitleMode: normalizeNotificationTitleMode(a.mustLoadSettings().Notifications.TitleMode),
 		},
-		CurrentCard:       currentCard,
-		ReviewQueue:       reviewQueue,
-		ReviewMode:        reviewMode,
+		CurrentCard: currentCard,
+		ReviewQueue: reviewQueue,
+		ReviewMode:  reviewMode,
 	}, nil
 }
 
@@ -357,15 +357,27 @@ func (a *App) UpdateNotificationSettings(style string, titleMode string) (Action
 	file.Notifications.Style = normalizeNotificationStyle(style)
 	file.Notifications.TitleMode = normalizeNotificationTitleMode(titleMode)
 
-	bytes, err := json.MarshalIndent(file, "", "  ")
-	if err != nil {
-		return ActionStatus{}, err
-	}
-	if err := os.WriteFile(path, append(bytes, '\n'), 0o644); err != nil {
+	if err := writeSettingsFile(path, file); err != nil {
 		return ActionStatus{}, err
 	}
 
 	return ActionStatus{Message: "Notification settings updated."}, nil
+}
+
+func (a *App) UpdatePreferredLanguage(language string) (ActionStatus, error) {
+	path := filepath.Join(a.dataDir, "settings.json")
+	file, err := settings.Load(path)
+	if err != nil {
+		return ActionStatus{}, err
+	}
+
+	file.Language.Default = normalizePreferredLanguage(language)
+
+	if err := writeSettingsFile(path, file); err != nil {
+		return ActionStatus{}, err
+	}
+
+	return ActionStatus{Message: "Language updated."}, nil
 }
 
 func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error) {
@@ -418,11 +430,7 @@ func (a *App) loadPreferredLanguage() string {
 		return a.AppInfo().DefaultLanguage
 	}
 
-	if file.Language.Default == "" {
-		return a.AppInfo().DefaultLanguage
-	}
-
-	return file.Language.Default
+	return normalizePreferredLanguage(file.Language.Default)
 }
 
 func normalizeNotificationStyle(style string) string {
@@ -441,6 +449,23 @@ func normalizeNotificationTitleMode(titleMode string) string {
 	default:
 		return "prefer_manual"
 	}
+}
+
+func normalizePreferredLanguage(language string) string {
+	switch language {
+	case "en":
+		return "en"
+	default:
+		return "zh-TW"
+	}
+}
+
+func writeSettingsFile(path string, file settings.File) error {
+	bytes, err := json.MarshalIndent(file, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, append(bytes, '\n'), 0o644)
 }
 
 func (a *App) mustLoadSettings() settings.File {

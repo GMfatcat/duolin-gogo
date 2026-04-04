@@ -6,6 +6,7 @@ import {
   SnoozeNotifications,
   SubmitAnswer,
   UpdateNotificationSettings,
+  UpdatePreferredLanguage,
 } from '../wailsjs/go/main/App'
 
 const fallbackDashboard = {
@@ -40,19 +41,19 @@ const fallbackDashboard = {
     titleEn: 'Cherry-pick Purpose',
     questionType: 'true-false',
     questionText: '`git cherry-pick` applies a chosen commit to the current branch.',
-    questionTextZh: '`git cherry-pick` 會把指定的 commit 套用到目前分支上。',
+    questionTextZh: '`git cherry-pick` 會把指定的 commit 套用到目前分支。',
     questionTextEn: '`git cherry-pick` applies a chosen commit to the current branch.',
     choices: [
       { value: 'true', labelZh: '是', labelEn: 'True' },
       { value: 'false', labelZh: '否', labelEn: 'False' },
     ],
     clickbait: 'One Git command can steal just one commit. Know which?',
-    clickbaitZh: '哪個 Git 指令可以只拿走一個 commit？',
+    clickbaitZh: '有個 Git 指令能只偷一個 commit，你知道是哪個嗎？',
     clickbaitEn: 'One Git command can steal just one commit. Know which?',
     reviewHint: 'Cherry-pick copies selected commit changes onto your current branch.',
-    reviewHintZh: 'Cherry-pick 會把選定 commit 的變更套到目前分支。',
+    reviewHintZh: 'Cherry-pick 會把選定 commit 的變更複製到目前分支。',
     reviewHintEn: 'Cherry-pick copies selected commit changes onto your current branch.',
-    explanationZh: '`git cherry-pick` 會把你指定的一個 commit 套用到目前分支上。',
+    explanationZh: '`git cherry-pick` 可以把指定的 commit 套用到目前分支上。',
     explanationEn: '`git cherry-pick` lets you apply a chosen commit onto the current branch.',
     shownAt: '2026-04-05T10:00:00+08:00',
   },
@@ -75,16 +76,22 @@ export async function submitAnswer({ cardId, sessionType, selectedAnswer, shownA
     return SubmitAnswer(cardId, sessionType, selectedAnswer, shownAt)
   }
 
+  const preferredLanguage = fallbackDashboard.preferredLanguage
+  const isCorrect = selectedAnswer === 'true'
+
   return {
     cardId,
-    isCorrect: selectedAnswer === 'true',
+    isCorrect,
     correctAnswer: 'true',
-    feedback: selectedAnswer === 'true' ? 'Correct.' : 'Not quite.',
-    reviewHint: fallbackDashboard.currentCard.reviewHint,
-    preferredLanguage: fallbackDashboard.preferredLanguage,
+    feedback: preferredLanguage === 'zh-TW' ? (isCorrect ? '答對了。' : '再想一下。') : isCorrect ? 'Correct.' : 'Not quite.',
+    reviewHint:
+      preferredLanguage === 'zh-TW'
+        ? fallbackDashboard.currentCard.reviewHintZh
+        : fallbackDashboard.currentCard.reviewHintEn,
+    preferredLanguage,
     stats: {
       studiedToday: 2,
-      correctRate: selectedAnswer === 'true' ? 1 : 0.5,
+      correctRate: isCorrect ? 1 : 0.5,
     },
   }
 }
@@ -94,7 +101,7 @@ export async function getStudyCard(cardId) {
     return GetStudyCard(cardId)
   }
 
-  return structuredClone(fallbackDashboard.currentCard)
+  return structuredClone({ ...fallbackDashboard.currentCard, id: cardId })
 }
 
 export async function sendTestNotification() {
@@ -128,4 +135,13 @@ export async function updateNotificationSettings({ style, titleMode }) {
 
   fallbackDashboard.notificationSettings = { style, titleMode }
   return { message: 'Notification settings updated.' }
+}
+
+export async function updatePreferredLanguage(language) {
+  if (hasBackend()) {
+    return UpdatePreferredLanguage(language)
+  }
+
+  fallbackDashboard.preferredLanguage = language
+  return { message: 'Language updated.' }
 }

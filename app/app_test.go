@@ -366,6 +366,28 @@ func TestUpdateNotificationSettingsPersistsValues(t *testing.T) {
 	}
 }
 
+func TestUpdatePreferredLanguagePersistsValue(t *testing.T) {
+	app := newTestApp(t)
+
+	status, err := app.UpdatePreferredLanguage("en")
+	if err != nil {
+		t.Fatalf("update preferred language failed: %v", err)
+	}
+
+	if status.Message != "Language updated." {
+		t.Fatalf("unexpected status: %s", status.Message)
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if dashboard.PreferredLanguage != "en" {
+		t.Fatalf("expected preferred language en, got %s", dashboard.PreferredLanguage)
+	}
+}
+
 func TestLoadDashboardEntersReviewModeWhenReviewIsDue(t *testing.T) {
 	app := newTestApp(t)
 	now := time.Date(2026, 4, 5, 21, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))

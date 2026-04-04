@@ -37,3 +37,7 @@ export function SubmitAnswer(arg1, arg2, arg3, arg4) {
 export function UpdateNotificationSettings(arg1, arg2) {
   return window['go']['main']['App']['UpdateNotificationSettings'](arg1, arg2);
 }
+
+export function UpdatePreferredLanguage(arg1) {
+  return window['go']['main']['App']['UpdatePreferredLanguage'](arg1);
+}
