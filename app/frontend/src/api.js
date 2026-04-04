@@ -54,3 +54,12 @@ export async function submitAnswer({ cardId, sessionType, selectedAnswer, shownA
     },
   }
 }
+
+export async function getStudyCard(cardId) {
+  const backend = window?.go?.main?.App
+  if (backend?.GetStudyCard) {
+    return backend.GetStudyCard(cardId)
+  }
+
+  return structuredClone(fallbackDashboard.currentCard)
+}

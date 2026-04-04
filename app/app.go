@@ -10,16 +10,23 @@ import (
 	"time"
 
 	"duolin-gogo/internal/cards"
+	"duolin-gogo/internal/notifications"
 	"duolin-gogo/internal/progress"
+	"duolin-gogo/internal/scheduler"
 	"duolin-gogo/internal/selection"
+	"duolin-gogo/internal/settings"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
 type App struct {
-	ctx          context.Context
-	knowledgeDir string
-	dataDir      string
-	nowFunc      func() time.Time
+	ctx                context.Context
+	knowledgeDir       string
+	dataDir            string
+	nowFunc            func() time.Time
+	notificationSender notifications.Sender
+	schedulerState     scheduler.State
+	tickerFactory      func(time.Duration) *time.Ticker
 }
 
 type AppInfo struct {
@@ -68,12 +75,6 @@ type SubmitAnswerResult struct {
 	Stats             DashboardStats `json:"stats"`
 }
 
-type settingsFile struct {
-	Language struct {
-		Default string `json:"default"`
-	} `json:"language"`
-}
-
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return NewAppWithPaths(filepath.Clean(filepath.Join("..", "knowledge")), filepath.Clean(filepath.Join("..", "data")))
@@ -81,9 +82,11 @@ func NewApp() *App {
 
 func NewAppWithPaths(knowledgeDir, dataDir string) *App {
 	return &App{
-		knowledgeDir: knowledgeDir,
-		dataDir:      dataDir,
-		nowFunc:      time.Now,
+		knowledgeDir:       knowledgeDir,
+		dataDir:            dataDir,
+		nowFunc:            time.Now,
+		notificationSender: notifications.WindowsSender{},
+		tickerFactory:      time.NewTicker,
 	}
 }
 
@@ -91,6 +94,13 @@ func NewAppWithPaths(knowledgeDir, dataDir string) *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	_ = notifications.ConfigureApp()
+	notifications.RegisterActivationHandler(func(cardID string) {
+		if a.ctx != nil {
+			runtime.EventsEmit(a.ctx, "notification:open-card", cardID)
+		}
+	})
+	go a.startNotificationLoop()
 }
 
 // AppInfo returns basic app metadata for the UI shell.
@@ -120,6 +130,20 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		Stats:             calculateStats(state, a.nowFunc()),
 		CurrentCard:       currentCard,
 	}, nil
+}
+
+func (a *App) GetStudyCard(cardID string) (*StudyCard, error) {
+	cache, _, _, err := a.loadState()
+	if err != nil {
+		return nil, err
+	}
+
+	card, err := findCard(cache.Cards, cardID)
+	if err != nil {
+		return nil, err
+	}
+
+	return studyCardFromCard(card, a.nowFunc()), nil
 }
 
 func (a *App) SubmitAnswer(cardID string, sessionType string, selectedAnswer string, shownAt string) (SubmitAnswerResult, error) {
@@ -172,6 +196,52 @@ func (a *App) SubmitAnswer(cardID string, sessionType string, selectedAnswer str
 	}, nil
 }
 
+func (a *App) CheckAndSendNotification() (bool, error) {
+	config, err := settings.Load(filepath.Join(a.dataDir, "settings.json"))
+	if err != nil {
+		return false, err
+	}
+
+	now := a.nowFunc()
+	if !scheduler.ShouldSendLearningNotification(config, a.schedulerState, now) {
+		return false, nil
+	}
+
+	cache, state, _, err := a.loadState()
+	if err != nil {
+		return false, err
+	}
+
+	card, ok := selection.SelectNextCard(cache.Cards, state.Cards, now)
+	if !ok {
+		return false, nil
+	}
+
+	if err := a.notificationSender.Send(notifications.BuildStudyMessage(card)); err != nil {
+		return false, err
+	}
+
+	a.schedulerState.LastNotificationAt = &now
+	return true, nil
+}
+
+func (a *App) SnoozeNotifications() error {
+	config, err := settings.Load(filepath.Join(a.dataDir, "settings.json"))
+	if err != nil {
+		return err
+	}
+
+	now := a.nowFunc()
+	snoozeMinutes := config.StudyRules.SnoozeMinutes
+	if snoozeMinutes <= 0 {
+		snoozeMinutes = 15
+	}
+
+	snoozedUntil := now.Add(time.Duration(snoozeMinutes) * time.Minute)
+	a.schedulerState.SnoozedUntil = &snoozedUntil
+	return nil
+}
+
 func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error) {
 	if _, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir); err != nil {
 		return cards.CacheFile{}, progress.ProgressFile{}, "", err
@@ -217,22 +287,16 @@ func loadProgress(path string) (progress.ProgressFile, error) {
 }
 
 func (a *App) loadPreferredLanguage() string {
-	path := filepath.Join(a.dataDir, "settings.json")
-	bytes, err := os.ReadFile(path)
+	file, err := settings.Load(filepath.Join(a.dataDir, "settings.json"))
 	if err != nil {
 		return a.AppInfo().DefaultLanguage
 	}
 
-	var settings settingsFile
-	if err := json.Unmarshal(bytes, &settings); err != nil {
+	if file.Language.Default == "" {
 		return a.AppInfo().DefaultLanguage
 	}
 
-	if settings.Language.Default == "" {
-		return a.AppInfo().DefaultLanguage
-	}
-
-	return settings.Language.Default
+	return file.Language.Default
 }
 
 func calculateStats(state progress.ProgressFile, now time.Time) DashboardStats {
@@ -306,4 +370,17 @@ func findCard(all []cards.Card, id string) (cards.Card, error) {
 	}
 
 	return cards.Card{}, fmt.Errorf("card %q not found", id)
+}
+
+func (a *App) startNotificationLoop() {
+	if a.tickerFactory == nil {
+		return
+	}
+
+	ticker := a.tickerFactory(time.Minute)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		_, _ = a.CheckAndSendNotification()
+	}
 }

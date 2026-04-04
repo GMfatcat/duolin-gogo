@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"duolin-gogo/internal/cards"
+	"duolin-gogo/internal/notifications"
 )
 
 func TestNewAppReturnsApp(t *testing.T) {
@@ -90,6 +91,77 @@ func TestSubmitAnswerPersistsFeedback(t *testing.T) {
 	}
 }
 
+func TestGetStudyCardReturnsSpecificCard(t *testing.T) {
+	app := newTestApp(t)
+
+	card, err := app.GetStudyCard("git-rebase-vs-merge")
+	if err != nil {
+		t.Fatalf("get study card failed: %v", err)
+	}
+
+	if card.ID != "git-rebase-vs-merge" {
+		t.Fatalf("unexpected card id: %s", card.ID)
+	}
+}
+
+func TestCheckAndSendNotificationSendsSelectedCard(t *testing.T) {
+	app := newTestApp(t)
+	sender := &stubSender{}
+	app.notificationSender = sender
+
+	sent, err := app.CheckAndSendNotification()
+	if err != nil {
+		t.Fatalf("check and send notification failed: %v", err)
+	}
+
+	if !sent {
+		t.Fatal("expected notification to be sent")
+	}
+
+	if sender.message.ActivationArgument != "duolin-gogo://study/git-cherry-pick-purpose" {
+		t.Fatalf("unexpected activation argument: %s", sender.message.ActivationArgument)
+	}
+
+	if app.schedulerState.LastNotificationAt == nil {
+		t.Fatal("expected last notification timestamp")
+	}
+}
+
+func TestCheckAndSendNotificationRespectsIntervalAndSnooze(t *testing.T) {
+	app := newTestApp(t)
+	sender := &stubSender{}
+	app.notificationSender = sender
+
+	sent, err := app.CheckAndSendNotification()
+	if err != nil {
+		t.Fatalf("first send failed: %v", err)
+	}
+	if !sent {
+		t.Fatal("expected first notification to send")
+	}
+
+	sent, err = app.CheckAndSendNotification()
+	if err != nil {
+		t.Fatalf("second send failed: %v", err)
+	}
+	if sent {
+		t.Fatal("expected second notification to be blocked by interval")
+	}
+
+	if err := app.SnoozeNotifications(); err != nil {
+		t.Fatalf("snooze failed: %v", err)
+	}
+
+	app.schedulerState.LastNotificationAt = nil
+	sent, err = app.CheckAndSendNotification()
+	if err != nil {
+		t.Fatalf("send after snooze failed: %v", err)
+	}
+	if sent {
+		t.Fatal("expected notification to be blocked by snooze")
+	}
+}
+
 func newTestApp(t *testing.T) *App {
 	t.Helper()
 
@@ -169,4 +241,13 @@ English cherry-pick explanation.
 	}
 
 	return app
+}
+
+type stubSender struct {
+	message notifications.Message
+}
+
+func (s *stubSender) Send(message notifications.Message) error {
+	s.message = message
+	return nil
 }

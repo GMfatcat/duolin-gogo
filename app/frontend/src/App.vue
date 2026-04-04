@@ -1,6 +1,7 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { loadDashboard, submitAnswer } from './api'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { EventsOn } from '../wailsjs/runtime/runtime'
+import { getStudyCard, loadDashboard, submitAnswer } from './api'
 
 const dashboard = ref(null)
 const selectedLanguage = ref('zh-TW')
@@ -8,6 +9,7 @@ const selectedAnswer = ref('')
 const feedback = ref(null)
 const loading = ref(true)
 const submitting = ref(false)
+let unsubscribe = null
 
 const card = computed(() => dashboard.value?.currentCard ?? null)
 const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
@@ -25,6 +27,23 @@ onMounted(async () => {
   dashboard.value = await loadDashboard()
   selectedLanguage.value = dashboard.value.preferredLanguage || dashboard.value.info.defaultLanguage
   loading.value = false
+
+  if (window?.runtime) {
+    EventsOn('notification:open-card', async (cardId) => {
+      const nextCard = await getStudyCard(cardId)
+      dashboard.value = {
+        ...dashboard.value,
+        currentCard: nextCard,
+      }
+      feedback.value = null
+      selectedAnswer.value = ''
+    })
+    unsubscribe = true
+  }
+})
+
+onUnmounted(() => {
+  unsubscribe = null
 })
 
 async function handleSubmit() {

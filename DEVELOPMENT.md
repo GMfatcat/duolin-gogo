@@ -45,8 +45,8 @@ npm run build
 
 Current completed milestone:
 
-- Milestone 5: Minimal Study Card UI
+- Milestone 6: Notification And App Scheduling
 
 Next target:
 
-- Milestone 6: Notification And App Scheduling
+- Milestone 7: Review Session Mode

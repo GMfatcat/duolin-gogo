@@ -192,6 +192,10 @@ TDD focus:
 - notification payload formatting tests
 - click-routing behavior tests where practical
 
+Current status:
+
+- completed
+
 ### Milestone 7: Review Session Mode
 
 Goal:
@@ -291,4 +295,5 @@ For now:
 - Milestone 3 is `completed`
 - Milestone 4 is `completed`
 - Milestone 5 is `completed`
-- Milestone 6 and beyond are `planned`
+- Milestone 6 is `completed`
+- Milestone 7 and beyond are `planned`
