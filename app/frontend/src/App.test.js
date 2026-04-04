@@ -141,6 +141,27 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Cherry-pick 的用途')
   })
 
+  it('shows review session progress cues while a batch is active', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    wrapper.vm.dashboard = {
+      ...wrapper.vm.dashboard,
+      reviewMode: true,
+      reviewQueue: [wrapper.vm.dashboard.currentCard, { ...wrapper.vm.dashboard.currentCard, id: 'git-rebase-vs-merge' }],
+    }
+    wrapper.vm.reviewSessionProgress = {
+      active: true,
+      total: 3,
+      remaining: 2,
+    }
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('1 / 3')
+    expect(wrapper.text()).toContain('剩餘 2')
+  })
+
   it('switches global shell copy to english without changing the product name', async () => {
     const wrapper = mount(App)
 

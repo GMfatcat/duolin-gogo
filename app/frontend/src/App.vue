@@ -25,6 +25,8 @@ const translations = {
     reviewCard: '複習卡',
     nextCard: '下一張卡',
     reviewSessionActive: '複習模式進行中，待答題數：',
+    reviewProgress: '複習進度',
+    remainingCards: '剩餘',
     learnPhase: '先看觀念',
     answerPhase: '開始作答',
     feedbackPhase: '作答回饋',
@@ -115,6 +117,8 @@ const translations = {
     reviewCard: 'Review card',
     nextCard: 'Next card',
     reviewSessionActive: 'Review session active. Queue size:',
+    reviewProgress: 'Review progress',
+    remainingCards: 'remaining',
     learnPhase: 'Learn',
     answerPhase: 'Start question',
     feedbackPhase: 'Feedback',
@@ -216,6 +220,11 @@ const phase = ref('learn')
 const settingsOpen = ref(false)
 const resetWarningOpen = ref(false)
 const reviewCompleted = ref(false)
+const reviewSessionProgress = ref({
+  active: false,
+  total: 0,
+  remaining: 0,
+})
 const diagnosticsFilter = ref({
   severity: 'all',
   topic: 'all',
@@ -265,6 +274,11 @@ const previewErrors = computed(() => authoringPreview.value?.importErrors ?? [])
 const draftReviewErrors = computed(() => draftReview.value?.importErrors ?? [])
 const draftReviewCard = computed(() => draftReview.value?.currentCard ?? null)
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
+const reviewProgressText = computed(() => {
+  if (!reviewSessionProgress.value.active || reviewSessionProgress.value.total <= 0) return ''
+  const completed = reviewSessionProgress.value.total - reviewSessionProgress.value.remaining
+  return `${completed} / ${reviewSessionProgress.value.total}`
+})
 
 const currentPhaseLabel = computed(() => {
   if (phase.value === 'answer') return t.value.answerPhase
@@ -440,7 +454,25 @@ onUnmounted(() => {
 })
 
 async function refreshDashboard() {
-  dashboard.value = await loadDashboard()
+  const nextDashboard = await loadDashboard()
+  if (nextDashboard.reviewMode) {
+    const nextTotal =
+      reviewSessionProgress.value.active && reviewSessionProgress.value.total >= nextDashboard.reviewQueue.length
+        ? reviewSessionProgress.value.total
+        : nextDashboard.reviewQueue.length
+    reviewSessionProgress.value = {
+      active: true,
+      total: nextTotal,
+      remaining: nextDashboard.reviewQueue.length,
+    }
+  } else if (!reviewCompleted.value) {
+    reviewSessionProgress.value = {
+      active: false,
+      total: 0,
+      remaining: 0,
+    }
+  }
+  dashboard.value = nextDashboard
   selectedLanguage.value = dashboard.value.preferredLanguage || dashboard.value.info.defaultLanguage
   scheduleForm.value = {
     notificationIntervalMinutes: scheduleSettings.value.notificationIntervalMinutes,
@@ -499,14 +531,25 @@ async function handleSubmit() {
 async function handleNextCard() {
   const wasReviewMode = reviewMode.value
   const previousQueueLength = reviewQueue.value.length
+  const previousReviewTotal = reviewSessionProgress.value.total
   await refreshDashboard()
   if (wasReviewMode && previousQueueLength > 0 && !dashboard.value.reviewMode) {
     reviewCompleted.value = true
+    reviewSessionProgress.value = {
+      active: true,
+      total: previousReviewTotal || previousQueueLength,
+      remaining: 0,
+    }
   }
 }
 
 function handleReturnToLearning() {
   reviewCompleted.value = false
+  reviewSessionProgress.value = {
+    active: false,
+    total: 0,
+    remaining: 0,
+  }
 }
 
 async function handleSendTestNotification() {
@@ -724,6 +767,9 @@ function toggleSettings() {
             </div>
             <span class="phase-pill">{{ t.feedbackPhase }}</span>
           </div>
+          <p v-if="reviewSessionProgress.total" class="review-progress-line">
+            {{ t.reviewProgress }} {{ reviewProgressText }}
+          </p>
           <p class="callout">{{ t.reviewCompleteBody }}</p>
           <button class="next-button complete-review-button" type="button" @click="handleReturnToLearning">
             {{ t.reviewCompleteAction }}
@@ -740,6 +786,9 @@ function toggleSettings() {
           </div>
 
           <p v-if="reviewMode" class="review-banner">{{ t.reviewSessionActive }} {{ reviewQueue.length }}</p>
+          <p v-if="reviewMode && reviewSessionProgress.active" class="review-progress-line">
+            {{ t.reviewProgress }} {{ reviewProgressText }} · {{ t.remainingCards }} {{ reviewSessionProgress.remaining }}
+          </p>
           <p class="callout">{{ clickbaitText }}</p>
 
           <div v-if="phase === 'learn'" class="phase-panel">

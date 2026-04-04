@@ -523,6 +523,7 @@ Current status:
 - in_progress
 - first slice implemented: cards seen in the last 10-30 minutes now receive a repeat-avoidance penalty so alternative cards are preferred when available
 - second slice implemented: finishing the last review card now lands in a dedicated review-complete state with a clear next-step action
+- third slice implemented: review batches now show explicit progress cues for completed, total, and remaining cards
 
 ### Next Phase C: Multi-Topic Expansion
 

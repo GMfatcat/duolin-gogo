@@ -126,6 +126,7 @@ Current useful controls:
 - batch diagnostics now include a recently changed cards summary to highlight freshly edited knowledge files
 - resetting study data removes local `progress.json` and `attempts.jsonl`, then reloads the dashboard from a clean state
 - finishing the last card in a review batch now shows a dedicated completion state before returning to the next learn card
+- active review batches now show explicit progress cues for completed, total, and remaining cards
 - `zh-TW` / `en` language toggle
 - answer submission
 

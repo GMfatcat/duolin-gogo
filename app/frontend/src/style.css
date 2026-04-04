@@ -154,6 +154,12 @@ body {
   line-height: 1.55;
 }
 
+.review-progress-line {
+  margin: 12px 0 0;
+  color: #d4dde5;
+  font-size: 0.94rem;
+}
+
 .phase-panel {
   margin-top: 20px;
   display: flex;
