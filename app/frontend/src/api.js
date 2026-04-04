@@ -74,8 +74,16 @@ const fallbackDashboard = {
 
 const fallbackAuthoringPreview = {
   files: [
-    { path: 'D:/duolin-gogo/knowledge/git/cherry-pick.md', name: 'cherry-pick.md' },
-    { path: 'D:/duolin-gogo/knowledge/git/rebase.md', name: 'rebase.md' },
+    {
+      path: 'D:/duolin-gogo/knowledge/git/cherry-pick.md',
+      name: 'cherry-pick.md',
+      modifiedAt: '2026-04-04T09:30:00+08:00',
+    },
+    {
+      path: 'D:/duolin-gogo/knowledge/git/rebase.md',
+      name: 'rebase.md',
+      modifiedAt: '2026-04-05T11:45:00+08:00',
+    },
   ],
   selectedPath: 'D:/duolin-gogo/knowledge/git/cherry-pick.md',
   currentCard: structuredClone(fallbackDashboard.currentCard),
@@ -174,6 +182,7 @@ export async function loadAuthoringPreview() {
   const savedFiles = Array.from(fallbackSavedDrafts.entries()).map(([path]) => ({
     path,
     name: path.split('/').at(-1),
+    modifiedAt: '2026-04-05T12:00:00+08:00',
   }))
 
   return structuredClone({
@@ -196,6 +205,7 @@ export async function previewKnowledgeCard(path) {
         ...Array.from(fallbackSavedDrafts.keys()).map((savedPath) => ({
           path: savedPath,
           name: savedPath.split('/').at(-1),
+          modifiedAt: '2026-04-05T12:00:00+08:00',
         })),
       ],
       selectedPath: path,

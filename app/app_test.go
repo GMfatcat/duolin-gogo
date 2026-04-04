@@ -410,6 +410,28 @@ func TestLoadAuthoringPreviewReturnsFilesAndSelectedCard(t *testing.T) {
 	}
 }
 
+func TestLoadAuthoringPreviewIncludesModifiedAt(t *testing.T) {
+	app := newTestApp(t)
+
+	preview, err := app.LoadAuthoringPreview()
+	if err != nil {
+		t.Fatalf("load authoring preview failed: %v", err)
+	}
+
+	if len(preview.Files) == 0 {
+		t.Fatal("expected preview files")
+	}
+
+	for _, file := range preview.Files {
+		if file.ModifiedAt == "" {
+			t.Fatalf("expected modifiedAt for %s", file.Path)
+		}
+		if _, err := time.Parse(time.RFC3339, file.ModifiedAt); err != nil {
+			t.Fatalf("expected RFC3339 modifiedAt for %s: %v", file.Path, err)
+		}
+	}
+}
+
 func TestPreviewKnowledgeCardReturnsDiagnosticsForBrokenCard(t *testing.T) {
 	app := newTestApp(t)
 

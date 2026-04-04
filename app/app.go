@@ -58,8 +58,9 @@ type ScheduleSettings struct {
 }
 
 type AuthoringPreviewFile struct {
-	Path string `json:"path"`
-	Name string `json:"name"`
+	Path       string `json:"path"`
+	Name       string `json:"name"`
+	ModifiedAt string `json:"modifiedAt"`
 }
 
 type AuthoringPreviewData struct {
@@ -579,9 +580,14 @@ func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error
 func (a *App) previewKnowledgeCard(path string, files []string) (AuthoringPreviewData, error) {
 	previewFiles := make([]AuthoringPreviewFile, 0, len(files))
 	for _, file := range files {
+		modifiedAt := ""
+		if info, err := os.Stat(file); err == nil {
+			modifiedAt = info.ModTime().Format(time.RFC3339)
+		}
 		previewFiles = append(previewFiles, AuthoringPreviewFile{
-			Path: file,
-			Name: filepath.Base(file),
+			Path:       file,
+			Name:       filepath.Base(file),
+			ModifiedAt: modifiedAt,
 		})
 	}
 

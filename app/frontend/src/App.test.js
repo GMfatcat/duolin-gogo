@@ -143,7 +143,7 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Deck report')
     expect(wrapper.text()).toContain('Total cards')
     expect(wrapper.text()).toContain('Clean cards')
-    expect(wrapper.findAll('.severity-pill').length).toBe(4)
+    expect(wrapper.findAll('.severity-pill').length).toBe(5)
     expect(wrapper.findAll('.diagnostic-group').length).toBe(2)
   })
 
@@ -185,6 +185,19 @@ describe('App', () => {
     await selects[1].setValue('git')
     await flushPromises()
     expect(wrapper.text()).toContain('legacy.md')
+  })
+
+  it('shows recently changed cards inside batch report', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Recently changed cards')
+    expect(wrapper.text()).toContain('rebase.md')
+    expect(wrapper.text()).toContain('2026-04-05 11:45')
+    expect(wrapper.text()).toContain('cherry-pick.md')
   })
 
   it('shows authoring preview controls inside settings and updates the preview selection', async () => {

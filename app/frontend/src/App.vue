@@ -83,6 +83,9 @@ const translations = {
     cleanCards: '乾淨卡片',
     warningCards: '有警告的卡片',
     errorCards: '有錯誤的卡片',
+    recentChanges: '最近變動卡片',
+    lastUpdated: '最後更新',
+    noRecentChanges: '目前沒有最近變動資料。',
     severityFilter: '嚴重度',
     topicFilter: '主題',
     allFilter: '全部',
@@ -162,6 +165,9 @@ const translations = {
     cleanCards: 'Clean cards',
     warningCards: 'Cards with warnings',
     errorCards: 'Cards with errors',
+    recentChanges: 'Recently changed cards',
+    lastUpdated: 'Last updated',
+    noRecentChanges: 'No recent changes yet.',
     severityFilter: 'Severity',
     topicFilter: 'Topic',
     allFilter: 'All',
@@ -353,6 +359,12 @@ const filteredWarningItems = computed(() =>
 )
 const filteredErrorItems = computed(() =>
   errorItems.value.filter((item) => matchesDiagnosticFilter(item)),
+)
+const recentlyChangedFiles = computed(() =>
+  [...previewFiles.value]
+    .filter((file) => file.modifiedAt)
+    .sort((left, right) => new Date(right.modifiedAt).getTime() - new Date(left.modifiedAt).getTime())
+    .slice(0, 5),
 )
 
 const correctAnswerLabel = computed(() => {
@@ -994,6 +1006,23 @@ function toggleSettings() {
               <span class="label">{{ t.errorCards }}</span>
               <strong>{{ errorCardCount }}</strong>
             </article>
+          </section>
+          <section class="recent-changes">
+            <div class="diagnostic-group-head">
+              <span class="severity-pill neutral">{{ t.recentChanges }}</span>
+              <strong>{{ recentlyChangedFiles.length }}</strong>
+            </div>
+            <div v-if="recentlyChangedFiles.length" class="recent-change-list">
+              <article
+                v-for="file in recentlyChangedFiles"
+                :key="`recent-${file.path}`"
+                class="recent-change-item"
+              >
+                <strong>{{ file.name }}</strong>
+                <span>{{ t.lastUpdated }}: {{ formatDisplayTime(file.modifiedAt, t.notScheduled) }}</span>
+              </article>
+            </div>
+            <p v-else class="explanation">{{ t.noRecentChanges }}</p>
           </section>
           <div class="diagnostic-filters">
             <label class="settings-field">

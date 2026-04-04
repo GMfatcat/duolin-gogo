@@ -484,6 +484,7 @@ Deliverables:
 - first slice implemented inside settings with total, clean, warning, and error card counts
 - grouped warning/error report
 - second slice implemented with severity and topic filters
+- third slice implemented with a recently changed cards summary based on authoring preview timestamps
 - quick visibility into recently changed or problematic cards
 
 TDD focus:
@@ -491,10 +492,11 @@ TDD focus:
 - aggregation tests for warning/error totals
 - filtering tests by severity and topic
 - UI tests for grouped diagnostics report
+- preview metadata tests for recent-change timestamps
 
 Current status:
 
-- in_progress
+- completed
 
 ### Next Phase B: Session And Progress UX
 
