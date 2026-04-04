@@ -119,6 +119,10 @@ TDD focus:
 - JSONL append tests
 - daily summary update tests
 
+Current status:
+
+- completed
+
 ### Milestone 4: Card Selection Engine
 
 Goal:
@@ -276,4 +280,5 @@ For now:
 - Milestone 0 is `completed`
 - Milestone 1 is `completed`
 - Milestone 2 is `completed`
-- Milestone 3 and beyond are `planned`
+- Milestone 3 is `completed`
+- Milestone 4 and beyond are `planned`

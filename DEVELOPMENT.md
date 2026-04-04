@@ -45,8 +45,8 @@ npm run build
 
 Current completed milestone:
 
-- Milestone 2: Markdown Card Parser
+- Milestone 3: Progress Store And Attempt Logging
 
 Next target:
 
-- Milestone 3: Progress Store And Attempt Logging
+- Milestone 4: Card Selection Engine

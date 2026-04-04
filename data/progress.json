@@ -1,6 +1,31 @@
 {
   "version": 1,
-  "updated_at": null,
-  "cards": {},
-  "daily_summary": {}
+  "updated_at": "2026-04-04T19:51:16+08:00",
+  "cards": {
+    "git-rebase-vs-merge": {
+      "seen_count": 1,
+      "correct_count": 1,
+      "wrong_count": 0,
+      "mastery_score": 1,
+      "streak_correct": 1,
+      "last_seen_at": "2026-04-04T20:00:00+08:00",
+      "last_correct_at": "2026-04-04T20:00:07+08:00",
+      "last_wrong_at": null,
+      "last_session_type": "learn",
+      "introduced_at": "2026-04-04T20:00:00+08:00",
+      "next_review_at": "2026-04-05T20:00:07+08:00",
+      "snoozed_until": null,
+      "is_mastered": false
+    }
+  },
+  "daily_summary": {
+    "2026-04-04": {
+      "cards_seen": 1,
+      "answered": 1,
+      "correct": 1,
+      "wrong": 0,
+      "review_answered": 0,
+      "learn_answered": 1
+    }
+  }
 }
