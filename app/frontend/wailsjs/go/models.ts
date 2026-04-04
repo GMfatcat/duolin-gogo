@@ -1,0 +1,267 @@
+export namespace dashboard {
+	
+	export class WeakTopic {
+	    tag: string;
+	    wrongCount: number;
+	    seenCount: number;
+	    accuracy: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new WeakTopic(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.tag = source["tag"];
+	        this.wrongCount = source["wrongCount"];
+	        this.seenCount = source["seenCount"];
+	        this.accuracy = source["accuracy"];
+	    }
+	}
+	export class Summary {
+	    studiedToday: number;
+	    correctRate: number;
+	    nextReviewAt: string;
+	    weakTopics: WeakTopic[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Summary(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.studiedToday = source["studiedToday"];
+	        this.correctRate = source["correctRate"];
+	        this.nextReviewAt = source["nextReviewAt"];
+	        this.weakTopics = this.convertValues(source["weakTopics"], WeakTopic);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
+export namespace diagnostics {
+	
+	export class Error {
+	    source_path: string;
+	    code: string;
+	    field?: string;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Error(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.source_path = source["source_path"];
+	        this.code = source["code"];
+	        this.field = source["field"];
+	        this.message = source["message"];
+	    }
+	}
+
+}
+
+export namespace main {
+	
+	export class AnswerChoice {
+	    value: string;
+	    label: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new AnswerChoice(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.value = source["value"];
+	        this.label = source["label"];
+	    }
+	}
+	export class AppInfo {
+	    name: string;
+	    focusTopic: string;
+	    defaultLanguage: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new AppInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.focusTopic = source["focusTopic"];
+	        this.defaultLanguage = source["defaultLanguage"];
+	    }
+	}
+	export class StudyCard {
+	    id: string;
+	    title: string;
+	    questionType: string;
+	    questionText: string;
+	    choices: AnswerChoice[];
+	    clickbait: string;
+	    reviewHint: string;
+	    explanationZh: string;
+	    explanationEn: string;
+	    shownAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StudyCard(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.title = source["title"];
+	        this.questionType = source["questionType"];
+	        this.questionText = source["questionText"];
+	        this.choices = this.convertValues(source["choices"], AnswerChoice);
+	        this.clickbait = source["clickbait"];
+	        this.reviewHint = source["reviewHint"];
+	        this.explanationZh = source["explanationZh"];
+	        this.explanationEn = source["explanationEn"];
+	        this.shownAt = source["shownAt"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class DashboardStats {
+	    studiedToday: number;
+	    correctRate: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new DashboardStats(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.studiedToday = source["studiedToday"];
+	        this.correctRate = source["correctRate"];
+	    }
+	}
+	export class DashboardData {
+	    info: AppInfo;
+	    preferredLanguage: string;
+	    stats: DashboardStats;
+	    summary: dashboard.Summary;
+	    importErrors: diagnostics.Error[];
+	    currentCard?: StudyCard;
+	    reviewQueue: StudyCard[];
+	    reviewMode: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new DashboardData(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.info = this.convertValues(source["info"], AppInfo);
+	        this.preferredLanguage = source["preferredLanguage"];
+	        this.stats = this.convertValues(source["stats"], DashboardStats);
+	        this.summary = this.convertValues(source["summary"], dashboard.Summary);
+	        this.importErrors = this.convertValues(source["importErrors"], diagnostics.Error);
+	        this.currentCard = this.convertValues(source["currentCard"], StudyCard);
+	        this.reviewQueue = this.convertValues(source["reviewQueue"], StudyCard);
+	        this.reviewMode = source["reviewMode"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+	
+	export class SubmitAnswerResult {
+	    cardId: string;
+	    isCorrect: boolean;
+	    correctAnswer: string;
+	    feedback: string;
+	    reviewHint: string;
+	    preferredLanguage: string;
+	    stats: DashboardStats;
+	
+	    static createFrom(source: any = {}) {
+	        return new SubmitAnswerResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cardId = source["cardId"];
+	        this.isCorrect = source["isCorrect"];
+	        this.correctAnswer = source["correctAnswer"];
+	        this.feedback = source["feedback"];
+	        this.reviewHint = source["reviewHint"];
+	        this.preferredLanguage = source["preferredLanguage"];
+	        this.stats = this.convertValues(source["stats"], DashboardStats);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
