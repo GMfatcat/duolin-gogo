@@ -1,6 +1,7 @@
 import {
   GetStudyCard,
   LoadDashboard,
+  RescanKnowledge,
   SendTestNotification,
   SnoozeNotifications,
   SubmitAnswer,
@@ -97,4 +98,12 @@ export async function snoozeNotifications() {
   }
 
   return { message: 'Notifications snoozed for 15 minutes.' }
+}
+
+export async function rescanKnowledge() {
+  if (hasBackend()) {
+    return RescanKnowledge()
+  }
+
+  return { message: 'Knowledge refreshed: 2 cards, 0 errors.' }
 }

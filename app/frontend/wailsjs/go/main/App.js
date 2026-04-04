@@ -18,6 +18,10 @@ export function LoadDashboard() {
   return window['go']['main']['App']['LoadDashboard']();
 }
 
+export function RescanKnowledge() {
+  return window['go']['main']['App']['RescanKnowledge']();
+}
+
 export function SendTestNotification() {
   return window['go']['main']['App']['SendTestNotification']();
 }

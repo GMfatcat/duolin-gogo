@@ -114,6 +114,7 @@ Current useful controls:
 
 - `Send test notification`
 - `Snooze 15 min`
+- `Rescan knowledge`
 - `zh-TW` / `en` language toggle
 - answer submission
 
@@ -180,6 +181,7 @@ The current UI mainly supports:
 
 - `Send test notification`
 - `Snooze 15 min`
+- `Rescan knowledge`
 - language switching
 - answer submission
 - passive dashboard display
@@ -187,7 +189,6 @@ The current UI mainly supports:
 It still does not include controls such as:
 
 - `Open next review`
-- `Rescan knowledge`
 - `Open diagnostics details`
 
 ## 11. Data Files To Inspect During Testing
@@ -217,6 +218,7 @@ The following have been verified:
 - Windows toast can be sent successfully
 - UI has a manual test notification button
 - UI has a snooze button
+- UI has a manual knowledge rescan button
 
 The following still needs improvement:
 
@@ -228,4 +230,4 @@ The following still needs improvement:
 The most valuable next implementation is likely:
 
 - richer review navigation and queue controls
-- manual knowledge rescan and diagnostics actions
+- diagnostics actions and deeper review controls

@@ -313,6 +313,17 @@ func (a *App) SendTestNotification() (ActionStatus, error) {
 	return ActionStatus{Message: "Test notification sent."}, nil
 }
 
+func (a *App) RescanKnowledge() (ActionStatus, error) {
+	result, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir)
+	if err != nil {
+		return ActionStatus{}, err
+	}
+
+	return ActionStatus{
+		Message: fmt.Sprintf("Knowledge refreshed: %d cards, %d errors.", len(result.Cards), len(result.Errors)),
+	}, nil
+}
+
 func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error) {
 	if _, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir); err != nil {
 		return cards.CacheFile{}, progress.ProgressFile{}, "", err

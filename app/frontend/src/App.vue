@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
-import { getStudyCard, loadDashboard, sendTestNotification, snoozeNotifications, submitAnswer } from './api'
+import { getStudyCard, loadDashboard, rescanKnowledge, sendTestNotification, snoozeNotifications, submitAnswer } from './api'
 
 const dashboard = ref(null)
 const selectedLanguage = ref('zh-TW')
@@ -89,6 +89,19 @@ async function handleSnooze() {
     actionMessage.value = `Snooze failed: ${error?.message ?? String(error)}`
   }
 }
+
+async function handleRescanKnowledge() {
+  try {
+    const result = await rescanKnowledge()
+    dashboard.value = await loadDashboard()
+    selectedLanguage.value = dashboard.value.preferredLanguage || dashboard.value.info.defaultLanguage
+    feedback.value = null
+    selectedAnswer.value = ''
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Rescan failed: ${error?.message ?? String(error)}`
+  }
+}
 </script>
 
 <template>
@@ -127,6 +140,9 @@ async function handleSnooze() {
       </button>
       <button class="toolbar-button secondary" type="button" @click="handleSnooze">
         Snooze 15 min
+      </button>
+      <button class="toolbar-button secondary" type="button" @click="handleRescanKnowledge">
+        Rescan knowledge
       </button>
       <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
     </section>

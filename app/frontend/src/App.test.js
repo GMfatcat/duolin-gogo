@@ -21,6 +21,7 @@ describe('App', () => {
     expect(wrapper.text()).toContain('No import issues detected.')
     expect(wrapper.text()).toContain('Send test notification')
     expect(wrapper.text()).toContain('Snooze 15 min')
+    expect(wrapper.text()).toContain('Rescan knowledge')
 
     const languageButtons = wrapper.findAll('.language-toggle button')
     await languageButtons[1].trigger('click')
@@ -41,5 +42,9 @@ describe('App', () => {
     await toolbarButtons[1].trigger('click')
     await flushPromises()
     expect(wrapper.text()).toContain('Notifications snoozed for 15 minutes.')
+
+    await toolbarButtons[2].trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Knowledge refreshed: 2 cards, 0 errors.')
   })
 })

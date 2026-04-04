@@ -271,6 +271,60 @@ func TestSendTestNotificationReportsWhenNoCardsExist(t *testing.T) {
 	}
 }
 
+func TestRescanKnowledgeRefreshesCacheWithNewCard(t *testing.T) {
+	app := newTestApp(t)
+
+	newCard := `---
+id: git-fast-forward-merge
+title: Fast-forward Merge
+type: true-false
+tags: [git, branching]
+question: "` + "`git merge --ff-only` refuses to create a merge commit." + `"
+answer: true
+enabled: true
+---
+
+## zh-TW
+
+` + "`git merge --ff-only`" + ` 只允許 fast-forward merge，不能產生 merge commit。
+
+## en
+
+` + "`git merge --ff-only`" + ` only allows a fast-forward merge and refuses to create a merge commit.
+`
+
+	if err := os.WriteFile(filepath.Join(app.knowledgeDir, "git", "fast-forward.md"), []byte(newCard), 0o644); err != nil {
+		t.Fatalf("write new card failed: %v", err)
+	}
+
+	status, err := app.RescanKnowledge()
+	if err != nil {
+		t.Fatalf("rescan knowledge failed: %v", err)
+	}
+
+	if status.Message != "Knowledge refreshed: 3 cards, 0 errors." {
+		t.Fatalf("unexpected rescan status: %s", status.Message)
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if dashboard.CurrentCard == nil {
+		t.Fatal("expected current card after rescan")
+	}
+
+	cache, err := loadCache(filepath.Join(app.dataDir, "cards-cache.json"))
+	if err != nil {
+		t.Fatalf("load cache failed: %v", err)
+	}
+
+	if len(cache.Cards) != 3 {
+		t.Fatalf("expected 3 cached cards after rescan, got %d", len(cache.Cards))
+	}
+}
+
 func TestLoadDashboardEntersReviewModeWhenReviewIsDue(t *testing.T) {
 	app := newTestApp(t)
 	now := time.Date(2026, 4, 5, 21, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))

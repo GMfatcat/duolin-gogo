@@ -311,3 +311,26 @@ For now:
 - Milestone 7 is `completed`
 - Milestone 8 is `completed`
 - Milestone 9 is `completed`
+
+## 7. Post-MVP Follow-Ups
+
+### Utility Controls
+
+Goal:
+
+- make the desktop app easier to operate without restarting it during local study
+
+Deliverables:
+
+- manual `Rescan knowledge` control
+- refreshed dashboard state after rescan
+- runbook updates for the new control
+
+TDD focus:
+
+- backend test for manual rescan updating cached knowledge
+- frontend test for rescan action feedback
+
+Current status:
+
+- completed

@@ -46,7 +46,8 @@ npm run build
 Current completed milestone:
 
 - Milestone 9: Polish And MVP Hardening
+- Post-MVP utility controls: manual `Rescan knowledge`
 
 Next target:
 
-- MVP baseline complete
+- another post-MVP utility control or review-navigation improvement
