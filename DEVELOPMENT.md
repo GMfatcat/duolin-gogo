@@ -50,5 +50,5 @@ Current completed milestone:
 
 Next target:
 
-- content expansion for core Git commands
+- finish Git deck expansion
 - offline `hook generator` with TDD-first tests for localized notification styles

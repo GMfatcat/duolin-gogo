@@ -14,6 +14,9 @@ clickbait_zh: "哪個 Git 指令可以只拿走一個 commit？"
 clickbait_en: "One Git command can steal just one commit. Know which?"
 review_hint_zh: "Cherry-pick 會把選定 commit 的變更套到目前分支。"
 review_hint_en: "Cherry-pick copies selected commit changes onto your current branch."
+confusion_with: [git-merge-purpose]
+metaphor_seed: [摘櫻桃, 單點搬運, 只拿一個]
+hook_style_tags: [targeted, curiosity-gap]
 enabled: true
 ---
 

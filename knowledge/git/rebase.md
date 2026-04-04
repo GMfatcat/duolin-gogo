@@ -22,13 +22,16 @@ clickbait_zh: "你真的懂 rebase 跟 merge 的差別嗎？"
 clickbait_en: "Most Git beginners misunderstand rebase. Do you?"
 review_hint_zh: "Rebase = 把 commits 重放到新的 base 上。"
 review_hint_en: "Rebase = replay commits on top of another base."
+confusion_with: [git-merge-purpose]
+metaphor_seed: [搬家, 換底座, 重排]
+hook_style_tags: [misunderstood, comparison]
 enabled: true
 ---
 
 ## zh-TW
 
 `git rebase` 會把目前分支上的 commits，重新接到另一個 base commit 上。
-它常用來讓歷史更線性、更容易閱讀。
+它常用來讓提交歷史更線性、更容易閱讀。
 跟 `merge` 不同，`rebase` 通常不會額外產生一個 merge commit。
 
 ## en
