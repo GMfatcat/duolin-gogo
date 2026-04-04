@@ -11,6 +11,7 @@ import (
 
 	"duolin-gogo/internal/cards"
 	"duolin-gogo/internal/dashboard"
+	"duolin-gogo/internal/diagnostics"
 	"duolin-gogo/internal/notifications"
 	"duolin-gogo/internal/progress"
 	"duolin-gogo/internal/review"
@@ -62,13 +63,14 @@ type StudyCard struct {
 }
 
 type DashboardData struct {
-	Info              AppInfo           `json:"info"`
-	PreferredLanguage string            `json:"preferredLanguage"`
-	Stats             DashboardStats    `json:"stats"`
-	Summary           dashboard.Summary `json:"summary"`
-	CurrentCard       *StudyCard        `json:"currentCard"`
-	ReviewQueue       []StudyCard       `json:"reviewQueue"`
-	ReviewMode        bool              `json:"reviewMode"`
+	Info              AppInfo             `json:"info"`
+	PreferredLanguage string              `json:"preferredLanguage"`
+	Stats             DashboardStats      `json:"stats"`
+	Summary           dashboard.Summary   `json:"summary"`
+	ImportErrors      []diagnostics.Error `json:"importErrors"`
+	CurrentCard       *StudyCard          `json:"currentCard"`
+	ReviewQueue       []StudyCard         `json:"reviewQueue"`
+	ReviewMode        bool                `json:"reviewMode"`
 }
 
 type SubmitAnswerResult struct {
@@ -123,6 +125,10 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 	if err != nil {
 		return DashboardData{}, err
 	}
+	diagnosticFile, err := diagnostics.Load(filepath.Join(a.dataDir, "import-errors.json"))
+	if err != nil {
+		return DashboardData{}, err
+	}
 
 	now := a.nowFunc()
 	reviewQueue := a.buildReviewQueue(cache, state, now)
@@ -142,6 +148,7 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		PreferredLanguage: preferredLanguage,
 		Stats:             calculateStats(state, now),
 		Summary:           dashboard.BuildSummary(cache.Cards, state, now),
+		ImportErrors:      diagnosticFile.Errors,
 		CurrentCard:       currentCard,
 		ReviewQueue:       reviewQueue,
 		ReviewMode:        reviewMode,

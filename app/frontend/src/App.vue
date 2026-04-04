@@ -16,6 +16,7 @@ const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correc
 const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
 const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [] })
+const importErrors = computed(() => dashboard.value?.importErrors ?? [])
 const explanation = computed(() => {
   if (!card.value) {
     return ''
@@ -158,6 +159,18 @@ async function handleSubmit() {
       </div>
     </section>
 
+    <section v-else class="study-card">
+      <div class="study-header">
+        <div>
+          <p class="label">No cards available</p>
+          <h2>Knowledge import needs attention</h2>
+        </div>
+      </div>
+      <p class="explanation">
+        Add valid bilingual Git cards under the knowledge directory, or inspect the diagnostics below to fix malformed files.
+      </p>
+    </section>
+
     <section class="status-grid">
       <article class="status-card">
         <span class="label">Studied today</span>
@@ -192,6 +205,24 @@ async function handleSubmit() {
         </article>
       </div>
       <p v-else class="explanation">No weak topics yet. Keep studying to generate insights.</p>
+    </section>
+
+    <section class="study-card">
+      <div class="study-header">
+        <div>
+          <p class="label">Import diagnostics</p>
+          <h2>Knowledge file health</h2>
+        </div>
+      </div>
+
+      <div v-if="importErrors.length" class="diagnostics-list">
+        <article v-for="item in importErrors" :key="`${item.source_path}-${item.code}`" class="diagnostic-item">
+          <strong>{{ item.code }}</strong>
+          <p>{{ item.message }}</p>
+          <span>{{ item.source_path }}</span>
+        </article>
+      </div>
+      <p v-else class="explanation">No import issues detected.</p>
     </section>
   </main>
 </template>

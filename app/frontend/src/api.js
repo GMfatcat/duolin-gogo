@@ -18,6 +18,7 @@ const fallbackDashboard = {
       { tag: 'commits', wrongCount: 1, seenCount: 4, accuracy: 0.75 },
     ],
   },
+  importErrors: [],
   currentCard: {
     id: 'git-cherry-pick-purpose',
     title: 'Cherry-pick Purpose',

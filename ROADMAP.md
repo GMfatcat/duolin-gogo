@@ -260,6 +260,10 @@ TDD focus:
 - regression tests for known parser and scheduler failures
 - persistence safety tests
 
+Current status:
+
+- completed
+
 ## 4. Recommended Build Order
 
 Recommended implementation order:
@@ -306,4 +310,4 @@ For now:
 - Milestone 6 is `completed`
 - Milestone 7 is `completed`
 - Milestone 8 is `completed`
-- Milestone 9 is `planned`
+- Milestone 9 is `completed`

@@ -17,6 +17,8 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Git concepts to revisit')
     expect(wrapper.text()).toContain('branching')
     expect(wrapper.text()).toContain('Next review')
+    expect(wrapper.text()).toContain('Knowledge file health')
+    expect(wrapper.text()).toContain('No import issues detected.')
 
     const languageButtons = wrapper.findAll('.language-toggle button')
     await languageButtons[1].trigger('click')

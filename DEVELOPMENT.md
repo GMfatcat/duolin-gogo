@@ -45,8 +45,8 @@ npm run build
 
 Current completed milestone:
 
-- Milestone 8: Basic Dashboard And Weak Topic Summary
+- Milestone 9: Polish And MVP Hardening
 
 Next target:
 
-- Milestone 9: Polish And MVP Hardening
+- MVP baseline complete

@@ -80,6 +80,10 @@ func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 	if len(dashboard.Summary.WeakTopics) == 0 {
 		t.Fatal("expected weak topics summary")
 	}
+
+	if len(dashboard.ImportErrors) != 0 {
+		t.Fatalf("expected no import errors, got %d", len(dashboard.ImportErrors))
+	}
 }
 
 func TestSubmitAnswerPersistsFeedback(t *testing.T) {
@@ -215,6 +219,39 @@ func TestLoadDashboardEntersReviewModeWhenReviewIsDue(t *testing.T) {
 
 	if len(dashboard.ReviewQueue) == 0 {
 		t.Fatal("expected review queue")
+	}
+}
+
+func TestLoadDashboardShowsImportDiagnosticsWithoutCrashing(t *testing.T) {
+	app := newTestApp(t)
+
+	broken := `---
+id: git-broken-card
+title: Broken Card
+type: true-false
+question: "Broken?"
+answer: true
+---
+
+## zh-TW
+
+只有中文。`
+
+	if err := os.WriteFile(filepath.Join(app.knowledgeDir, "git", "broken.md"), []byte(broken), 0o644); err != nil {
+		t.Fatalf("write broken card failed: %v", err)
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if len(dashboard.ImportErrors) == 0 {
+		t.Fatal("expected import diagnostics")
+	}
+
+	if dashboard.CurrentCard == nil {
+		t.Fatal("expected dashboard to still load a valid card")
 	}
 }
 

@@ -212,6 +212,27 @@ body {
     font-size: 0.92rem;
 }
 
+.diagnostics-list {
+    display: grid;
+    gap: 12px;
+}
+
+.diagnostic-item {
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(28, 51, 69, 0.7);
+}
+
+.diagnostic-item p,
+.diagnostic-item span {
+    color: #d4dde5;
+}
+
+.diagnostic-item span {
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+
 .status-card {
     padding: 20px;
     border: 1px solid rgba(233, 196, 106, 0.2);
