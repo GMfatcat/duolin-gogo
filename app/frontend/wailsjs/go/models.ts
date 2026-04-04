@@ -190,6 +190,20 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class NotificationSettings {
+	    style: string;
+	    titleMode: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new NotificationSettings(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.style = source["style"];
+	        this.titleMode = source["titleMode"];
+	    }
+	}
 	export class DashboardStats {
 	    studiedToday: number;
 	    correctRate: number;
@@ -210,6 +224,7 @@ export namespace main {
 	    stats: DashboardStats;
 	    summary: dashboard.Summary;
 	    importErrors: diagnostics.Error[];
+	    notificationSettings: NotificationSettings;
 	    currentCard?: StudyCard;
 	    reviewQueue: StudyCard[];
 	    reviewMode: boolean;
@@ -225,6 +240,7 @@ export namespace main {
 	        this.stats = this.convertValues(source["stats"], DashboardStats);
 	        this.summary = this.convertValues(source["summary"], dashboard.Summary);
 	        this.importErrors = this.convertValues(source["importErrors"], diagnostics.Error);
+	        this.notificationSettings = this.convertValues(source["notificationSettings"], NotificationSettings);
 	        this.currentCard = this.convertValues(source["currentCard"], StudyCard);
 	        this.reviewQueue = this.convertValues(source["reviewQueue"], StudyCard);
 	        this.reviewMode = source["reviewMode"];
@@ -248,6 +264,7 @@ export namespace main {
 		    return a;
 		}
 	}
+	
 	
 	
 	export class SubmitAnswerResult {

@@ -33,3 +33,7 @@ export function SnoozeNotifications() {
 export function SubmitAnswer(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['SubmitAnswer'](arg1, arg2, arg3, arg4);
 }
+
+export function UpdateNotificationSettings(arg1, arg2) {
+  return window['go']['main']['App']['UpdateNotificationSettings'](arg1, arg2);
+}

@@ -17,3 +17,5 @@ export function SendTestNotification():Promise<main.ActionStatus>;
 export function SnoozeNotifications():Promise<main.ActionStatus>;
 
 export function SubmitAnswer(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.SubmitAnswerResult>;
+
+export function UpdateNotificationSettings(arg1:string,arg2:string):Promise<main.ActionStatus>;
