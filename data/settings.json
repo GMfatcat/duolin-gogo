@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "knowledge_directories": [
+    "D:\\duolin-gogo\\knowledge"
+  ],
+  "notification_interval_minutes": 10,
+  "active_hours": {
+    "enabled": true,
+    "start": "09:00",
+    "end": "22:00"
+  },
+  "review_schedule": {
+    "mode": "daily",
+    "weekday": null,
+    "time": "21:00",
+    "batch_size": 8
+  },
+  "language": {
+    "default": "zh-TW",
+    "allow_toggle": true
+  },
+  "study_rules": {
+    "max_new_cards_per_day": 12,
+    "snooze_minutes": 15,
+    "cooldown_after_answer_minutes": 5
+  },
+  "ui": {
+    "minimize_to_tray": true,
+    "open_on_notification_click": true
+  }
+}
