@@ -80,6 +80,7 @@ Next targets:
   - first slice implemented: the selection engine now penalizes cards seen in the last 10-30 minutes so alternate cards are preferred when available
   - second slice implemented: the final review card now transitions into a dedicated completion state before returning to the next learn card
   - third slice implemented: active review sessions now show explicit completed/total/remaining progress cues in the main study card
+  - fourth slice implemented: review completion now shows a lightweight session summary with answered count, estimated accuracy, and the weakest current topic
 - Phase C: multi-topic expansion
   - prepare the deck model for topics beyond Git
   - support topic-aware summaries and selection filters

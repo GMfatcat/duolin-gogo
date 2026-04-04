@@ -127,6 +127,7 @@ Current useful controls:
 - resetting study data removes local `progress.json` and `attempts.jsonl`, then reloads the dashboard from a clean state
 - finishing the last card in a review batch now shows a dedicated completion state before returning to the next learn card
 - active review batches now show explicit progress cues for completed, total, and remaining cards
+- the review completion state now includes a lightweight session summary with answered count, estimated accuracy, and the weakest current topic
 - `zh-TW` / `en` language toggle
 - answer submission
 

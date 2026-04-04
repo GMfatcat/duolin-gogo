@@ -133,6 +133,8 @@ describe('App', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('複習完成')
+    expect(wrapper.text()).toContain('這輪小結')
+    expect(wrapper.text()).toContain('本輪作答')
     expect(wrapper.find('.complete-review-button').exists()).toBe(true)
 
     await wrapper.find('.complete-review-button').trigger('click')

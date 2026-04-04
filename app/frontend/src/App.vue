@@ -27,6 +27,11 @@ const translations = {
     reviewSessionActive: '複習模式進行中，待答題數：',
     reviewProgress: '複習進度',
     remainingCards: '剩餘',
+    sessionSummaryTitle: '這輪小結',
+    sessionAnswered: '本輪作答',
+    sessionAccuracy: '本輪正答率',
+    sessionWeakTopic: '建議回頭看',
+    noSessionWeakTopic: '目前沒有特別弱勢的主題',
     learnPhase: '先看觀念',
     answerPhase: '開始作答',
     feedbackPhase: '作答回饋',
@@ -119,6 +124,11 @@ const translations = {
     reviewSessionActive: 'Review session active. Queue size:',
     reviewProgress: 'Review progress',
     remainingCards: 'remaining',
+    sessionSummaryTitle: 'Session summary',
+    sessionAnswered: 'Answered this batch',
+    sessionAccuracy: 'Batch accuracy',
+    sessionWeakTopic: 'Topic to revisit',
+    noSessionWeakTopic: 'No standout weak topic right now.',
     learnPhase: 'Learn',
     answerPhase: 'Start question',
     feedbackPhase: 'Feedback',
@@ -224,6 +234,17 @@ const reviewSessionProgress = ref({
   active: false,
   total: 0,
   remaining: 0,
+})
+const reviewSessionSnapshot = ref({
+  started: false,
+  studiedToday: 0,
+  correctAnswers: 0,
+})
+const sessionSummary = ref({
+  visible: false,
+  answered: 0,
+  accuracy: 0,
+  weakTopic: '',
 })
 const diagnosticsFilter = ref({
   severity: 'all',
@@ -456,6 +477,19 @@ onUnmounted(() => {
 async function refreshDashboard() {
   const nextDashboard = await loadDashboard()
   if (nextDashboard.reviewMode) {
+    if (!reviewSessionProgress.value.active) {
+      reviewSessionSnapshot.value = {
+        started: true,
+        studiedToday: nextDashboard.stats?.studiedToday ?? 0,
+        correctAnswers: estimatedCorrectAnswers(nextDashboard.stats),
+      }
+      sessionSummary.value = {
+        visible: false,
+        answered: 0,
+        accuracy: 0,
+        weakTopic: '',
+      }
+    }
     const nextTotal =
       reviewSessionProgress.value.active && reviewSessionProgress.value.total >= nextDashboard.reviewQueue.length
         ? reviewSessionProgress.value.total
@@ -470,6 +504,11 @@ async function refreshDashboard() {
       active: false,
       total: 0,
       remaining: 0,
+    }
+    reviewSessionSnapshot.value = {
+      started: false,
+      studiedToday: 0,
+      correctAnswers: 0,
     }
   }
   dashboard.value = nextDashboard
@@ -509,6 +548,10 @@ function formatDisplayTime(value, fallback) {
   return `${year}-${month}-${day} ${hours}:${minutes}`
 }
 
+function estimatedCorrectAnswers(dayStats) {
+  return Math.round((dayStats?.studiedToday ?? 0) * (dayStats?.correctRate ?? 0))
+}
+
 async function handleSubmit() {
   if (!card.value || !selectedAnswer.value) return
 
@@ -534,11 +577,20 @@ async function handleNextCard() {
   const previousReviewTotal = reviewSessionProgress.value.total
   await refreshDashboard()
   if (wasReviewMode && previousQueueLength > 0 && !dashboard.value.reviewMode) {
+    const answered = Math.max(0, (dashboard.value.stats?.studiedToday ?? 0) - reviewSessionSnapshot.value.studiedToday)
+    const correctAnswers =
+      Math.max(0, estimatedCorrectAnswers(dashboard.value.stats) - reviewSessionSnapshot.value.correctAnswers)
     reviewCompleted.value = true
     reviewSessionProgress.value = {
       active: true,
       total: previousReviewTotal || previousQueueLength,
       remaining: 0,
+    }
+    sessionSummary.value = {
+      visible: true,
+      answered: answered || previousReviewTotal || previousQueueLength,
+      accuracy: answered > 0 ? correctAnswers / answered : dashboard.value.stats?.correctRate ?? 0,
+      weakTopic: dashboard.value.summary?.weakTopics?.[0]?.tag ?? '',
     }
   }
 }
@@ -549,6 +601,17 @@ function handleReturnToLearning() {
     active: false,
     total: 0,
     remaining: 0,
+  }
+  reviewSessionSnapshot.value = {
+    started: false,
+    studiedToday: 0,
+    correctAnswers: 0,
+  }
+  sessionSummary.value = {
+    visible: false,
+    answered: 0,
+    accuracy: 0,
+    weakTopic: '',
   }
 }
 
@@ -771,6 +834,23 @@ function toggleSettings() {
             {{ t.reviewProgress }} {{ reviewProgressText }}
           </p>
           <p class="callout">{{ t.reviewCompleteBody }}</p>
+          <div v-if="sessionSummary.visible" class="session-summary">
+            <p class="label">{{ t.sessionSummaryTitle }}</p>
+            <div class="session-summary-grid">
+              <article class="status-card batch-stat">
+                <span class="label">{{ t.sessionAnswered }}</span>
+                <strong>{{ sessionSummary.answered }}</strong>
+              </article>
+              <article class="status-card batch-stat">
+                <span class="label">{{ t.sessionAccuracy }}</span>
+                <strong>{{ Math.round((sessionSummary.accuracy ?? 0) * 100) }}%</strong>
+              </article>
+            </div>
+            <p class="explanation session-summary-note">
+              {{ t.sessionWeakTopic }}:
+              <strong>{{ sessionSummary.weakTopic || t.noSessionWeakTopic }}</strong>
+            </p>
+          </div>
           <button class="next-button complete-review-button" type="button" @click="handleReturnToLearning">
             {{ t.reviewCompleteAction }}
           </button>

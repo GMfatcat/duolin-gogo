@@ -116,6 +116,21 @@ body {
   justify-content: center;
 }
 
+.session-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.session-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.session-summary-note {
+  margin-top: 0;
+}
+
 .sidebar-panel {
   background: rgba(11, 20, 28, 0.74);
 }
