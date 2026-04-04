@@ -72,6 +72,7 @@ Next targets:
   - ninth slice implemented: settings diagnostics now include a batch report for total, clean, warning, and error card counts
   - tenth slice implemented: batch report diagnostics can now be filtered by severity and topic
   - eleventh slice implemented: batch report now includes a recently changed cards summary using authoring preview file timestamps
+  - twelfth slice implemented: settings tools now include a guarded `Reset study data` action that clears local progress and attempts only after an explicit confirmation step
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

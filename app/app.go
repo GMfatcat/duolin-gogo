@@ -420,6 +420,25 @@ func (a *App) ValidateKnowledge() (ValidationStatus, error) {
 	}, nil
 }
 
+func (a *App) ResetStudyData() (ActionStatus, error) {
+	paths := []string{
+		filepath.Join(a.dataDir, "progress.json"),
+		filepath.Join(a.dataDir, "attempts.jsonl"),
+	}
+
+	for _, path := range paths {
+		if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return ActionStatus{}, err
+		}
+	}
+
+	a.schedulerState.LastNotificationAt = nil
+	a.schedulerState.SnoozedUntil = nil
+	a.lastReviewRunAt = nil
+
+	return ActionStatus{Message: "Study data reset."}, nil
+}
+
 func (a *App) LoadAuthoringPreview() (AuthoringPreviewData, error) {
 	files, err := cards.ListMarkdownFiles([]string{a.knowledgeDir})
 	if err != nil {

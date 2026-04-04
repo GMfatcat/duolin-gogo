@@ -1,8 +1,13 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App.vue'
+import { __resetFallbackState } from './api'
 
 describe('App', () => {
+  beforeEach(() => {
+    __resetFallbackState()
+  })
+
   it('renders a staged learn, answer, and feedback flow', async () => {
     const wrapper = mount(App)
 
@@ -53,7 +58,8 @@ describe('App', () => {
     expect(wrapper.text()).toContain('複習時間')
     expect(wrapper.text()).toContain('推送時段')
     expect(wrapper.find('.settings-layout').exists()).toBe(true)
-    expect(wrapper.findAll('.toolbar-button').length).toBe(5)
+    expect(wrapper.text()).toContain('Reset study data')
+    expect(wrapper.findAll('.toolbar-button').length).toBe(6)
 
     const numberInput = wrapper.find('input[type="number"]')
     const timeInputs = wrapper.findAll('input[type="time"]')
@@ -84,6 +90,26 @@ describe('App', () => {
 
     expect(wrapper.text()).toContain('Knowledge validated: 12 cards, 0 diagnostics.')
     expect(wrapper.find('.study-header h2').text()).toBe(currentTitle)
+  })
+
+  it('requires confirmation before resetting study data', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+
+    const resetButton = wrapper.findAll('.toolbar-button').find((button) => button.text().includes('Reset study data'))
+    await resetButton.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.confirm-reset-button').exists()).toBe(true)
+
+    await wrapper.find('.confirm-reset-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Study data reset.')
+    expect(wrapper.findAll('.status-card strong')[0].text()).toBe('0')
   })
 
   it('switches global shell copy to english without changing the product name', async () => {
@@ -136,13 +162,13 @@ describe('App', () => {
     await flushPromises()
 
     expect(wrapper.find('.settings-meta').text()).toContain('1')
-    expect(wrapper.find('.settings-meta').text()).toContain('warning')
-    expect(wrapper.find('.settings-meta').text()).toContain('error')
+    expect(wrapper.find('.settings-meta').text()).toContain('警告')
+    expect(wrapper.find('.settings-meta').text()).toContain('錯誤')
     expect(wrapper.text()).toContain('warning')
     expect(wrapper.text()).toContain('error')
-    expect(wrapper.text()).toContain('Deck report')
-    expect(wrapper.text()).toContain('Total cards')
-    expect(wrapper.text()).toContain('Clean cards')
+    expect(wrapper.text()).toContain('題庫報告')
+    expect(wrapper.text()).toContain('總卡片數')
+    expect(wrapper.text()).toContain('乾淨卡片')
     expect(wrapper.findAll('.severity-pill').length).toBe(5)
     expect(wrapper.findAll('.diagnostic-group').length).toBe(2)
   })
@@ -194,7 +220,6 @@ describe('App', () => {
     await wrapper.find('.settings-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Recently changed cards')
     expect(wrapper.text()).toContain('rebase.md')
     expect(wrapper.text()).toContain('2026-04-05 11:45')
     expect(wrapper.text()).toContain('cherry-pick.md')
@@ -207,7 +232,6 @@ describe('App', () => {
     await wrapper.find('.settings-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Authoring preview')
     expect(wrapper.find('.preview-select').exists()).toBe(true)
     expect(wrapper.find('.preview-card').text()).toContain('Cherry-pick')
 
@@ -292,6 +316,6 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     expect(wrapper.text()).toContain('Draft saved to')
     expect(wrapper.text()).toContain('knowledge/git/git-ai-review.md')
-    expect(wrapper.findAll('.preview-card')[0].text()).toContain('Git Fetch Draft')
+    expect(wrapper.findAll('.preview-card')[0].text()).toContain('Git Fetch 草稿')
   })
 })

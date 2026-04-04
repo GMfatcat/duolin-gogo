@@ -644,6 +644,54 @@ func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
 	}
 }
 
+func TestResetStudyDataClearsProgressAndAttempts(t *testing.T) {
+	app := newTestApp(t)
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if _, err := app.SubmitAnswer(dashboard.CurrentCard.ID, "learn", "true", dashboard.CurrentCard.ShownAt); err != nil {
+		t.Fatalf("submit answer failed: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(app.dataDir, "progress.json")); err != nil {
+		t.Fatalf("expected progress file before reset: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(app.dataDir, "attempts.jsonl")); err != nil {
+		t.Fatalf("expected attempts file before reset: %v", err)
+	}
+
+	status, err := app.ResetStudyData()
+	if err != nil {
+		t.Fatalf("reset study data failed: %v", err)
+	}
+
+	if status.Message != "Study data reset." {
+		t.Fatalf("unexpected reset status: %s", status.Message)
+	}
+
+	if _, err := os.Stat(filepath.Join(app.dataDir, "progress.json")); !os.IsNotExist(err) {
+		t.Fatalf("expected progress file to be removed, got %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(app.dataDir, "attempts.jsonl")); !os.IsNotExist(err) {
+		t.Fatalf("expected attempts file to be removed, got %v", err)
+	}
+
+	after, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard after reset failed: %v", err)
+	}
+
+	if after.Stats.StudiedToday != 0 {
+		t.Fatalf("expected studiedToday 0 after reset, got %d", after.Stats.StudiedToday)
+	}
+	if after.Stats.CorrectRate != 0 {
+		t.Fatalf("expected correctRate 0 after reset, got %f", after.Stats.CorrectRate)
+	}
+}
+
 func TestLoadDashboardEntersReviewModeWhenReviewIsDue(t *testing.T) {
 	app := newTestApp(t)
 	now := time.Date(2026, 4, 5, 21, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))

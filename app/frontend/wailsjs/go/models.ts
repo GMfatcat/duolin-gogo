@@ -195,6 +195,7 @@ export namespace main {
 	export class AuthoringPreviewFile {
 	    path: string;
 	    name: string;
+	    modifiedAt: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new AuthoringPreviewFile(source);
@@ -204,6 +205,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.path = source["path"];
 	        this.name = source["name"];
+	        this.modifiedAt = source["modifiedAt"];
 	    }
 	}
 	export class AuthoringPreviewData {

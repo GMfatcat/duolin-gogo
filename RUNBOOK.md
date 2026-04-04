@@ -116,6 +116,7 @@ Current useful controls:
 - `Snooze 15 min`
 - `Rescan knowledge`
 - `Validate knowledge`
+- `Reset study data` with a confirmation warning before local progress is cleared
 - `Authoring preview` inside settings for single-card inspection
 - `AI draft review` inside settings for pasted Markdown inspection
 - `Save draft` from reviewed AI Markdown into `knowledge/<topic>/`
@@ -123,6 +124,7 @@ Current useful controls:
 - settings diagnostics now include a deck-level batch report
 - batch diagnostics can now be filtered by severity and topic
 - batch diagnostics now include a recently changed cards summary to highlight freshly edited knowledge files
+- resetting study data removes local `progress.json` and `attempts.jsonl`, then reloads the dashboard from a clean state
 - `zh-TW` / `en` language toggle
 - answer submission
 

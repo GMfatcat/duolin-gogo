@@ -8,6 +8,7 @@ import {
   previewKnowledgeCard,
   reviewDraft,
   rescanKnowledge,
+  resetStudyData,
   saveDraft,
   sendTestNotification,
   snoozeNotifications,
@@ -63,6 +64,11 @@ const translations = {
     snoozeNotifications: '延後 15 分鐘',
     rescanKnowledge: '重新掃描知識庫',
     validateKnowledge: '檢查題庫格式',
+    resetStudyData: 'Reset study data',
+    resetWarningTitle: '重置學習紀錄',
+    resetWarningBody: '這會清空本地的作答紀錄、今日統計與複習進度。這個動作無法復原。',
+    cancel: '取消',
+    confirmReset: '確認重置',
     loading: '載入中',
     preparingCard: '正在準備下一張卡...',
     shellLanguageUpdated: '語言已更新。',
@@ -145,6 +151,11 @@ const translations = {
     snoozeNotifications: 'Snooze 15 min',
     rescanKnowledge: 'Rescan knowledge',
     validateKnowledge: 'Validate knowledge',
+    resetStudyData: 'Reset study data',
+    resetWarningTitle: 'Reset study data',
+    resetWarningBody: 'This clears your local progress history, today stats, and review scheduling progress. This cannot be undone.',
+    cancel: 'Cancel',
+    confirmReset: 'Confirm reset',
     loading: 'Loading',
     preparingCard: 'Preparing the next card...',
     shellLanguageUpdated: 'Language updated.',
@@ -197,6 +208,7 @@ const savingScheduleSettings = ref(false)
 const changingLanguage = ref(false)
 const phase = ref('learn')
 const settingsOpen = ref(false)
+const resetWarningOpen = ref(false)
 const diagnosticsFilter = ref({
   severity: 'all',
   topic: 'all',
@@ -524,6 +536,25 @@ async function handleValidateKnowledge() {
   }
 }
 
+function openResetWarning() {
+  resetWarningOpen.value = true
+}
+
+function closeResetWarning() {
+  resetWarningOpen.value = false
+}
+
+async function handleResetStudyData() {
+  try {
+    const result = await resetStudyData()
+    await refreshDashboard()
+    closeResetWarning()
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Reset failed: ${error?.message ?? String(error)}`
+  }
+}
+
 async function handlePreviewSelection(path) {
   await refreshAuthoringPreview(path)
 }
@@ -789,6 +820,7 @@ function toggleSettings() {
               <button class="toolbar-button secondary" type="button" @click="handleSnooze">{{ t.snoozeNotifications }}</button>
               <button class="toolbar-button secondary" type="button" @click="handleRescanKnowledge">{{ t.rescanKnowledge }}</button>
               <button class="toolbar-button secondary" type="button" @click="handleValidateKnowledge">{{ t.validateKnowledge }}</button>
+              <button class="toolbar-button danger" type="button" @click="openResetWarning">{{ t.resetStudyData }}</button>
             </div>
             <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
           </section>
@@ -1087,6 +1119,24 @@ function toggleSettings() {
             </section>
           </div>
         </details>
+      </section>
+    </div>
+
+    <div v-if="resetWarningOpen" class="settings-overlay danger-overlay" @click.self="closeResetWarning">
+      <section class="confirm-popout">
+        <div class="study-header">
+          <div>
+            <p class="label">{{ t.resetStudyData }}</p>
+            <h2>{{ t.resetWarningTitle }}</h2>
+          </div>
+        </div>
+        <p class="explanation">{{ t.resetWarningBody }}</p>
+        <div class="confirm-actions">
+          <button class="close-button" type="button" @click="closeResetWarning">{{ t.cancel }}</button>
+          <button class="toolbar-button danger confirm-reset-button" type="button" @click="handleResetStudyData">
+            {{ t.confirmReset }}
+          </button>
+        </div>
       </section>
     </div>
   </main>

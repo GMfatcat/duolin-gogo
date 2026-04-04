@@ -5,6 +5,7 @@ import {
   PreviewKnowledgeCard,
   ReviewDraft,
   SaveDraft,
+  ResetStudyData,
   RescanKnowledge,
   SendTestNotification,
   SnoozeNotifications,
@@ -94,6 +95,51 @@ const fallbackSavedDrafts = new Map()
 
 const hasBackend = () => typeof window !== 'undefined' && typeof window.go !== 'undefined'
 
+export function __resetFallbackState() {
+  fallbackDashboard.preferredLanguage = 'zh-TW'
+  fallbackDashboard.stats = {
+    studiedToday: 1,
+    correctRate: 1,
+  }
+  fallbackDashboard.summary = {
+    nextReviewAt: '2026-04-05T21:00:00+08:00',
+    weakTopics: [
+      { tag: 'branching', wrongCount: 3, seenCount: 6, accuracy: 0.5 },
+      { tag: 'commits', wrongCount: 1, seenCount: 4, accuracy: 0.75 },
+    ],
+  }
+  fallbackDashboard.notificationSettings = {
+    style: 'playful',
+    titleMode: 'prefer_manual',
+  }
+  fallbackDashboard.scheduleSettings = {
+    notificationIntervalMinutes: 10,
+    reviewTime: '21:00',
+    activeHoursEnabled: true,
+    activeHoursStart: '09:00',
+    activeHoursEnd: '22:00',
+  }
+  fallbackDashboard.importErrors = []
+  fallbackDashboard.reviewQueue = []
+  fallbackDashboard.reviewMode = false
+  fallbackAuthoringPreview.selectedPath = 'D:/duolin-gogo/knowledge/git/cherry-pick.md'
+  fallbackAuthoringPreview.currentCard = structuredClone(fallbackDashboard.currentCard)
+  fallbackAuthoringPreview.importErrors = []
+  fallbackAuthoringPreview.files = [
+    {
+      path: 'D:/duolin-gogo/knowledge/git/cherry-pick.md',
+      name: 'cherry-pick.md',
+      modifiedAt: '2026-04-04T09:30:00+08:00',
+    },
+    {
+      path: 'D:/duolin-gogo/knowledge/git/rebase.md',
+      name: 'rebase.md',
+      modifiedAt: '2026-04-05T11:45:00+08:00',
+    },
+  ]
+  fallbackSavedDrafts.clear()
+}
+
 export async function loadDashboard() {
   if (hasBackend()) {
     return LoadDashboard()
@@ -172,6 +218,24 @@ export async function validateKnowledge() {
   }
 
   return { message: 'Knowledge validated: 12 cards, 0 diagnostics.', importErrors: [] }
+}
+
+export async function resetStudyData() {
+  if (hasBackend()) {
+    return ResetStudyData()
+  }
+
+  fallbackDashboard.stats = {
+    studiedToday: 0,
+    correctRate: 0,
+  }
+  fallbackDashboard.summary = {
+    ...fallbackDashboard.summary,
+    nextReviewAt: '',
+    weakTopics: [],
+  }
+  fallbackDashboard.reviewQueue = []
+  return { message: 'Study data reset.' }
 }
 
 export async function loadAuthoringPreview() {

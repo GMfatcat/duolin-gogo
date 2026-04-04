@@ -30,6 +30,10 @@ export function RescanKnowledge() {
   return window['go']['main']['App']['RescanKnowledge']();
 }
 
+export function ResetStudyData() {
+  return window['go']['main']['App']['ResetStudyData']();
+}
+
 export function ReviewDraft(arg1) {
   return window['go']['main']['App']['ReviewDraft'](arg1);
 }

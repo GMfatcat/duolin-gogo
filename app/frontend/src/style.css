@@ -357,6 +357,22 @@ body {
   gap: 14px;
 }
 
+.confirm-popout {
+  width: min(460px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid rgba(231, 111, 81, 0.35);
+  border-radius: 22px;
+  background: rgba(8, 15, 21, 0.98);
+  box-shadow: 0 26px 68px rgba(0, 0, 0, 0.42);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.danger-overlay {
+  background: rgba(4, 10, 15, 0.6);
+}
+
 .settings-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
@@ -392,11 +408,22 @@ body {
   color: #f7f3e8;
 }
 
+.toolbar-button.danger {
+  background: #a63d40;
+  color: #f7f3e8;
+}
+
 .toolbar-message {
   display: inline-flex;
   margin-top: 12px;
   color: #d4dde5;
   font-size: 0.94rem;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .preview-panel {
