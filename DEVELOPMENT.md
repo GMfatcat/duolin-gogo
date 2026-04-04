@@ -77,6 +77,7 @@ Next targets:
   - reduce short-term card repetition
   - add clearer session progress and completion cues
   - improve review-batch completion flow
+  - first slice implemented: the selection engine now penalizes cards seen in the last 10-30 minutes so alternate cards are preferred when available
 - Phase C: multi-topic expansion
   - prepare the deck model for topics beyond Git
   - support topic-aware summaries and selection filters

@@ -29,6 +29,7 @@ func PriorityScore(card cards.Card, state progress.CardProgress, now time.Time) 
 	score += timeSinceSeenBonus(state.LastSeenAt, now)
 	score += weaknessBonus(state)
 	score -= masteryPenalty(state)
+	score -= recentRepeatPenalty(state.LastSeenAt, now)
 
 	return score
 }
@@ -126,4 +127,25 @@ func masteryPenalty(state progress.CardProgress) int {
 	}
 
 	return penalty
+}
+
+func recentRepeatPenalty(lastSeenAt *string, now time.Time) int {
+	if lastSeenAt == nil || *lastSeenAt == "" {
+		return 0
+	}
+
+	t, err := time.Parse(time.RFC3339, *lastSeenAt)
+	if err != nil {
+		return 0
+	}
+
+	age := now.Sub(t)
+	switch {
+	case age <= 10*time.Minute:
+		return 35
+	case age <= 30*time.Minute:
+		return 20
+	default:
+		return 0
+	}
 }

@@ -521,6 +521,7 @@ TDD focus:
 Current status:
 
 - in_progress
+- first slice implemented: cards seen in the last 10-30 minutes now receive a repeat-avoidance penalty so alternative cards are preferred when available
 
 ### Next Phase C: Multi-Topic Expansion
 

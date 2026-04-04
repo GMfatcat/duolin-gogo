@@ -158,6 +158,63 @@ func TestSelectNextCardWorksWithParsedCardsAndProgressState(t *testing.T) {
 	}
 }
 
+func TestSelectNextCardAvoidsShortTermRepeatWhenAlternativeExists(t *testing.T) {
+	now := fixedNow()
+	recentlySeen := now.Add(-5 * time.Minute).Format(time.RFC3339)
+	olderSeen := now.Add(-48 * time.Hour).Format(time.RFC3339)
+
+	card, ok := SelectNextCard([]cards.Card{
+		{ID: "git-recent-repeat", Enabled: true},
+		{ID: "git-alternative", Enabled: true},
+	}, map[string]progress.CardProgress{
+		"git-recent-repeat": {
+			SeenCount:    3,
+			CorrectCount: 2,
+			WrongCount:   1,
+			MasteryScore: 0,
+			LastSeenAt:   &recentlySeen,
+		},
+		"git-alternative": {
+			SeenCount:    3,
+			CorrectCount: 2,
+			WrongCount:   1,
+			MasteryScore: 0,
+			LastSeenAt:   &olderSeen,
+		},
+	}, now)
+	if !ok {
+		t.Fatal("expected candidate")
+	}
+
+	if card.ID != "git-alternative" {
+		t.Fatalf("expected alternative card, got %s", card.ID)
+	}
+}
+
+func TestSelectNextCardStillReturnsRecentCardWhenItIsOnlyOption(t *testing.T) {
+	now := fixedNow()
+	recentlySeen := now.Add(-2 * time.Minute).Format(time.RFC3339)
+
+	card, ok := SelectNextCard([]cards.Card{
+		{ID: "git-only-card", Enabled: true},
+	}, map[string]progress.CardProgress{
+		"git-only-card": {
+			SeenCount:    1,
+			CorrectCount: 1,
+			WrongCount:   0,
+			MasteryScore: 0,
+			LastSeenAt:   &recentlySeen,
+		},
+	}, now)
+	if !ok {
+		t.Fatal("expected candidate")
+	}
+
+	if card.ID != "git-only-card" {
+		t.Fatalf("expected only card, got %s", card.ID)
+	}
+}
+
 func fixedNow() time.Time {
 	return time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
 }
