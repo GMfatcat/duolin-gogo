@@ -27,6 +27,7 @@ Product positioning:
 - Track what the user studied today
 - Run scheduled review sessions daily or weekly
 - Increase repeat frequency for concepts with lower accuracy
+- Support offline notification hook generation from card metadata and local templates
 
 ## 4. Non-Goals For MVP
 
@@ -89,6 +90,23 @@ Product positioning:
 ## 7. Content Model
 
 Each Markdown file contains one card. Each card includes both Chinese and English learning content inside the same Markdown file.
+
+Current content focus:
+
+- Git cards first
+
+Planned near-term Git card coverage:
+
+- `git add`
+- `git commit`
+- `git merge`
+- `git fetch`
+- `git pull`
+- `git checkout`
+- `git status`
+- `git switch`
+- `git restore`
+- `git stash`
 
 Recommended Markdown format:
 
@@ -358,8 +376,9 @@ Notification copy should feel curiosity-driven, not like a dry reminder.
 
 Priority order:
 
-1. Use `clickbait` field from content
-2. Generate from templates based on title/question
+1. Use localized `clickbait_zh` or `clickbait_en` from content
+2. Generate a localized hook from offline templates based on card metadata
+3. Fall back to title/question templates
 
 Template examples:
 
@@ -367,6 +386,21 @@ Template examples:
 - "Most developers get this Git concept wrong"
 - "Quick check: do you really know this one?"
 - "You have 30 seconds. Can you solve this?"
+
+Recommended hook styles:
+
+- `safe`
+- `playful`
+- `aggressive`
+- `chaotic`
+
+Offline hook generator rules:
+
+- must not require network access
+- should use card metadata such as `tags`, `confusion_with`, `metaphor_seed`, and `hook_style_tags`
+- should generate 1 to 3 candidate hook lines per card
+- should prefer metaphor, analogy, contrast, or curiosity-gap framing over dry technical wording
+- should still keep a recognizable relation to the underlying concept
 
 ## 14. Error Handling
 

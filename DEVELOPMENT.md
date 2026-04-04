@@ -15,7 +15,7 @@ Working loop:
 
 - `app/` contains the Wails application
 - `app/frontend/` contains the Vue frontend
-- `knowledge/` contains bilingual Git Markdown cards
+- `knowledge/` contains bilingual Markdown cards, currently starting with Git
 - `data/` contains local runtime JSON and JSONL files
 
 ## 3. Test Commands
@@ -50,4 +50,5 @@ Current completed milestone:
 
 Next target:
 
-- another post-MVP utility control or review-navigation improvement
+- content expansion for core Git commands
+- offline `hook generator` with TDD-first tests for localized notification styles

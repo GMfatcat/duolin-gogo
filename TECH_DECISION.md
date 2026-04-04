@@ -31,6 +31,8 @@ This product is not primarily a website. It is a local desktop utility that:
 
 Current content starts with Git, but the app shell and data model are intended to expand to broader technical topics later.
 
+The first substantial content expansion after the MVP baseline is still Git-focused, but the notification layer now needs to support more expressive offline hooks rather than only literal study prompts.
+
 That means we need:
 
 - good local file access
@@ -223,8 +225,9 @@ Windows notification behavior should use native toast notifications.
 Desired flow:
 
 1. Scheduler selects next eligible card
-2. App sends a Windows toast
-3. Toast title uses `clickbait` text or fallback generated copy
+2. App resolves notification style from settings
+3. App sends a Windows toast
+4. Toast title uses localized `clickbait` text or offline hook-generator output
 4. User clicks notification
 5. App opens the study card window for that selected card
 
@@ -233,6 +236,23 @@ Notification rules:
 - do not notify outside active hours
 - do not notify when a review session is already in progress
 - optionally avoid duplicate notifications for the same card in a short period
+
+Recommended offline hook generator inputs:
+
+- preferred language
+- card tags
+- card title and question
+- `confusion_with`
+- `metaphor_seed`
+- `hook_style_tags`
+- chosen notification style
+
+Recommended initial notification styles:
+
+- `safe`
+- `playful`
+- `aggressive`
+- `chaotic`
 
 ## 12. Scheduling Strategy
 

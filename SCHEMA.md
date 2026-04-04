@@ -78,6 +78,9 @@ Optional fields:
 - `review_hint`
 - `review_hint_zh`
 - `review_hint_en`
+- `confusion_with`
+- `metaphor_seed`
+- `hook_style_tags`
 - `enabled`
 - `body_format`
 
@@ -328,6 +331,56 @@ review_hint_zh: Rebase = 把 commits 重放到新的 base 上。
 review_hint_en: Rebase = replay commits on top of another base.
 ```
 
+### `confusion_with`
+
+Type:
+
+- array of strings
+
+Purpose:
+
+- identify commonly confused related cards or commands
+- improve review weighting and hook generation later
+
+Example:
+
+```yaml
+confusion_with: [git-fetch-basic, git-pull-basic]
+```
+
+### `metaphor_seed`
+
+Type:
+
+- array of strings
+
+Purpose:
+
+- give the offline hook generator a small pool of analogy or metaphor hints
+
+Example:
+
+```yaml
+metaphor_seed: [購物車, 暫存, 先觀察]
+```
+
+### `hook_style_tags`
+
+Type:
+
+- array of strings
+
+Purpose:
+
+- guide offline hook-generation templates
+- examples: `misunderstood`, `fear_of_mistake`, `safer_first`, `comparison`
+
+Example:
+
+```yaml
+hook_style_tags: [misunderstood, safer_first]
+```
+
 ### `enabled`
 
 Type:
@@ -490,6 +543,9 @@ Suggested schema:
     "default": "zh-TW",
     "allow_toggle": true
   },
+  "notifications": {
+    "style": "playful"
+  },
   "study_rules": {
     "max_new_cards_per_day": 12,
     "snooze_minutes": 15,
@@ -512,6 +568,7 @@ Suggested schema:
 - `review_schedule.weekday`: `mon` to `sun`, only used in weekly mode
 - `batch_size`: recommended `5` to `20`
 - `language.default`: allowed MVP values `zh-TW` or `en`
+- `notifications.style`: allowed initial values `safe`, `playful`, `aggressive`, `chaotic`
 
 ## 6. `data/cards-cache.json` Schema
 
@@ -689,14 +746,27 @@ During runtime, it will help to think in terms of these core models.
 {
   "id": "string",
   "title": "string",
+  "title_zh": "string",
+  "title_en": "string",
   "type": "single-choice | true-false",
   "question": "string",
+  "question_zh": "string",
+  "question_en": "string",
   "choices": ["string"],
+  "choices_zh": ["string"],
+  "choices_en": ["string"],
   "answer": "number | boolean",
   "tags": ["string"],
   "difficulty": 2,
   "clickbait": "string",
+  "clickbait_zh": "string",
+  "clickbait_en": "string",
   "review_hint": "string",
+  "review_hint_zh": "string",
+  "review_hint_en": "string",
+  "confusion_with": ["string"],
+  "metaphor_seed": ["string"],
+  "hook_style_tags": ["string"],
   "body_format": "bilingual-section",
   "body_markdown_zh": "string",
   "body_markdown_en": "string",
@@ -794,6 +864,8 @@ Fields we may add later without breaking the MVP:
 - `memory_level`
 - `last_notification_at`
 - `ignore_count`
+- `hook_body_zh`
+- `hook_body_en`
 
 For now, keep parser permissive for unknown fields and ignore them.
 

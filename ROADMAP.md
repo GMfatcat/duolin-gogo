@@ -334,3 +334,28 @@ TDD focus:
 Current status:
 
 - completed
+
+### Content Expansion And Hook Generation
+
+Goal:
+
+- grow the Git card set enough for real spaced repetition
+- make notifications more clickable through offline hook templates
+
+Deliverables:
+
+- new Git cards for `add`, `commit`, `merge`, `fetch`, `pull`, `checkout`
+- second-wave Git cards for `status`, `switch`, `restore`, `stash`
+- schema support for hook metadata
+- offline `hook generator` module with `safe`, `playful`, `aggressive`, and `chaotic` modes
+- notification flow wired to localized generated hooks
+
+TDD focus:
+
+- parser tests for hook metadata fields
+- deterministic hook-generator tests by style and language
+- notification tests for localized hook selection
+
+Current status:
+
+- planned
