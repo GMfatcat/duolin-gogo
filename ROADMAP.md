@@ -548,3 +548,27 @@ TDD focus:
 Current status:
 
 - planned
+
+### Cross-Cut: Background Running And Tray Lifecycle
+
+Goal:
+
+- make `duolin-gogo` behave like a background helper instead of a close-to-exit window
+
+Deliverables:
+
+- clicking `X` hides the main window instead of quitting
+- notifications and review scheduling continue while hidden
+- Windows tray icon with `Open duolin-gogo` and `Exit`
+- explicit full shutdown only through the tray `Exit` action
+- first implementation may defer minimize-to-tray until close-to-tray is stable
+
+TDD focus:
+
+- app-level tests for close interception policy
+- lifecycle tests for explicit quit vs hide behavior
+- manual verification checklist for tray restore and explicit exit
+
+Current status:
+
+- planned

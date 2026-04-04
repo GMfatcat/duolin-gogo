@@ -183,6 +183,10 @@ Question types deferred until later:
 - Notification title should prefer `clickbait` field if available
 - Fallback notification title should be generated from question/title templates
 - Clicking notification opens the learning card directly
+- Closing the main window should hide the app to the background instead of stopping notifications
+- The app should keep running while hidden so interval notifications and review scheduling continue
+- The first background-running implementation should expose a tray icon with explicit `Open` and `Exit` actions
+- Fully quitting the app should require an explicit tray `Exit` action rather than the window close button
 
 ### 8.3 Learning Card UI
 
@@ -486,7 +490,20 @@ When choosing the framework, compare against:
 - simple packaging for Windows first
 - future support for macOS if needed
 
-## 18. Recommended MVP Delivery Order
+## 18. Background Running Requirement
+
+For Windows-first usage, the app should behave like a lightweight background utility:
+
+- clicking the window close button should hide the window instead of exiting
+- hidden app instances should continue running notifications and review scheduling
+- the app should be restorable from the Windows notification area tray
+- the tray menu should provide a minimal first-phase control surface:
+  - `Open duolin-gogo`
+  - `Exit`
+
+The first implementation may defer minimize-to-tray behavior if close-to-tray is stable first.
+
+## 19. Recommended MVP Delivery Order
 
 ### Phase 1: Core Content + Study Loop
 
@@ -516,7 +533,7 @@ When choosing the framework, compare against:
 - staged study flow with clearer next actions
 - global i18n across shell copy
 
-## 19. Open Decisions For Framework Discussion
+## 20. Open Decisions For Framework Discussion
 
 - Desktop shell: Tauri or Electron
 - Frontend: React, Svelte, or another lightweight UI layer
@@ -524,7 +541,7 @@ When choosing the framework, compare against:
 - Scheduler: in-app timer only or OS-level scheduled trigger fallback
 - Markdown parser: strict frontmatter schema vs forgiving parser
 
-## 20. Recommendation
+## 21. Recommendation
 
 For this product shape, the MVP should optimize for:
 

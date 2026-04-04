@@ -84,3 +84,8 @@ Next targets:
 - Phase C: multi-topic expansion
   - prepare the deck model for topics beyond Git
   - support topic-aware summaries and selection filters
+- Cross-cut lifecycle work
+  - add close-to-background behavior so `X` hides instead of quitting
+  - keep notifications active while the app window is hidden
+  - add a minimal Windows tray surface with `Open duolin-gogo` and `Exit`
+  - treat minimize-to-tray as a follow-up after close-to-tray is stable

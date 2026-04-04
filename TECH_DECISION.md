@@ -293,7 +293,28 @@ Future improvement:
 - add startup-on-login
 - add stronger OS-level trigger support if needed
 
-## 13. Suggested App Lifecycle
+## 13. Background Utility Behavior
+
+For Windows-first daily use, the app should behave more like a tray-resident helper than a traditional close-to-exit desktop window.
+
+Recommended first-phase behavior:
+
+- clicking the main window close button should hide the app instead of terminating it
+- notifications and review scheduling should keep running while the window is hidden
+- a Windows tray icon should expose:
+  - `Open duolin-gogo`
+  - `Exit`
+- the tray `Open` action should restore and focus the existing window
+- the tray `Exit` action should be the explicit path for full process shutdown
+
+Implementation preference:
+
+- use Wails window-close interception for `X -> hide`
+- reuse the existing `revealWindow()` helper for restoring from tray
+- keep the first tray implementation intentionally small and Windows-first
+- defer minimize-to-tray until close-to-tray is stable
+
+## 14. Suggested App Lifecycle
 
 At app startup:
 
@@ -319,7 +340,7 @@ At content refresh:
 3. Update cache
 4. Preserve progress for unchanged card IDs
 
-## 14. Suggested Folder Structure
+## 15. Suggested Folder Structure
 
 ```text
 duolin-gogo/
@@ -347,7 +368,7 @@ duolin-gogo/
 
 If using default Wails layout, adjust names to match Wails conventions, but keep the logical separation.
 
-## 15. Suggested Backend Modules
+## 16. Suggested Backend Modules
 
 ### `cards`
 
@@ -385,6 +406,15 @@ Responsibilities:
 - attach routing payload for click handling
 - open correct card when toast is clicked
 
+### `lifecycle` / tray handling
+
+Responsibilities:
+
+- intercept close behavior
+- hide the window without quitting
+- restore the window from tray
+- allow explicit app shutdown from tray
+
 ### `settings`
 
 Responsibilities:
@@ -392,7 +422,7 @@ Responsibilities:
 - load and validate settings
 - expose update methods for UI
 
-## 16. Suggested Frontend Screens
+## 17. Suggested Frontend Screens
 
 ### Setup View
 
@@ -428,7 +458,7 @@ Responsibilities:
 - review cadence
 - import/rescan
 
-## 17. UI Direction For The Next Iteration
+## 18. UI Direction For The Next Iteration
 
 The next UI pass should move away from a stacked all-at-once layout and toward a clearer desktop learning workspace.
 
@@ -467,7 +497,7 @@ Recommended time-format rule:
 - use local human-readable timestamps such as `2026-04-05 21:00`
 - do not expose raw ISO date strings in visible UI copy
 - highlight `next review` in one location instead of repeating the same value across multiple sidebar cards
-## 18. Card Selection Logic For MVP
+## 19. Card Selection Logic For MVP
 
 Use a simple priority model.
 
@@ -499,7 +529,7 @@ Where:
 
 This is intentionally simple and tunable.
 
-## 19. MVP Performance Philosophy
+## 20. MVP Performance Philosophy
 
 Design principle:
 
@@ -515,7 +545,7 @@ Practical implications:
 - rewrite `progress.json` only when needed
 - keep scheduler lightweight
 
-## 20. Known Tradeoffs
+## 21. Known Tradeoffs
 
 ### Tradeoff 1: JSON Simplicity vs Query Power
 
@@ -531,7 +561,7 @@ Keeping frontend light means the app should favor clarity over heavy visual poli
 
 These are good tradeoffs for MVP.
 
-## 21. Recommended Build Order
+## 22. Recommended Build Order
 
 ### Step 1
 
@@ -581,7 +611,7 @@ Deliverable:
 
 - user can see lightweight learning stats
 
-## 22. Final Recommendation
+## 23. Final Recommendation
 
 The best-fit technical direction for this product is:
 
