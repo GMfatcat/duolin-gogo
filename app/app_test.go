@@ -37,6 +37,45 @@ func TestAppInfo(t *testing.T) {
 	}
 }
 
+func TestBeforeClosePreventsQuitByDefault(t *testing.T) {
+	app := NewApp()
+
+	prevent := app.beforeClose(nil)
+
+	if !prevent {
+		t.Fatal("expected close to be prevented by default")
+	}
+}
+
+func TestBeforeCloseAllowsQuitWhenRequested(t *testing.T) {
+	app := NewApp()
+	app.requestQuit()
+
+	prevent := app.beforeClose(nil)
+
+	if prevent {
+		t.Fatal("expected close to be allowed after explicit quit request")
+	}
+}
+
+func TestExitApplicationRequestsQuitAndInvokesQuitHook(t *testing.T) {
+	app := NewApp()
+	quitCalled := false
+	app.quitRuntime = func() {
+		quitCalled = true
+	}
+
+	app.ExitApplication()
+
+	if !quitCalled {
+		t.Fatal("expected quit hook to be called")
+	}
+
+	if !app.allowQuit {
+		t.Fatal("expected explicit exit to allow application quit")
+	}
+}
+
 func TestDefaultAppPathsFindsRepoRootFromExecutableTree(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, "knowledge"), 0o755); err != nil {

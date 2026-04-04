@@ -31,6 +31,8 @@ type App struct {
 	schedulerState     scheduler.State
 	tickerFactory      func(time.Duration) *time.Ticker
 	lastReviewRunAt    *time.Time
+	allowQuit          bool
+	quitRuntime        func()
 }
 
 type AppInfo struct {
@@ -169,6 +171,37 @@ func (a *App) startup(ctx context.Context) {
 		}
 	})
 	go a.startNotificationLoop()
+}
+
+func (a *App) beforeClose(ctx context.Context) (prevent bool) {
+	if a.allowQuit {
+		return false
+	}
+
+	if ctx != nil {
+		runtime.WindowHide(ctx)
+	} else if a.ctx != nil {
+		runtime.WindowHide(a.ctx)
+	}
+
+	return true
+}
+
+func (a *App) requestQuit() {
+	a.allowQuit = true
+}
+
+func (a *App) ExitApplication() {
+	a.requestQuit()
+
+	if a.quitRuntime != nil {
+		a.quitRuntime()
+		return
+	}
+
+	if a.ctx != nil {
+		runtime.Quit(a.ctx)
+	}
 }
 
 // AppInfo returns basic app metadata for the UI shell.

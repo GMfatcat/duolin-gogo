@@ -10,6 +10,10 @@ export function CheckAndSendNotification() {
   return window['go']['main']['App']['CheckAndSendNotification']();
 }
 
+export function ExitApplication() {
+  return window['go']['main']['App']['ExitApplication']();
+}
+
 export function GetStudyCard(arg1) {
   return window['go']['main']['App']['GetStudyCard'](arg1);
 }

@@ -90,6 +90,7 @@ Start-Process -FilePath "D:\duolin-gogo\app\build\bin\app.exe"
 After launch, you should see:
 
 - the main desktop window
+- a Windows tray icon for `duolin-gogo`
 - a study card or review card if one is available
 - dashboard summary cards
 - weak-topic summary
@@ -184,7 +185,28 @@ Expected result:
 
 - a new Windows toast should appear automatically
 
-## 9. Known Current Limitation
+## 9. Test Background Running And Tray Behavior
+
+Current first-phase tray behavior:
+
+- clicking the window close button should hide the window
+- the app should remain alive in the Windows tray
+- the tray menu should provide:
+  - `Open duolin-gogo`
+  - `Exit`
+
+Manual verification path:
+
+1. launch `D:\duolin-gogo\app\build\bin\app.exe`
+2. confirm the tray icon appears in the Windows notification area
+3. click the window `X`
+4. confirm the main window hides instead of quitting
+5. right-click the tray icon and click `Open duolin-gogo`
+6. confirm the same app window is restored and focused
+7. right-click the tray icon and click `Exit`
+8. confirm the process fully exits
+
+## 10. Known Current Limitation
 
 You reported:
 
@@ -205,7 +227,7 @@ That should improve the notification click behavior significantly.
 
 If clicking the toast still does not visibly foreground the app on this machine, the remaining issue is more likely Windows/WebView2 focus behavior rather than missing app-side wiring.
 
-## 10. Known UI Limitation
+## 11. Known UI Limitation
 
 You also reported:
 
@@ -225,7 +247,7 @@ It still does not include controls such as:
 - `Open next review`
 - `Open diagnostics details`
 
-## 11. Data Files To Inspect During Testing
+## 12. Data Files To Inspect During Testing
 
 If the app appears to work but you want to verify state changes, inspect:
 
@@ -240,7 +262,7 @@ What to expect:
 - `attempts.jsonl` appends one JSON line per answer
 - `import-errors.json` records malformed knowledge files
 
-## 12. Current Validation Status
+## 13. Current Validation Status
 
 The following have been verified:
 
@@ -249,17 +271,20 @@ The following have been verified:
 - `npm run build` passes
 - `wails build` succeeds
 - `app.exe` launches
+- tray-aware build succeeds
 - Windows toast can be sent successfully
 - UI has a manual test notification button
 - UI has a snooze button
 - UI has a manual knowledge rescan button
+- close interception now hides instead of immediately quitting
 
 The following still needs improvement:
 
 - richer review navigation controls
 - more explicit diagnostics actions
+- optional minimize-to-tray behavior
 
-## 13. Recommended Next Fix
+## 14. Recommended Next Fix
 
 The most valuable next implementation is likely:
 

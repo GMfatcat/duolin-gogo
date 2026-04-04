@@ -3,6 +3,7 @@ module duolin-gogo
 go 1.23.0
 
 require (
+	fyne.io/systray v1.11.0
 	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3
 	github.com/wailsapp/wails/v2 v2.12.0
 	gopkg.in/yaml.v3 v3.0.1

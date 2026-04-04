@@ -547,7 +547,10 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
+- first slice implemented: clicking `X` now routes through close interception and hides the window instead of quitting
+- second slice implemented: a minimal Windows tray surface now provides `Open duolin-gogo` and `Exit`
+- manual verification still needed for the full tray restore and explicit-exit flow on the built app
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

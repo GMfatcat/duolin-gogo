@@ -89,3 +89,5 @@ Next targets:
   - keep notifications active while the app window is hidden
   - add a minimal Windows tray surface with `Open duolin-gogo` and `Exit`
   - treat minimize-to-tray as a follow-up after close-to-tray is stable
+  - first slice implemented: explicit close now hides the window through `OnBeforeClose` instead of terminating the app
+  - second slice implemented: a minimal tray icon now exposes `Open duolin-gogo` and `Exit`

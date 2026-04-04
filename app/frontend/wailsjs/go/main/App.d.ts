@@ -6,6 +6,8 @@ export function AppInfo():Promise<main.AppInfo>;
 
 export function CheckAndSendNotification():Promise<boolean>;
 
+export function ExitApplication():Promise<void>;
+
 export function GetStudyCard(arg1:string):Promise<main.StudyCard>;
 
 export function LoadAuthoringPreview():Promise<main.AuthoringPreviewData>;
