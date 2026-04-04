@@ -121,6 +121,7 @@ Current useful controls:
 - `Save draft` from reviewed AI Markdown into `knowledge/<topic>/`
 - saving a draft now auto-refreshes authoring preview onto the new card
 - settings diagnostics now include a deck-level batch report
+- batch diagnostics can now be filtered by severity and topic
 - `zh-TW` / `en` language toggle
 - answer submission
 

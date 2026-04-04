@@ -483,7 +483,7 @@ Deliverables:
 - whole-deck validation summary
 - first slice implemented inside settings with total, clean, warning, and error card counts
 - grouped warning/error report
-- filter by severity or topic
+- second slice implemented with severity and topic filters
 - quick visibility into recently changed or problematic cards
 
 TDD focus:

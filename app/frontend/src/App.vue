@@ -83,6 +83,9 @@ const translations = {
     cleanCards: '乾淨卡片',
     warningCards: '有警告的卡片',
     errorCards: '有錯誤的卡片',
+    severityFilter: '嚴重度',
+    topicFilter: '主題',
+    allFilter: '全部',
     authoringPreview: '作者預覽',
     previewFile: '卡片檔案',
     previewDiagnostics: '這張卡的診斷',
@@ -159,6 +162,9 @@ const translations = {
     cleanCards: 'Clean cards',
     warningCards: 'Cards with warnings',
     errorCards: 'Cards with errors',
+    severityFilter: 'Severity',
+    topicFilter: 'Topic',
+    allFilter: 'All',
     authoringPreview: 'Authoring preview',
     previewFile: 'Card file',
     previewDiagnostics: 'Diagnostics for this card',
@@ -185,6 +191,10 @@ const savingScheduleSettings = ref(false)
 const changingLanguage = ref(false)
 const phase = ref('learn')
 const settingsOpen = ref(false)
+const diagnosticsFilter = ref({
+  severity: 'all',
+  topic: 'all',
+})
 const authoringPreview = ref({
   files: [],
   selectedPath: '',
@@ -328,6 +338,22 @@ const cleanCardCount = computed(() => {
   const dirty = new Set(diagnosticsBySource.value.keys())
   return Math.max(0, totalCardsCount.value - dirty.size)
 })
+const availableTopics = computed(() => {
+  const set = new Set()
+  for (const item of importErrors.value) {
+    const match = (item.source_path || '').match(/knowledge\/([^/]+)\//)
+    if (match?.[1]) {
+      set.add(match[1])
+    }
+  }
+  return ['all', ...Array.from(set).sort()]
+})
+const filteredWarningItems = computed(() =>
+  warningItems.value.filter((item) => matchesDiagnosticFilter(item)),
+)
+const filteredErrorItems = computed(() =>
+  errorItems.value.filter((item) => matchesDiagnosticFilter(item)),
+)
 
 const correctAnswerLabel = computed(() => {
   if (!feedback.value) return ''
@@ -344,6 +370,20 @@ const feedbackMessage = computed(() =>
 
 function severityLabel(item) {
   return (item.severity || 'error') === 'warning' ? t.value.warningLabel : t.value.errorLabel
+}
+
+function diagnosticTopic(item) {
+  const match = (item.source_path || '').match(/knowledge\/([^/]+)\//)
+  return match?.[1] || 'unknown'
+}
+
+function matchesDiagnosticFilter(item) {
+  const severity = item.severity || 'error'
+  const severityPass =
+    diagnosticsFilter.value.severity === 'all' || diagnosticsFilter.value.severity === severity
+  const topicPass =
+    diagnosticsFilter.value.topic === 'all' || diagnosticsFilter.value.topic === diagnosticTopic(item)
+  return severityPass && topicPass
 }
 
 onMounted(async () => {
@@ -955,16 +995,34 @@ function toggleSettings() {
               <strong>{{ errorCardCount }}</strong>
             </article>
           </section>
+          <div class="diagnostic-filters">
+            <label class="settings-field">
+              <span>{{ t.severityFilter }}</span>
+              <select v-model="diagnosticsFilter.severity" class="diagnostic-filter">
+                <option value="all">{{ t.allFilter }}</option>
+                <option value="warning">{{ t.warningLabel }}</option>
+                <option value="error">{{ t.errorLabel }}</option>
+              </select>
+            </label>
+            <label class="settings-field">
+              <span>{{ t.topicFilter }}</span>
+              <select v-model="diagnosticsFilter.topic" class="diagnostic-filter">
+                <option v-for="topic in availableTopics" :key="topic" :value="topic">
+                  {{ topic === 'all' ? t.allFilter : topic }}
+                </option>
+              </select>
+            </label>
+          </div>
           <p v-if="!importErrors.length" class="explanation">{{ t.noDiagnostics }}</p>
           <div class="diagnostics-groups">
-            <section v-if="warningItems.length" class="diagnostic-group">
+            <section v-if="filteredWarningItems.length" class="diagnostic-group">
               <div class="diagnostic-group-head">
                 <span class="severity-pill warning">{{ t.warningLabel }}</span>
-                <strong>{{ warningItems.length }}</strong>
+                <strong>{{ filteredWarningItems.length }}</strong>
               </div>
               <div class="diagnostics-list">
                 <article
-                  v-for="item in warningItems"
+                  v-for="item in filteredWarningItems"
                   :key="`${item.source_path}-${item.code}-${item.field || ''}`"
                   class="diagnostic-item warning"
                 >
@@ -978,14 +1036,14 @@ function toggleSettings() {
               </div>
             </section>
 
-            <section v-if="errorItems.length" class="diagnostic-group">
+            <section v-if="filteredErrorItems.length" class="diagnostic-group">
               <div class="diagnostic-group-head">
                 <span class="severity-pill error">{{ t.errorLabel }}</span>
-                <strong>{{ errorItems.length }}</strong>
+                <strong>{{ filteredErrorItems.length }}</strong>
               </div>
               <div class="diagnostics-list">
                 <article
-                  v-for="item in errorItems"
+                  v-for="item in filteredErrorItems"
                   :key="`${item.source_path}-${item.code}-${item.field || ''}`"
                   class="diagnostic-item error"
                 >

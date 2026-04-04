@@ -147,6 +147,46 @@ describe('App', () => {
     expect(wrapper.findAll('.diagnostic-group').length).toBe(2)
   })
 
+  it('filters diagnostics by severity and topic inside batch report', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    wrapper.vm.dashboard = {
+      ...wrapper.vm.dashboard,
+      importErrors: [
+        {
+          source_path: 'D:/duolin-gogo/knowledge/git/legacy.md',
+          severity: 'warning',
+          code: 'missing_localized_field',
+          field: 'title_en',
+          message: "Missing localized field 'title_en'; using fallback title value.",
+        },
+        {
+          source_path: 'D:/duolin-gogo/knowledge/git/broken.md',
+          severity: 'error',
+          code: 'missing_language_section',
+          field: 'body',
+          message: 'Body must contain both ## zh-TW and ## en sections.',
+        },
+      ],
+    }
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+
+    const selects = wrapper.findAll('.diagnostic-filter')
+    await selects[0].setValue('warning')
+    await flushPromises()
+    expect(wrapper.text()).toContain('missing_localized_field')
+    expect(wrapper.text()).not.toContain('missing_language_section')
+
+    await selects[1].setValue('git')
+    await flushPromises()
+    expect(wrapper.text()).toContain('legacy.md')
+  })
+
   it('shows authoring preview controls inside settings and updates the preview selection', async () => {
     const wrapper = mount(App)
 
