@@ -1,3 +1,52 @@
+<script setup>
+import { computed, onMounted, ref } from 'vue'
+import { loadDashboard, submitAnswer } from './api'
+
+const dashboard = ref(null)
+const selectedLanguage = ref('zh-TW')
+const selectedAnswer = ref('')
+const feedback = ref(null)
+const loading = ref(true)
+const submitting = ref(false)
+
+const card = computed(() => dashboard.value?.currentCard ?? null)
+const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
+const explanation = computed(() => {
+  if (!card.value) {
+    return ''
+  }
+
+  return selectedLanguage.value === 'en' ? card.value.explanationEn : card.value.explanationZh
+})
+
+const formattedCorrectRate = computed(() => `${Math.round((stats.value.correctRate ?? 0) * 100)}%`)
+
+onMounted(async () => {
+  dashboard.value = await loadDashboard()
+  selectedLanguage.value = dashboard.value.preferredLanguage || dashboard.value.info.defaultLanguage
+  loading.value = false
+})
+
+async function handleSubmit() {
+  if (!card.value || !selectedAnswer.value) {
+    return
+  }
+
+  submitting.value = true
+  feedback.value = await submitAnswer({
+    cardId: card.value.id,
+    sessionType: 'learn',
+    selectedAnswer: selectedAnswer.value,
+    shownAt: card.value.shownAt,
+  })
+  dashboard.value = {
+    ...dashboard.value,
+    stats: feedback.value.stats,
+  }
+  submitting.value = false
+}
+</script>
+
 <template>
   <main class="shell">
     <section class="hero">
@@ -16,11 +65,77 @@
       </article>
       <article class="status-card">
         <span class="label">Language mode</span>
-        <strong>zh-TW / en toggle ready</strong>
+        <strong>{{ selectedLanguage }} toggle ready</strong>
       </article>
       <article class="status-card">
         <span class="label">Development mode</span>
         <strong>TDD mode</strong>
+      </article>
+    </section>
+
+    <section v-if="loading" class="study-card">
+      <p class="label">Loading</p>
+      <strong>Preparing the next Git card...</strong>
+    </section>
+
+    <section v-else-if="card" class="study-card">
+      <div class="study-header">
+        <div>
+          <p class="label">Next card</p>
+          <h2>{{ card.title }}</h2>
+        </div>
+        <div class="language-toggle">
+          <button
+            :class="{ active: selectedLanguage === 'zh-TW' }"
+            type="button"
+            @click="selectedLanguage = 'zh-TW'"
+          >
+            zh-TW
+          </button>
+          <button
+            :class="{ active: selectedLanguage === 'en' }"
+            type="button"
+            @click="selectedLanguage = 'en'"
+          >
+            en
+          </button>
+        </div>
+      </div>
+
+      <p class="callout">{{ card.clickbait }}</p>
+      <p class="explanation">{{ explanation }}</p>
+
+      <div class="question-block">
+        <p class="label">Quick question</p>
+        <h3>{{ card.questionText }}</h3>
+
+        <div class="answers">
+          <label v-for="choice in card.choices" :key="choice.value" class="answer-option">
+            <input v-model="selectedAnswer" type="radio" name="answer" :value="choice.value">
+            <span>{{ choice.label }}</span>
+          </label>
+        </div>
+
+        <button class="submit-button" type="button" :disabled="!selectedAnswer || submitting" @click="handleSubmit">
+          {{ submitting ? 'Checking...' : 'Submit answer' }}
+        </button>
+      </div>
+
+      <div v-if="feedback" class="feedback" :class="{ correct: feedback.isCorrect, wrong: !feedback.isCorrect }">
+        <strong>{{ feedback.feedback }}</strong>
+        <p>Correct answer: {{ feedback.correctAnswer }}</p>
+        <p>{{ feedback.reviewHint }}</p>
+      </div>
+    </section>
+
+    <section class="status-grid">
+      <article class="status-card">
+        <span class="label">Studied today</span>
+        <strong>{{ stats.studiedToday }}</strong>
+      </article>
+      <article class="status-card">
+        <span class="label">Correct rate</span>
+        <strong>{{ formattedCorrectRate }}</strong>
       </article>
     </section>
   </main>

@@ -26,14 +26,14 @@ func TestPriorityScoreBoostsReviewDueAndRecentWrong(t *testing.T) {
 	lastSeen := now.Add(-48 * time.Hour).Format(time.RFC3339)
 
 	score := PriorityScore(cards.Card{ID: "git-review", Enabled: true}, progress.CardProgress{
-		SeenCount:     3,
-		CorrectCount:  1,
-		WrongCount:    2,
-		MasteryScore:  -1,
-		LastWrongAt:   &lastWrong,
-		LastSeenAt:    &lastSeen,
-		NextReviewAt:  &nextReview,
-		IsMastered:    false,
+		SeenCount:    3,
+		CorrectCount: 1,
+		WrongCount:   2,
+		MasteryScore: -1,
+		LastWrongAt:  &lastWrong,
+		LastSeenAt:   &lastSeen,
+		NextReviewAt: &nextReview,
+		IsMastered:   false,
 	}, now)
 
 	if score < 50 {

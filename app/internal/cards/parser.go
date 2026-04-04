@@ -49,9 +49,9 @@ type ImportResult struct {
 }
 
 type CacheFile struct {
-	Version     int       `json:"version"`
-	GeneratedAt string    `json:"generated_at"`
-	Cards       []Card    `json:"cards"`
+	Version     int    `json:"version"`
+	GeneratedAt string `json:"generated_at"`
+	Cards       []Card `json:"cards"`
 }
 
 type ImportErrorsFile struct {

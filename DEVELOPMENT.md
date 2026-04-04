@@ -45,8 +45,8 @@ npm run build
 
 Current completed milestone:
 
-- Milestone 4: Card Selection Engine
+- Milestone 5: Minimal Study Card UI
 
 Next target:
 
-- Milestone 5: Minimal Study Card UI
+- Milestone 6: Notification And App Scheduling

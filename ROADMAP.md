@@ -167,6 +167,10 @@ TDD focus:
 - answer submit and feedback tests
 - UI state tests for loading one card
 
+Current status:
+
+- completed
+
 ### Milestone 6: Notification And App Scheduling
 
 Goal:
@@ -286,4 +290,5 @@ For now:
 - Milestone 2 is `completed`
 - Milestone 3 is `completed`
 - Milestone 4 is `completed`
-- Milestone 5 and beyond are `planned`
+- Milestone 5 is `completed`
+- Milestone 6 and beyond are `planned`

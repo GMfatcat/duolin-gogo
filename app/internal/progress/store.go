@@ -17,19 +17,19 @@ type ProgressFile struct {
 }
 
 type CardProgress struct {
-	SeenCount      int     `json:"seen_count"`
-	CorrectCount   int     `json:"correct_count"`
-	WrongCount     int     `json:"wrong_count"`
-	MasteryScore   int     `json:"mastery_score"`
-	StreakCorrect  int     `json:"streak_correct"`
-	LastSeenAt     *string `json:"last_seen_at"`
-	LastCorrectAt  *string `json:"last_correct_at"`
-	LastWrongAt    *string `json:"last_wrong_at"`
-	LastSessionType string `json:"last_session_type"`
-	IntroducedAt   *string `json:"introduced_at"`
-	NextReviewAt   *string `json:"next_review_at"`
-	SnoozedUntil   *string `json:"snoozed_until"`
-	IsMastered     bool    `json:"is_mastered"`
+	SeenCount       int     `json:"seen_count"`
+	CorrectCount    int     `json:"correct_count"`
+	WrongCount      int     `json:"wrong_count"`
+	MasteryScore    int     `json:"mastery_score"`
+	StreakCorrect   int     `json:"streak_correct"`
+	LastSeenAt      *string `json:"last_seen_at"`
+	LastCorrectAt   *string `json:"last_correct_at"`
+	LastWrongAt     *string `json:"last_wrong_at"`
+	LastSessionType string  `json:"last_session_type"`
+	IntroducedAt    *string `json:"introduced_at"`
+	NextReviewAt    *string `json:"next_review_at"`
+	SnoozedUntil    *string `json:"snoozed_until"`
+	IsMastered      bool    `json:"is_mastered"`
 }
 
 type DailySummary struct {
