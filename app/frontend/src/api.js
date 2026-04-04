@@ -75,3 +75,21 @@ export async function getStudyCard(cardId) {
 
   return structuredClone(fallbackDashboard.currentCard)
 }
+
+export async function sendTestNotification() {
+  const backend = window?.go?.main?.App
+  if (backend?.SendTestNotification) {
+    return backend.SendTestNotification()
+  }
+
+  return { message: 'Test notification sent.' }
+}
+
+export async function snoozeNotifications() {
+  const backend = window?.go?.main?.App
+  if (backend?.SnoozeNotifications) {
+    await backend.SnoozeNotifications()
+  }
+
+  return { message: 'Notifications snoozed for 15 minutes.' }
+}

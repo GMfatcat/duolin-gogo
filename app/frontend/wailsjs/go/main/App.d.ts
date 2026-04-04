@@ -10,6 +10,8 @@ export function GetStudyCard(arg1:string):Promise<main.StudyCard>;
 
 export function LoadDashboard():Promise<main.DashboardData>;
 
+export function SendTestNotification():Promise<main.ActionStatus>;
+
 export function SnoozeNotifications():Promise<void>;
 
 export function SubmitAnswer(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.SubmitAnswerResult>;

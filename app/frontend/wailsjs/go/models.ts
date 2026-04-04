@@ -82,6 +82,18 @@ export namespace diagnostics {
 
 export namespace main {
 	
+	export class ActionStatus {
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ActionStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.message = source["message"];
+	    }
+	}
 	export class AnswerChoice {
 	    value: string;
 	    label: string;

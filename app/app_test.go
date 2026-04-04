@@ -187,6 +187,25 @@ func TestCheckAndSendNotificationRespectsIntervalAndSnooze(t *testing.T) {
 	}
 }
 
+func TestSendTestNotificationUsesSelectedCard(t *testing.T) {
+	app := newTestApp(t)
+	sender := &stubSender{}
+	app.notificationSender = sender
+
+	status, err := app.SendTestNotification()
+	if err != nil {
+		t.Fatalf("send test notification failed: %v", err)
+	}
+
+	if status.Message != "Test notification sent." {
+		t.Fatalf("unexpected status: %s", status.Message)
+	}
+
+	if sender.message.Title != "Test notification" {
+		t.Fatalf("unexpected notification title: %s", sender.message.Title)
+	}
+}
+
 func TestLoadDashboardEntersReviewModeWhenReviewIsDue(t *testing.T) {
 	app := newTestApp(t)
 	now := time.Date(2026, 4, 5, 21, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))

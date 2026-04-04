@@ -1,12 +1,13 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
-import { getStudyCard, loadDashboard, submitAnswer } from './api'
+import { getStudyCard, loadDashboard, sendTestNotification, snoozeNotifications, submitAnswer } from './api'
 
 const dashboard = ref(null)
 const selectedLanguage = ref('zh-TW')
 const selectedAnswer = ref('')
 const feedback = ref(null)
+const actionMessage = ref('')
 const loading = ref(true)
 const submitting = ref(false)
 let unsubscribe = null
@@ -42,6 +43,7 @@ onMounted(async () => {
       }
       feedback.value = null
       selectedAnswer.value = ''
+      actionMessage.value = `Opened from notification: ${cardId}`
     })
     unsubscribe = true
   }
@@ -68,6 +70,16 @@ async function handleSubmit() {
     stats: feedback.value.stats,
   }
   submitting.value = false
+}
+
+async function handleSendTestNotification() {
+  const result = await sendTestNotification()
+  actionMessage.value = result.message
+}
+
+async function handleSnooze() {
+  const result = await snoozeNotifications()
+  actionMessage.value = result.message
 }
 </script>
 
@@ -99,6 +111,16 @@ async function handleSubmit() {
         <span class="label">Session mode</span>
         <strong>{{ reviewMode ? 'Review session' : 'Learn session' }}</strong>
       </article>
+    </section>
+
+    <section class="toolbar">
+      <button class="toolbar-button" type="button" @click="handleSendTestNotification">
+        Send test notification
+      </button>
+      <button class="toolbar-button secondary" type="button" @click="handleSnooze">
+        Snooze 15 min
+      </button>
+      <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
     </section>
 
     <section v-if="loading" class="study-card">

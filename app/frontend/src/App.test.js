@@ -19,6 +19,8 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Next review')
     expect(wrapper.text()).toContain('Knowledge file health')
     expect(wrapper.text()).toContain('No import issues detected.')
+    expect(wrapper.text()).toContain('Send test notification')
+    expect(wrapper.text()).toContain('Snooze 15 min')
 
     const languageButtons = wrapper.findAll('.language-toggle button')
     await languageButtons[1].trigger('click')
@@ -30,5 +32,10 @@ describe('App', () => {
 
     expect(wrapper.text()).toContain('Correct.')
     expect(wrapper.text()).toContain('Correct answer: true')
+
+    const toolbarButtons = wrapper.findAll('.toolbar-button')
+    await toolbarButtons[0].trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Test notification sent.')
   })
 })

@@ -83,6 +83,10 @@ type SubmitAnswerResult struct {
 	Stats             DashboardStats `json:"stats"`
 }
 
+type ActionStatus struct {
+	Message string `json:"message"`
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return NewAppWithPaths(filepath.Clean(filepath.Join("..", "knowledge")), filepath.Clean(filepath.Join("..", "data")))
@@ -105,6 +109,7 @@ func (a *App) startup(ctx context.Context) {
 	_ = notifications.ConfigureApp()
 	notifications.RegisterActivationHandler(func(cardID string) {
 		if a.ctx != nil {
+			a.revealWindow()
 			runtime.EventsEmit(a.ctx, "notification:open-card", cardID)
 		}
 	})
@@ -280,6 +285,31 @@ func (a *App) SnoozeNotifications() error {
 	return nil
 }
 
+func (a *App) SendTestNotification() (ActionStatus, error) {
+	cache, state, _, err := a.loadState()
+	if err != nil {
+		return ActionStatus{}, err
+	}
+
+	card, ok := selection.SelectNextCard(cache.Cards, state.Cards, a.nowFunc())
+	if !ok && len(cache.Cards) > 0 {
+		card = cache.Cards[0]
+		ok = true
+	}
+	if !ok {
+		return ActionStatus{Message: "No card available for test notification."}, nil
+	}
+
+	message := notifications.BuildStudyMessage(card)
+	message.Title = "Test notification"
+	message.Body = "Click to open a study card in duolin-gogo."
+	if err := a.notificationSender.Send(message); err != nil {
+		return ActionStatus{}, err
+	}
+
+	return ActionStatus{Message: "Test notification sent."}, nil
+}
+
 func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error) {
 	if _, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir); err != nil {
 		return cards.CacheFile{}, progress.ProgressFile{}, "", err
@@ -439,4 +469,16 @@ func (a *App) startNotificationLoop() {
 	for range ticker.C {
 		_, _ = a.CheckAndSendNotification()
 	}
+}
+
+func (a *App) revealWindow() {
+	if a.ctx == nil {
+		return
+	}
+
+	runtime.WindowShow(a.ctx)
+	runtime.WindowUnminimise(a.ctx)
+	runtime.WindowSetAlwaysOnTop(a.ctx, true)
+	time.Sleep(150 * time.Millisecond)
+	runtime.WindowSetAlwaysOnTop(a.ctx, false)
 }

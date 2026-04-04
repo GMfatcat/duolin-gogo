@@ -18,6 +18,10 @@ export function LoadDashboard() {
   return window['go']['main']['App']['LoadDashboard']();
 }
 
+export function SendTestNotification() {
+  return window['go']['main']['App']['SendTestNotification']();
+}
+
 export function SnoozeNotifications() {
   return window['go']['main']['App']['SnoozeNotifications']();
 }
