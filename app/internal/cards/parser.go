@@ -40,6 +40,9 @@ type Card struct {
 	ReviewHint       string   `json:"review_hint,omitempty"`
 	ReviewHintZH     string   `json:"review_hint_zh,omitempty"`
 	ReviewHintEN     string   `json:"review_hint_en,omitempty"`
+	ConfusionWith    []string `json:"confusion_with,omitempty"`
+	MetaphorSeed     []string `json:"metaphor_seed,omitempty"`
+	HookStyleTags    []string `json:"hook_style_tags,omitempty"`
 	BodyMarkdownZH   string   `json:"body_markdown_zh"`
 	BodyMarkdownEN   string   `json:"body_markdown_en"`
 	BodyPlaintextZH  string   `json:"body_plaintext_zh,omitempty"`
@@ -71,28 +74,31 @@ type ImportErrorsFile struct {
 }
 
 type frontmatter struct {
-	ID           string   `yaml:"id"`
-	Title        string   `yaml:"title"`
-	TitleZH      string   `yaml:"title_zh"`
-	TitleEN      string   `yaml:"title_en"`
-	Type         string   `yaml:"type"`
-	BodyFormat   string   `yaml:"body_format"`
-	Tags         []string `yaml:"tags"`
-	Difficulty   int      `yaml:"difficulty"`
-	Question     string   `yaml:"question"`
-	QuestionZH   string   `yaml:"question_zh"`
-	QuestionEN   string   `yaml:"question_en"`
-	Choices      []string `yaml:"choices"`
-	ChoicesZH    []string `yaml:"choices_zh"`
-	ChoicesEN    []string `yaml:"choices_en"`
-	Answer       any      `yaml:"answer"`
-	Clickbait    string   `yaml:"clickbait"`
-	ClickbaitZH  string   `yaml:"clickbait_zh"`
-	ClickbaitEN  string   `yaml:"clickbait_en"`
-	ReviewHint   string   `yaml:"review_hint"`
-	ReviewHintZH string   `yaml:"review_hint_zh"`
-	ReviewHintEN string   `yaml:"review_hint_en"`
-	Enabled      *bool    `yaml:"enabled"`
+	ID            string   `yaml:"id"`
+	Title         string   `yaml:"title"`
+	TitleZH       string   `yaml:"title_zh"`
+	TitleEN       string   `yaml:"title_en"`
+	Type          string   `yaml:"type"`
+	BodyFormat    string   `yaml:"body_format"`
+	Tags          []string `yaml:"tags"`
+	Difficulty    int      `yaml:"difficulty"`
+	Question      string   `yaml:"question"`
+	QuestionZH    string   `yaml:"question_zh"`
+	QuestionEN    string   `yaml:"question_en"`
+	Choices       []string `yaml:"choices"`
+	ChoicesZH     []string `yaml:"choices_zh"`
+	ChoicesEN     []string `yaml:"choices_en"`
+	Answer        any      `yaml:"answer"`
+	Clickbait     string   `yaml:"clickbait"`
+	ClickbaitZH   string   `yaml:"clickbait_zh"`
+	ClickbaitEN   string   `yaml:"clickbait_en"`
+	ReviewHint    string   `yaml:"review_hint"`
+	ReviewHintZH  string   `yaml:"review_hint_zh"`
+	ReviewHintEN  string   `yaml:"review_hint_en"`
+	ConfusionWith []string `yaml:"confusion_with"`
+	MetaphorSeed  []string `yaml:"metaphor_seed"`
+	HookStyleTags []string `yaml:"hook_style_tags"`
+	Enabled       *bool    `yaml:"enabled"`
 }
 
 func ScanDirectories(paths []string) (ImportResult, error) {
@@ -298,6 +304,9 @@ func buildCard(path string, fm frontmatter, body string) (Card, *ImportError) {
 		ReviewHint:       localizeText(fm.ReviewHintEN, fm.ReviewHint, fm.ReviewHintZH),
 		ReviewHintZH:     localizeText(fm.ReviewHintZH, fm.ReviewHint, fm.ReviewHintEN),
 		ReviewHintEN:     localizeText(fm.ReviewHintEN, fm.ReviewHint, fm.ReviewHintZH),
+		ConfusionWith:    normalizeTags(fm.ConfusionWith),
+		MetaphorSeed:     normalizeList(fm.MetaphorSeed),
+		HookStyleTags:    normalizeTags(fm.HookStyleTags),
 		BodyMarkdownZH:   zh,
 		BodyMarkdownEN:   en,
 		BodyPlaintextZH:  toPlaintext(zh),
@@ -380,6 +389,17 @@ func normalizeTags(tags []string) []string {
 		tag = strings.ToLower(strings.TrimSpace(tag))
 		if tag != "" {
 			out = append(out, tag)
+		}
+	}
+	return out
+}
+
+func normalizeList(items []string) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		item = strings.TrimSpace(item)
+		if item != "" {
+			out = append(out, item)
 		}
 	}
 	return out

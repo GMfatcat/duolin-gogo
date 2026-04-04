@@ -19,6 +19,9 @@
     "default": "zh-TW",
     "allow_toggle": true
   },
+  "notifications": {
+    "style": "playful"
+  },
   "study_rules": {
     "max_new_cards_per_day": 12,
     "snooze_minutes": 15,

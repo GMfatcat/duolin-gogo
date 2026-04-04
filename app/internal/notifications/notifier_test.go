@@ -15,7 +15,7 @@ func TestBuildStudyMessageUsesLocalizedClickbaitAndCardID(t *testing.T) {
 		QuestionTextEN: "What does git rebase mainly do?",
 		ClickbaitZH:    "多數人其實沒搞懂 rebase",
 		ClickbaitEN:    "Most Git beginners misunderstand rebase. Do you?",
-	}, "zh-TW")
+	}, "zh-TW", "playful")
 
 	if message.Title != "多數人其實沒搞懂 rebase" {
 		t.Fatalf("unexpected title: %s", message.Title)
@@ -27,5 +27,25 @@ func TestBuildStudyMessageUsesLocalizedClickbaitAndCardID(t *testing.T) {
 
 	if message.ActivationArgument != "duolin-gogo://study/git-rebase-vs-merge" {
 		t.Fatalf("unexpected activation argument: %s", message.ActivationArgument)
+	}
+}
+
+func TestBuildStudyMessageGeneratesHookWhenClickbaitMissing(t *testing.T) {
+	message := BuildStudyMessageForLanguage(cards.Card{
+		ID:             "git-fetch-basic",
+		TitleZH:        "git fetch 的用途",
+		TitleEN:        "Git Fetch",
+		QuestionTextZH: "`git fetch` 只會更新遠端追蹤資訊。",
+		QuestionTextEN: "`git fetch` updates remote-tracking references.",
+		ConfusionWith:  []string{"git-pull-composition"},
+		MetaphorSeed:   []string{"先看貨"},
+		HookStyleTags:  []string{"safer-first"},
+	}, "zh-TW", "playful")
+
+	if message.Title == "" {
+		t.Fatal("expected generated title")
+	}
+	if message.Body == "" {
+		t.Fatal("expected generated body")
 	}
 }

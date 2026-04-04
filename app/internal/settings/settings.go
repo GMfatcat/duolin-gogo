@@ -24,6 +24,9 @@ type File struct {
 		Default     string `json:"default"`
 		AllowToggle bool   `json:"allow_toggle"`
 	} `json:"language"`
+	Notifications struct {
+		Style string `json:"style"`
+	} `json:"notifications"`
 	StudyRules struct {
 		MaxNewCardsPerDay          int `json:"max_new_cards_per_day"`
 		SnoozeMinutes              int `json:"snooze_minutes"`

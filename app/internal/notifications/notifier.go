@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"duolin-gogo/internal/cards"
+	"duolin-gogo/internal/hooks"
 )
 
 const AppID = "duolin-gogo"
@@ -19,10 +20,10 @@ type Sender interface {
 }
 
 func BuildStudyMessage(card cards.Card) Message {
-	return BuildStudyMessageForLanguage(card, "en")
+	return BuildStudyMessageForLanguage(card, "en", "playful")
 }
 
-func BuildStudyMessageForLanguage(card cards.Card, language string) Message {
+func BuildStudyMessageForLanguage(card cards.Card, language string, style string) Message {
 	title := card.ClickbaitEN
 	body := card.QuestionTextEN
 	if language == "zh-TW" {
@@ -31,18 +32,14 @@ func BuildStudyMessageForLanguage(card cards.Card, language string) Message {
 	}
 
 	if title == "" {
-		if language == "zh-TW" {
-			title = card.TitleZH
-		} else {
-			title = card.TitleEN
-		}
+		title, body = hooks.Generate(card, language, style)
 	}
 
 	if body == "" {
 		if language == "zh-TW" {
-			body = "新的 Git 小測驗已準備好。"
+			body = "新的學習卡已經準備好了。"
 		} else {
-			body = "Quick Git check ready."
+			body = "A quick study card is ready."
 		}
 	}
 

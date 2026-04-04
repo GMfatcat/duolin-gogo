@@ -253,7 +253,7 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 	if review.ShouldStartReview(config, a.lastReviewRunAt, now) {
 		queue := review.BuildQueue(cache.Cards, state.Cards, now, config.ReviewSchedule.BatchSize)
 		if len(queue) > 0 {
-			message := notifications.BuildStudyMessageForLanguage(queue[0], preferredLanguage)
+			message := notifications.BuildStudyMessageForLanguage(queue[0], preferredLanguage, config.Notifications.Style)
 			if preferredLanguage == "zh-TW" {
 				message.Title = "複習時間到了"
 				message.Body = "該回來複習最近學過的 Git 概念了。"
@@ -275,7 +275,7 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 		return false, nil
 	}
 
-	if err := a.notificationSender.Send(notifications.BuildStudyMessageForLanguage(card, preferredLanguage)); err != nil {
+	if err := a.notificationSender.Send(notifications.BuildStudyMessageForLanguage(card, preferredLanguage, config.Notifications.Style)); err != nil {
 		return false, err
 	}
 
@@ -317,7 +317,8 @@ func (a *App) SendTestNotification() (ActionStatus, error) {
 		return ActionStatus{Message: "No card available for test notification."}, nil
 	}
 
-	message := notifications.BuildStudyMessageForLanguage(card, preferredLanguage)
+	config := a.mustLoadSettings()
+	message := notifications.BuildStudyMessageForLanguage(card, preferredLanguage, config.Notifications.Style)
 	if preferredLanguage == "zh-TW" {
 		message.Title = "測試通知"
 		message.Body = "點一下，直接打開 duolin-gogo 的學習卡。"
