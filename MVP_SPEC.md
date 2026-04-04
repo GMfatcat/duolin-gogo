@@ -380,6 +380,13 @@ Suggested review scheduling:
 - missing frontmatter fields
 - duplicate IDs
 
+### 11.7 Authoring Support
+
+- a card preview view should help authors inspect one card before it enters the normal study flow
+- preview should show parsed content, language switching, and validation results
+- AI-generated drafts should be reviewable against the same schema before saving into `knowledge/`
+- whole-deck validation should later support grouped warning/error review for batch AI generation
+
 ## 12. Local Storage Strategy
 
 MVP recommendation:

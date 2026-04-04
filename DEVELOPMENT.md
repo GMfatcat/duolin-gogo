@@ -55,6 +55,10 @@ Next targets:
   - latest deck expansion added `git clone`, `git init`, `git branch`, `git log`, `git reset`, and `git diff`
   - second-wave deck expansion added `git revert`, `git tag`, `git remote`, `git merge conflict`, `git rebase --continue`, and `git push -u`
   - add a reusable LLM authoring prompt so AI-generated cards follow our Markdown schema and bilingual rules
+  - next authoring UX slices:
+    - A1: card preview
+    - A2: AI draft review flow
+    - A3: batch validation report
   - improve authoring-time validation for bilingual card files
   - make import feedback clearer for broken Markdown cards
   - first slice implemented: missing localized fields and bilingual choice mismatches now surface as warnings without blocking import

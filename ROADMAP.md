@@ -421,6 +421,76 @@ Current status:
 
 - in_progress
 
+### Next Phase A1: Card Preview
+
+Goal:
+
+- let authors inspect one card before it enters the normal study flow
+
+Deliverables:
+
+- load a single local card file for author preview
+- show parsed result side-by-side with the source card
+- support `zh-TW` / `en` preview switching
+- show diagnostics for that card without relying on the full dashboard
+
+TDD focus:
+
+- parser-to-preview data mapping tests
+- component tests for language switching in preview
+- diagnostics rendering tests for single-card preview
+
+Current status:
+
+- planned
+
+### Next Phase A2: AI Draft Review Flow
+
+Goal:
+
+- make AI-generated cards reviewable before they are trusted as knowledge cards
+
+Deliverables:
+
+- draft input area for pasted AI Markdown
+- schema validation result for the draft
+- normalized preview of parsed card data
+- save flow for accepted drafts
+- support for the reusable prompt and review prompt from `AI_CARD_PROMPT.md`
+
+TDD focus:
+
+- validation tests for pasted draft content
+- preview tests for accepted vs rejected drafts
+- save-flow tests for approved drafts
+
+Current status:
+
+- planned
+
+### Next Phase A3: Batch Validation Report
+
+Goal:
+
+- make larger AI-assisted deck growth easy to audit
+
+Deliverables:
+
+- whole-deck validation summary
+- grouped warning/error report
+- filter by severity or topic
+- quick visibility into recently changed or problematic cards
+
+TDD focus:
+
+- aggregation tests for warning/error totals
+- filtering tests by severity and topic
+- UI tests for grouped diagnostics report
+
+Current status:
+
+- planned
+
 ### Next Phase B: Session And Progress UX
 
 Goal:
