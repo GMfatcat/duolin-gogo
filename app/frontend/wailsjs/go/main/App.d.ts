@@ -8,7 +8,11 @@ export function CheckAndSendNotification():Promise<boolean>;
 
 export function GetStudyCard(arg1:string):Promise<main.StudyCard>;
 
+export function LoadAuthoringPreview():Promise<main.AuthoringPreviewData>;
+
 export function LoadDashboard():Promise<main.DashboardData>;
+
+export function PreviewKnowledgeCard(arg1:string):Promise<main.AuthoringPreviewData>;
 
 export function RescanKnowledge():Promise<main.ActionStatus>;
 

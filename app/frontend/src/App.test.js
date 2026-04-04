@@ -143,4 +143,21 @@ describe('App', () => {
     expect(wrapper.findAll('.severity-pill').length).toBe(4)
     expect(wrapper.findAll('.diagnostic-group').length).toBe(2)
   })
+
+  it('shows authoring preview controls inside settings and updates the preview selection', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Authoring preview')
+    expect(wrapper.find('.preview-select').exists()).toBe(true)
+    expect(wrapper.find('.preview-card').text()).toContain('Cherry-pick')
+
+    await wrapper.find('.preview-select').setValue('D:/duolin-gogo/knowledge/git/rebase.md')
+    await flushPromises()
+
+    expect(wrapper.find('.preview-card').text()).toContain('Rebase')
+  })
 })

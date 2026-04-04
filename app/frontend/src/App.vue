@@ -3,7 +3,9 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
 import {
   getStudyCard,
+  loadAuthoringPreview,
   loadDashboard,
+  previewKnowledgeCard,
   rescanKnowledge,
   sendTestNotification,
   snoozeNotifications,
@@ -74,6 +76,10 @@ const translations = {
     toolsLabel: '工具',
     warningLabel: 'warning',
     errorLabel: 'error',
+    authoringPreview: '作者預覽',
+    previewFile: '卡片檔案',
+    previewDiagnostics: '這張卡的診斷',
+    noPreviewDiagnostics: '這張卡目前沒有額外診斷。',
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
@@ -134,6 +140,10 @@ const translations = {
     toolsLabel: 'Tools',
     warningLabel: 'warning',
     errorLabel: 'error',
+    authoringPreview: 'Authoring preview',
+    previewFile: 'Card file',
+    previewDiagnostics: 'Diagnostics for this card',
+    noPreviewDiagnostics: 'No diagnostics for this card.',
   },
 }
 
@@ -149,6 +159,12 @@ const savingScheduleSettings = ref(false)
 const changingLanguage = ref(false)
 const phase = ref('learn')
 const settingsOpen = ref(false)
+const authoringPreview = ref({
+  files: [],
+  selectedPath: '',
+  currentCard: null,
+  importErrors: [],
+})
 const scheduleForm = ref({
   notificationIntervalMinutes: 10,
   reviewTime: '21:00',
@@ -176,6 +192,9 @@ const scheduleSettings = computed(() =>
     activeHoursEnd: '22:00',
   },
 )
+const previewCard = computed(() => authoringPreview.value?.currentCard ?? null)
+const previewFiles = computed(() => authoringPreview.value?.files ?? [])
+const previewErrors = computed(() => authoringPreview.value?.importErrors ?? [])
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
 
 const currentPhaseLabel = computed(() => {
@@ -262,6 +281,7 @@ function severityLabel(item) {
 
 onMounted(async () => {
   await refreshDashboard()
+  await refreshAuthoringPreview()
 
   if (typeof window !== 'undefined' && typeof window.runtime !== 'undefined') {
     EventsOn('notification:open-card', async (cardId) => {
@@ -293,6 +313,12 @@ async function refreshDashboard() {
   }
   resetStudyFlow()
   loading.value = false
+}
+
+async function refreshAuthoringPreview(selectedPath = '') {
+  authoringPreview.value = selectedPath
+    ? await previewKnowledgeCard(selectedPath)
+    : await loadAuthoringPreview()
 }
 
 function resetStudyFlow() {
@@ -358,6 +384,7 @@ async function handleRescanKnowledge() {
   try {
     const result = await rescanKnowledge()
     await refreshDashboard()
+    await refreshAuthoringPreview(authoringPreview.value.selectedPath)
     actionMessage.value = result.message
   } catch (error) {
     actionMessage.value = `Rescan failed: ${error?.message ?? String(error)}`
@@ -371,10 +398,15 @@ async function handleValidateKnowledge() {
       ...dashboard.value,
       importErrors: result.importErrors ?? [],
     }
+    await refreshAuthoringPreview(authoringPreview.value.selectedPath)
     actionMessage.value = result.message
   } catch (error) {
     actionMessage.value = `Validate failed: ${error?.message ?? String(error)}`
   }
+}
+
+async function handlePreviewSelection(path) {
+  await refreshAuthoringPreview(path)
 }
 
 async function handleNotificationSettingChange(field, value) {
@@ -616,6 +648,57 @@ function toggleSettings() {
               <button class="toolbar-button secondary" type="button" @click="handleValidateKnowledge">{{ t.validateKnowledge }}</button>
             </div>
             <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
+          </section>
+
+          <section class="study-card inset-card preview-panel">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ t.authoringPreview }}</p>
+                <h2>{{ t.authoringPreview }}</h2>
+              </div>
+            </div>
+
+            <label class="settings-field">
+              <span>{{ t.previewFile }}</span>
+              <select
+                class="preview-select"
+                :value="authoringPreview.selectedPath"
+                @change="handlePreviewSelection($event.target.value)"
+              >
+                <option v-for="file in previewFiles" :key="file.path" :value="file.path">
+                  {{ file.name }}
+                </option>
+              </select>
+            </label>
+
+            <div v-if="previewCard" class="preview-card">
+              <p class="label">{{ previewCard.id }}</p>
+              <strong>{{ selectedLanguage === 'en' ? previewCard.titleEn : previewCard.titleZh }}</strong>
+              <p class="callout compact">{{ selectedLanguage === 'en' ? previewCard.clickbaitEn : previewCard.clickbaitZh }}</p>
+              <p class="explanation compact">{{ selectedLanguage === 'en' ? previewCard.explanationEn : previewCard.explanationZh }}</p>
+              <p class="label">{{ selectedLanguage === 'en' ? previewCard.questionTextEn : previewCard.questionTextZh }}</p>
+            </div>
+
+            <div class="preview-diagnostics">
+              <span class="label">{{ t.previewDiagnostics }}</span>
+              <div v-if="previewErrors.length" class="diagnostics-list compact">
+                <article
+                  v-for="item in previewErrors"
+                  :key="`preview-${item.source_path}-${item.code}-${item.field || ''}`"
+                  class="diagnostic-item"
+                  :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'"
+                >
+                  <div class="diagnostic-head">
+                    <span class="severity-pill" :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'">
+                      {{ severityLabel(item) }}
+                    </span>
+                    <strong>{{ item.code }}</strong>
+                  </div>
+                  <p>{{ item.message }}</p>
+                </article>
+              </div>
+              <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
+            </div>
           </section>
 
           <section class="study-card inset-card">

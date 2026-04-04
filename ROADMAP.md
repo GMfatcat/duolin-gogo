@@ -430,9 +430,11 @@ Goal:
 Deliverables:
 
 - load a single local card file for author preview
-- show parsed result side-by-side with the source card
+- show parsed result inside the app settings flow before the card enters normal study
+- allow card switching from a local Markdown file list
 - support `zh-TW` / `en` preview switching
 - show diagnostics for that card without relying on the full dashboard
+- keep preview refreshable after `Validate knowledge` and `Rescan knowledge`
 
 TDD focus:
 
@@ -442,7 +444,7 @@ TDD focus:
 
 Current status:
 
-- planned
+- completed
 
 ### Next Phase A2: AI Draft Review Flow
 

@@ -14,8 +14,16 @@ export function GetStudyCard(arg1) {
   return window['go']['main']['App']['GetStudyCard'](arg1);
 }
 
+export function LoadAuthoringPreview() {
+  return window['go']['main']['App']['LoadAuthoringPreview']();
+}
+
 export function LoadDashboard() {
   return window['go']['main']['App']['LoadDashboard']();
+}
+
+export function PreviewKnowledgeCard(arg1) {
+  return window['go']['main']['App']['PreviewKnowledgeCard'](arg1);
 }
 
 export function RescanKnowledge() {

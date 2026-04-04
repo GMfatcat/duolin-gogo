@@ -388,6 +388,66 @@ answer: true
 	}
 }
 
+func TestLoadAuthoringPreviewReturnsFilesAndSelectedCard(t *testing.T) {
+	app := newTestApp(t)
+
+	preview, err := app.LoadAuthoringPreview()
+	if err != nil {
+		t.Fatalf("load authoring preview failed: %v", err)
+	}
+
+	if len(preview.Files) != 2 {
+		t.Fatalf("expected 2 preview files, got %d", len(preview.Files))
+	}
+	if preview.SelectedPath == "" {
+		t.Fatal("expected selected preview path")
+	}
+	if preview.CurrentCard == nil {
+		t.Fatal("expected preview card")
+	}
+	if preview.CurrentCard.ID == "" {
+		t.Fatal("expected preview card id")
+	}
+}
+
+func TestPreviewKnowledgeCardReturnsDiagnosticsForBrokenCard(t *testing.T) {
+	app := newTestApp(t)
+
+	brokenPath := filepath.Join(app.knowledgeDir, "git", "preview-broken.md")
+	broken := `---
+id: git-preview-broken
+title: Broken Preview
+type: true-false
+question: "Broken?"
+answer: true
+---
+
+## zh-TW
+
+Only zh body.`
+	if err := os.WriteFile(brokenPath, []byte(broken), 0o644); err != nil {
+		t.Fatalf("write broken preview file failed: %v", err)
+	}
+
+	preview, err := app.PreviewKnowledgeCard(brokenPath)
+	if err != nil {
+		t.Fatalf("preview knowledge card failed: %v", err)
+	}
+
+	if preview.SelectedPath != brokenPath {
+		t.Fatalf("expected selected path %s, got %s", brokenPath, preview.SelectedPath)
+	}
+	if preview.CurrentCard != nil {
+		t.Fatal("expected no preview card for broken file")
+	}
+	if len(preview.ImportErrors) == 0 {
+		t.Fatal("expected preview diagnostics")
+	}
+	if preview.ImportErrors[0].Code != "missing_language_section" {
+		t.Fatalf("unexpected diagnostic code: %s", preview.ImportErrors[0].Code)
+	}
+}
+
 func TestUpdateNotificationSettingsPersistsValues(t *testing.T) {
 	app := newTestApp(t)
 

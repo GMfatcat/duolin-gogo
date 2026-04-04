@@ -384,6 +384,7 @@ Suggested review scheduling:
 
 - a card preview view should help authors inspect one card before it enters the normal study flow
 - preview should show parsed content, language switching, and validation results
+- the first implementation can live inside the settings panel as an authoring preview block with file selection and per-card diagnostics
 - AI-generated drafts should be reviewable against the same schema before saving into `knowledge/`
 - whole-deck validation should later support grouped warning/error review for batch AI generation
 

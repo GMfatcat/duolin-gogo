@@ -1,6 +1,8 @@
 import {
   GetStudyCard,
   LoadDashboard,
+  LoadAuthoringPreview,
+  PreviewKnowledgeCard,
   RescanKnowledge,
   SendTestNotification,
   SnoozeNotifications,
@@ -66,6 +68,16 @@ const fallbackDashboard = {
   },
   reviewQueue: [],
   reviewMode: false,
+}
+
+const fallbackAuthoringPreview = {
+  files: [
+    { path: 'D:/duolin-gogo/knowledge/git/cherry-pick.md', name: 'cherry-pick.md' },
+    { path: 'D:/duolin-gogo/knowledge/git/rebase.md', name: 'rebase.md' },
+  ],
+  selectedPath: 'D:/duolin-gogo/knowledge/git/cherry-pick.md',
+  currentCard: structuredClone(fallbackDashboard.currentCard),
+  importErrors: [],
 }
 
 const hasBackend = () => typeof window !== 'undefined' && typeof window.go !== 'undefined'
@@ -148,6 +160,50 @@ export async function validateKnowledge() {
   }
 
   return { message: 'Knowledge validated: 12 cards, 0 diagnostics.', importErrors: [] }
+}
+
+export async function loadAuthoringPreview() {
+  if (hasBackend()) {
+    return LoadAuthoringPreview()
+  }
+
+  return structuredClone(fallbackAuthoringPreview)
+}
+
+export async function previewKnowledgeCard(path) {
+  if (hasBackend()) {
+    return PreviewKnowledgeCard(path)
+  }
+
+  if (path.endsWith('rebase.md')) {
+    return {
+      ...structuredClone(fallbackAuthoringPreview),
+      selectedPath: path,
+      currentCard: {
+        ...structuredClone(fallbackDashboard.currentCard),
+        id: 'git-rebase-vs-merge',
+        title: 'Rebase vs Merge',
+        titleZh: 'Rebase 與 Merge 的差別',
+        titleEn: 'Rebase vs Merge',
+        questionText: 'What does git rebase mainly do?',
+        questionTextZh: 'git rebase 最主要在做什麼？',
+        questionTextEn: 'What does git rebase mainly do?',
+        clickbait: 'Do you really know the difference between rebase and merge?',
+        clickbaitZh: '你真的懂 rebase 跟 merge 差在哪嗎？',
+        clickbaitEn: 'Do you really know the difference between rebase and merge?',
+        reviewHint: 'Rebase replays commits on top of another base.',
+        reviewHintZh: 'Rebase 會把 commits 重放到另一條 base 上。',
+        reviewHintEn: 'Rebase replays commits on top of another base.',
+        explanationZh: '`git rebase` 會把目前分支的 commits 重新接到另一條 base 上。',
+        explanationEn: '`git rebase` replays your commits on top of another base.',
+      },
+    }
+  }
+
+  return {
+    ...structuredClone(fallbackAuthoringPreview),
+    selectedPath: path,
+  }
 }
 
 export async function updateNotificationSettings({ style, titleMode }) {

@@ -57,6 +57,18 @@ type ScheduleSettings struct {
 	ActiveHoursEnd              string `json:"activeHoursEnd"`
 }
 
+type AuthoringPreviewFile struct {
+	Path string `json:"path"`
+	Name string `json:"name"`
+}
+
+type AuthoringPreviewData struct {
+	Files        []AuthoringPreviewFile `json:"files"`
+	SelectedPath string                 `json:"selectedPath"`
+	CurrentCard  *StudyCard             `json:"currentCard"`
+	ImportErrors []diagnostics.Error    `json:"importErrors"`
+}
+
 type AnswerChoice struct {
 	Value   string `json:"value"`
 	LabelZH string `json:"labelZh"`
@@ -395,6 +407,31 @@ func (a *App) ValidateKnowledge() (ValidationStatus, error) {
 	}, nil
 }
 
+func (a *App) LoadAuthoringPreview() (AuthoringPreviewData, error) {
+	files, err := cards.ListMarkdownFiles([]string{a.knowledgeDir})
+	if err != nil {
+		return AuthoringPreviewData{}, err
+	}
+
+	if len(files) == 0 {
+		return AuthoringPreviewData{
+			Files:        []AuthoringPreviewFile{},
+			ImportErrors: []diagnostics.Error{},
+		}, nil
+	}
+
+	return a.previewKnowledgeCard(files[0], files)
+}
+
+func (a *App) PreviewKnowledgeCard(path string) (AuthoringPreviewData, error) {
+	files, err := cards.ListMarkdownFiles([]string{a.knowledgeDir})
+	if err != nil {
+		return AuthoringPreviewData{}, err
+	}
+
+	return a.previewKnowledgeCard(path, files)
+}
+
 func (a *App) UpdateNotificationSettings(style string, titleMode string) (ActionStatus, error) {
 	path := filepath.Join(a.dataDir, "settings.json")
 	file, err := settings.Load(path)
@@ -468,6 +505,67 @@ func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error
 	}
 
 	return cache, state, a.loadPreferredLanguage(), nil
+}
+
+func (a *App) previewKnowledgeCard(path string, files []string) (AuthoringPreviewData, error) {
+	previewFiles := make([]AuthoringPreviewFile, 0, len(files))
+	for _, file := range files {
+		previewFiles = append(previewFiles, AuthoringPreviewFile{
+			Path: file,
+			Name: filepath.Base(file),
+		})
+	}
+
+	if len(files) == 0 {
+		return AuthoringPreviewData{
+			Files:        previewFiles,
+			ImportErrors: []diagnostics.Error{},
+		}, nil
+	}
+
+	selectedPath := path
+	if selectedPath == "" {
+		selectedPath = files[0]
+	}
+
+	found := false
+	for _, file := range files {
+		if file == selectedPath {
+			found = true
+			break
+		}
+	}
+	if !found {
+		selectedPath = files[0]
+	}
+
+	result, err := cards.PreviewFile(selectedPath)
+	if err != nil {
+		return AuthoringPreviewData{}, err
+	}
+
+	diagnosticItems := make([]diagnostics.Error, 0, len(result.Errors))
+	for _, item := range result.Errors {
+		diagnosticItems = append(diagnosticItems, diagnostics.Error{
+			SourcePath: item.SourcePath,
+			Severity:   item.Severity,
+			Code:       item.Code,
+			Field:      item.Field,
+			Message:    item.Message,
+		})
+	}
+
+	var previewCard *StudyCard
+	if result.Card != nil {
+		previewCard = studyCardFromCard(*result.Card, a.nowFunc())
+	}
+
+	return AuthoringPreviewData{
+		Files:        previewFiles,
+		SelectedPath: selectedPath,
+		CurrentCard:  previewCard,
+		ImportErrors: diagnosticItems,
+	}, nil
 }
 
 func loadCache(path string) (cards.CacheFile, error) {

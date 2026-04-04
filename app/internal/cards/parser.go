@@ -62,6 +62,11 @@ type ImportResult struct {
 	Errors []ImportError
 }
 
+type PreviewResult struct {
+	Card   *Card         `json:"card,omitempty"`
+	Errors []ImportError `json:"errors"`
+}
+
 type CacheFile struct {
 	Version     int    `json:"version"`
 	GeneratedAt string `json:"generated_at"`
@@ -190,6 +195,49 @@ func RefreshKnowledge(knowledgeDir, dataDir string) (ImportResult, error) {
 		return ImportResult{}, err
 	}
 
+	return result, nil
+}
+
+func ListMarkdownFiles(paths []string) ([]string, error) {
+	files := []string{}
+
+	for _, root := range paths {
+		if root == "" {
+			continue
+		}
+
+		if err := filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if d.IsDir() || !strings.EqualFold(filepath.Ext(path), ".md") {
+				return nil
+			}
+
+			files = append(files, path)
+			return nil
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	slices.Sort(files)
+	return files, nil
+}
+
+func PreviewFile(path string) (PreviewResult, error) {
+	card, diagnostics, importErr := parseFile(path)
+	result := PreviewResult{
+		Errors: diagnostics,
+	}
+
+	if importErr != nil {
+		result.Errors = append(result.Errors, *importErr)
+		return result, nil
+	}
+
+	result.Card = &card
 	return result, nil
 }
 

@@ -115,6 +115,8 @@ Current useful controls:
 - `Send test notification`
 - `Snooze 15 min`
 - `Rescan knowledge`
+- `Validate knowledge`
+- `Authoring preview` inside settings for single-card inspection
 - `zh-TW` / `en` language toggle
 - answer submission
 
