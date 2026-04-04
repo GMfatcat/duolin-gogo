@@ -459,6 +459,7 @@ Deliverables:
 - normalized preview of parsed card data
 - first slice implemented inside settings popout for pasted Markdown review
 - save flow for accepted drafts into a topic folder under `knowledge/`
+- saving a reviewed draft now auto-rescans the deck and focuses authoring preview on the new file
 - support for the reusable prompt and review prompt from `AI_CARD_PROMPT.md`
 
 TDD focus:
