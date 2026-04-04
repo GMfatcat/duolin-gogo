@@ -140,6 +140,7 @@ describe('App', () => {
     expect(wrapper.find('.settings-meta').text()).toContain('error')
     expect(wrapper.text()).toContain('warning')
     expect(wrapper.text()).toContain('error')
-    expect(wrapper.findAll('.severity-pill').length).toBe(2)
+    expect(wrapper.findAll('.severity-pill').length).toBe(4)
+    expect(wrapper.findAll('.diagnostic-group').length).toBe(2)
   })
 })

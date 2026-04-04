@@ -467,6 +467,22 @@ body {
   gap: 10px;
 }
 
+.diagnostics-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.diagnostic-group {
+  display: grid;
+  gap: 10px;
+}
+
+.diagnostic-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .diagnostic-item {
   padding: 14px;
   border-radius: 14px;

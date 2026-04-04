@@ -190,6 +190,12 @@ const warningCount = computed(
 const errorCount = computed(
   () => importErrors.value.filter((item) => (item.severity || 'error') === 'error').length,
 )
+const warningItems = computed(() =>
+  importErrors.value.filter((item) => (item.severity || 'error') === 'warning'),
+)
+const errorItems = computed(() =>
+  importErrors.value.filter((item) => (item.severity || 'error') === 'error'),
+)
 
 const titleText = computed(() =>
   card.value ? (selectedLanguage.value === 'en' ? card.value.titleEn : card.value.titleZh) : '',
@@ -688,22 +694,48 @@ function toggleSettings() {
 
         <details v-if="importErrors.length" class="diagnostics-disclosure">
           <summary>{{ t.diagnosticsTitle }}</summary>
-          <div class="diagnostics-list">
-            <article
-              v-for="item in importErrors"
-              :key="`${item.source_path}-${item.code}-${item.field || ''}`"
-              class="diagnostic-item"
-              :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'"
-            >
-              <div class="diagnostic-head">
-                <span class="severity-pill" :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'">
-                  {{ severityLabel(item) }}
-                </span>
-                <strong>{{ item.code }}</strong>
+          <div class="diagnostics-groups">
+            <section v-if="warningItems.length" class="diagnostic-group">
+              <div class="diagnostic-group-head">
+                <span class="severity-pill warning">{{ t.warningLabel }}</span>
+                <strong>{{ warningItems.length }}</strong>
               </div>
-              <p>{{ item.message }}</p>
-              <span>{{ item.source_path }}</span>
-            </article>
+              <div class="diagnostics-list">
+                <article
+                  v-for="item in warningItems"
+                  :key="`${item.source_path}-${item.code}-${item.field || ''}`"
+                  class="diagnostic-item warning"
+                >
+                  <div class="diagnostic-head">
+                    <span class="severity-pill warning">{{ severityLabel(item) }}</span>
+                    <strong>{{ item.code }}</strong>
+                  </div>
+                  <p>{{ item.message }}</p>
+                  <span>{{ item.source_path }}</span>
+                </article>
+              </div>
+            </section>
+
+            <section v-if="errorItems.length" class="diagnostic-group">
+              <div class="diagnostic-group-head">
+                <span class="severity-pill error">{{ t.errorLabel }}</span>
+                <strong>{{ errorItems.length }}</strong>
+              </div>
+              <div class="diagnostics-list">
+                <article
+                  v-for="item in errorItems"
+                  :key="`${item.source_path}-${item.code}-${item.field || ''}`"
+                  class="diagnostic-item error"
+                >
+                  <div class="diagnostic-head">
+                    <span class="severity-pill error">{{ severityLabel(item) }}</span>
+                    <strong>{{ item.code }}</strong>
+                  </div>
+                  <p>{{ item.message }}</p>
+                  <span>{{ item.source_path }}</span>
+                </article>
+              </div>
+            </section>
           </div>
         </details>
       </section>
