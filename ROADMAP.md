@@ -95,6 +95,10 @@ TDD focus:
 - bilingual section extraction is verified by tests
 - duplicate ID behavior is covered by tests
 
+Current status:
+
+- completed
+
 ### Milestone 3: Progress Store And Attempt Logging
 
 Goal:
@@ -267,4 +271,9 @@ Suggested status labels for future updates:
 - `blocked`
 - `completed`
 
-For now, all milestones except Milestone 0 are `planned`.
+For now:
+
+- Milestone 0 is `completed`
+- Milestone 1 is `completed`
+- Milestone 2 is `completed`
+- Milestone 3 and beyond are `planned`

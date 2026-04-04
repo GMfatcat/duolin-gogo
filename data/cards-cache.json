@@ -1,5 +1,55 @@
 {
   "version": 1,
-  "generated_at": null,
-  "cards": []
+  "generated_at": "2026-04-04T19:46:48+08:00",
+  "cards": [
+    {
+      "id": "git-cherry-pick-purpose",
+      "source_path": "..\\knowledge\\git\\cherry-pick.md",
+      "source_modified_at": "2026-04-04T19:46:21+08:00",
+      "enabled": true,
+      "title": "Cherry-pick Purpose",
+      "type": "true-false",
+      "body_format": "bilingual-section",
+      "tags": [
+        "git",
+        "commits"
+      ],
+      "difficulty": 2,
+      "question": "`git cherry-pick` is used to apply a specific commit from another branch onto the current branch.",
+      "answer": true,
+      "clickbait": "One Git command can steal just one commit. Know which?",
+      "review_hint": "Cherry-pick copies selected commit changes onto your current branch.",
+      "body_markdown_zh": "`git cherry-pick` 可以把某一個特定 commit，或少數幾個 commit，套用到目前分支上。\n當你只想拿一個局部修改，而不是整條 branch 都合進來時，這個指令很有用。",
+      "body_markdown_en": "`git cherry-pick` lets you take one specific commit, or a small set of commits, and apply them to your current branch.\nIt is useful when you want a targeted change without merging an entire branch.",
+      "body_plaintext_zh": "git cherry-pick 可以把某一個特定 commit，或少數幾個 commit，套用到目前分支上。 當你只想拿一個局部修改，而不是整條 branch 都合進來時，這個指令很有用。",
+      "body_plaintext_en": "git cherry-pick lets you take one specific commit, or a small set of commits, and apply them to your current branch. It is useful when you want a targeted change without merging an entire branch."
+    },
+    {
+      "id": "git-rebase-vs-merge",
+      "source_path": "..\\knowledge\\git\\rebase.md",
+      "source_modified_at": "2026-04-04T19:46:21+08:00",
+      "enabled": true,
+      "title": "Rebase vs Merge",
+      "type": "single-choice",
+      "body_format": "bilingual-section",
+      "tags": [
+        "git",
+        "branching"
+      ],
+      "difficulty": 2,
+      "question": "What does git rebase mainly do?",
+      "choices": [
+        "Creates a merge commit between branches",
+        "Replays commits onto a new base",
+        "Deletes conflicting commits automatically"
+      ],
+      "answer": 1,
+      "clickbait": "Most Git beginners misunderstand rebase. Do you?",
+      "review_hint": "Rebase = replay commits on top of another base.",
+      "body_markdown_zh": "`git rebase` 會把目前分支上的提交重新套用到另一個 base commit 上。\n它常用來讓提交歷史更線性、更乾淨。\n和 `merge` 不同，它通常不會產生額外的 merge commit。",
+      "body_markdown_en": "`git rebase` takes commits from your current branch and reapplies them onto another base commit.\nIt is often used to keep history linear and easier to read.\nUnlike `merge`, it usually avoids creating an extra merge commit.",
+      "body_plaintext_zh": "git rebase 會把目前分支上的提交重新套用到另一個 base commit 上。 它常用來讓提交歷史更線性、更乾淨。 和 merge 不同，它通常不會產生額外的 merge commit。",
+      "body_plaintext_en": "git rebase takes commits from your current branch and reapplies them onto another base commit. It is often used to keep history linear and easier to read. Unlike merge, it usually avoids creating an extra merge commit."
+    }
+  ]
 }

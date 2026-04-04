@@ -45,9 +45,8 @@ npm run build
 
 Current completed milestone:
 
-- Milestone 1: Test Harness And Project Skeleton
+- Milestone 2: Markdown Card Parser
 
 Next target:
 
-- Milestone 2: Markdown Card Parser
-
+- Milestone 3: Progress Store And Attempt Logging
