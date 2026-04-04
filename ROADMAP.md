@@ -409,6 +409,7 @@ Deliverables:
 - preview-friendly card diagnostics for missing bilingual fields
 - clearer import feedback for malformed card content
 - optional card-preview or validate action for local authoring workflows
+- a reusable LLM prompt for generating schema-compliant bilingual cards
 
 TDD focus:
 

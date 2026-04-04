@@ -7,6 +7,10 @@ This document defines the concrete schema for:
 - `knowledge/` Markdown card files
 - `data/` runtime storage files
 
+Related authoring reference:
+
+- [AI_CARD_PROMPT.md](D:\duolin-gogo\AI_CARD_PROMPT.md), for generating schema-compliant cards with an LLM
+
 The goal is to make parsing, scheduling, review logic, and future UI implementation predictable from day one.
 
 ## 2. Directory Layout
