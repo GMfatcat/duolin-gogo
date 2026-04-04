@@ -1,3 +1,11 @@
+import {
+  GetStudyCard,
+  LoadDashboard,
+  SendTestNotification,
+  SnoozeNotifications,
+  SubmitAnswer,
+} from '../wailsjs/go/main/App'
+
 const fallbackDashboard = {
   info: {
     name: 'duolin-gogo',
@@ -30,7 +38,7 @@ const fallbackDashboard = {
     ],
     clickbait: 'One Git command can steal just one commit. Know which?',
     reviewHint: 'Cherry-pick copies selected commit changes onto your current branch.',
-    explanationZh: '`git cherry-pick` 可以把某一個特定 commit 套用到目前分支上。',
+    explanationZh: '`git cherry-pick` 會把你指定的一個 commit 套用到目前分支上。',
     explanationEn: '`git cherry-pick` lets you apply a chosen commit onto the current branch.',
     shownAt: '2026-04-05T10:00:00+08:00',
   },
@@ -38,19 +46,19 @@ const fallbackDashboard = {
   reviewMode: false,
 }
 
+const hasBackend = () => typeof window !== 'undefined' && typeof window.go !== 'undefined'
+
 export async function loadDashboard() {
-  const backend = window?.go?.main?.App
-  if (backend?.LoadDashboard) {
-    return backend.LoadDashboard()
+  if (hasBackend()) {
+    return LoadDashboard()
   }
 
   return structuredClone(fallbackDashboard)
 }
 
 export async function submitAnswer({ cardId, sessionType, selectedAnswer, shownAt }) {
-  const backend = window?.go?.main?.App
-  if (backend?.SubmitAnswer) {
-    return backend.SubmitAnswer(cardId, sessionType, selectedAnswer, shownAt)
+  if (hasBackend()) {
+    return SubmitAnswer(cardId, sessionType, selectedAnswer, shownAt)
   }
 
   return {
@@ -68,27 +76,24 @@ export async function submitAnswer({ cardId, sessionType, selectedAnswer, shownA
 }
 
 export async function getStudyCard(cardId) {
-  const backend = window?.go?.main?.App
-  if (backend?.GetStudyCard) {
-    return backend.GetStudyCard(cardId)
+  if (hasBackend()) {
+    return GetStudyCard(cardId)
   }
 
   return structuredClone(fallbackDashboard.currentCard)
 }
 
 export async function sendTestNotification() {
-  const backend = window?.go?.main?.App
-  if (backend?.SendTestNotification) {
-    return backend.SendTestNotification()
+  if (hasBackend()) {
+    return SendTestNotification()
   }
 
   return { message: 'Test notification sent.' }
 }
 
 export async function snoozeNotifications() {
-  const backend = window?.go?.main?.App
-  if (backend?.SnoozeNotifications) {
-    await backend.SnoozeNotifications()
+  if (hasBackend()) {
+    return SnoozeNotifications()
   }
 
   return { message: 'Notifications snoozed for 15 minutes.' }

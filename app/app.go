@@ -268,10 +268,10 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 	return true, nil
 }
 
-func (a *App) SnoozeNotifications() error {
+func (a *App) SnoozeNotifications() (ActionStatus, error) {
 	config, err := settings.Load(filepath.Join(a.dataDir, "settings.json"))
 	if err != nil {
-		return err
+		return ActionStatus{}, err
 	}
 
 	now := a.nowFunc()
@@ -282,7 +282,9 @@ func (a *App) SnoozeNotifications() error {
 
 	snoozedUntil := now.Add(time.Duration(snoozeMinutes) * time.Minute)
 	a.schedulerState.SnoozedUntil = &snoozedUntil
-	return nil
+	return ActionStatus{
+		Message: fmt.Sprintf("Notifications snoozed until %s.", snoozedUntil.Format("15:04")),
+	}, nil
 }
 
 func (a *App) SendTestNotification() (ActionStatus, error) {

@@ -34,7 +34,7 @@ onMounted(async () => {
   selectedLanguage.value = dashboard.value.preferredLanguage || dashboard.value.info.defaultLanguage
   loading.value = false
 
-  if (window?.runtime) {
+  if (typeof window !== 'undefined' && typeof window.runtime !== 'undefined') {
     EventsOn('notification:open-card', async (cardId) => {
       const nextCard = await getStudyCard(cardId)
       dashboard.value = {
@@ -73,13 +73,21 @@ async function handleSubmit() {
 }
 
 async function handleSendTestNotification() {
-  const result = await sendTestNotification()
-  actionMessage.value = result.message
+  try {
+    const result = await sendTestNotification()
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Notification failed: ${error?.message ?? String(error)}`
+  }
 }
 
 async function handleSnooze() {
-  const result = await snoozeNotifications()
-  actionMessage.value = result.message
+  try {
+    const result = await snoozeNotifications()
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Snooze failed: ${error?.message ?? String(error)}`
+  }
 }
 </script>
 

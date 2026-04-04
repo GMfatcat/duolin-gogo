@@ -173,8 +173,12 @@ func TestCheckAndSendNotificationRespectsIntervalAndSnooze(t *testing.T) {
 		t.Fatal("expected second notification to be blocked by interval")
 	}
 
-	if err := app.SnoozeNotifications(); err != nil {
+	status, err := app.SnoozeNotifications()
+	if err != nil {
 		t.Fatalf("snooze failed: %v", err)
+	}
+	if status.Message == "" {
+		t.Fatal("expected snooze status message")
 	}
 
 	app.schedulerState.LastNotificationAt = nil
@@ -203,6 +207,28 @@ func TestSendTestNotificationUsesSelectedCard(t *testing.T) {
 
 	if sender.message.Title != "Test notification" {
 		t.Fatalf("unexpected notification title: %s", sender.message.Title)
+	}
+}
+
+func TestSendTestNotificationReportsWhenNoCardsExist(t *testing.T) {
+	app := newTestApp(t)
+	sender := &stubSender{}
+	app.notificationSender = sender
+
+	if err := os.RemoveAll(app.knowledgeDir); err != nil {
+		t.Fatalf("remove knowledge dir failed: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(app.knowledgeDir, "git"), 0o755); err != nil {
+		t.Fatalf("recreate knowledge dir failed: %v", err)
+	}
+
+	status, err := app.SendTestNotification()
+	if err != nil {
+		t.Fatalf("send test notification failed: %v", err)
+	}
+
+	if status.Message != "No card available for test notification." {
+		t.Fatalf("unexpected status: %s", status.Message)
 	}
 }
 

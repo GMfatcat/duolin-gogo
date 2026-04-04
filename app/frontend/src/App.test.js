@@ -13,7 +13,7 @@ describe('App', () => {
     expect(wrapper.text()).toContain('TDD mode')
     expect(wrapper.text()).toContain('Learn session')
     expect(wrapper.text()).toContain('Cherry-pick Purpose')
-    expect(wrapper.text()).toContain('可以把某一個特定 commit')
+    expect(wrapper.text()).toContain('會把你指定的一個 commit 套用到目前分支上')
     expect(wrapper.text()).toContain('Git concepts to revisit')
     expect(wrapper.text()).toContain('branching')
     expect(wrapper.text()).toContain('Next review')
@@ -37,5 +37,9 @@ describe('App', () => {
     await toolbarButtons[0].trigger('click')
     await flushPromises()
     expect(wrapper.text()).toContain('Test notification sent.')
+
+    await toolbarButtons[1].trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Notifications snoozed for 15 minutes.')
   })
 })
