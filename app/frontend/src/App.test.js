@@ -14,6 +14,9 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Learn session')
     expect(wrapper.text()).toContain('Cherry-pick Purpose')
     expect(wrapper.text()).toContain('可以把某一個特定 commit')
+    expect(wrapper.text()).toContain('Git concepts to revisit')
+    expect(wrapper.text()).toContain('branching')
+    expect(wrapper.text()).toContain('Next review')
 
     const languageButtons = wrapper.findAll('.language-toggle button')
     await languageButtons[1].trigger('click')

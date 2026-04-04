@@ -9,6 +9,15 @@ const fallbackDashboard = {
     studiedToday: 1,
     correctRate: 1,
   },
+  summary: {
+    studiedToday: 1,
+    correctRate: 1,
+    nextReviewAt: '2026-04-05T21:00:00+08:00',
+    weakTopics: [
+      { tag: 'branching', wrongCount: 3, seenCount: 6, accuracy: 0.5 },
+      { tag: 'commits', wrongCount: 1, seenCount: 4, accuracy: 0.75 },
+    ],
+  },
   currentCard: {
     id: 'git-cherry-pick-purpose',
     title: 'Cherry-pick Purpose',

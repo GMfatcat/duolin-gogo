@@ -40,6 +40,22 @@ func TestAppInfo(t *testing.T) {
 func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 	app := newTestApp(t)
 
+	_, _, err := progress.RecordAndPersist(
+		filepath.Join(app.dataDir, "progress.json"),
+		filepath.Join(app.dataDir, "attempts.jsonl"),
+		progress.RecordAttemptInput{
+			CardID:         "git-rebase-vs-merge",
+			SessionType:    "learn",
+			SelectedAnswer: "0",
+			IsCorrect:      false,
+			ShownAt:        app.nowFunc().Add(-2 * time.Hour),
+			AnsweredAt:     app.nowFunc().Add(-2*time.Hour + 8*time.Second),
+		},
+	)
+	if err != nil {
+		t.Fatalf("seed progress failed: %v", err)
+	}
+
 	dashboard, err := app.LoadDashboard()
 	if err != nil {
 		t.Fatalf("load dashboard failed: %v", err)
@@ -59,6 +75,10 @@ func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 
 	if dashboard.CurrentCard.ExplanationZH == "" || dashboard.CurrentCard.ExplanationEN == "" {
 		t.Fatal("expected bilingual explanations")
+	}
+
+	if len(dashboard.Summary.WeakTopics) == 0 {
+		t.Fatal("expected weak topics summary")
 	}
 }
 
@@ -216,6 +236,7 @@ func newTestApp(t *testing.T) *App {
 id: git-rebase-vs-merge
 title: Rebase vs Merge
 type: single-choice
+tags: [git, branching]
 question: "What does git rebase mainly do?"
 choices:
   - "Creates a merge commit between branches"
@@ -237,6 +258,7 @@ English rebase explanation.
 id: git-cherry-pick-purpose
 title: Cherry-pick Purpose
 type: true-false
+tags: [git, commits]
 question: "` + "`git cherry-pick` applies a chosen commit to the current branch." + `"
 answer: true
 enabled: true

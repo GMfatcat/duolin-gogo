@@ -45,8 +45,8 @@ npm run build
 
 Current completed milestone:
 
-- Milestone 7: Review Session Mode
+- Milestone 8: Basic Dashboard And Weak Topic Summary
 
 Next target:
 
-- Milestone 8: Basic Dashboard And Weak Topic Summary
+- Milestone 9: Polish And MVP Hardening

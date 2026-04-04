@@ -237,6 +237,10 @@ TDD focus:
 - dashboard aggregation tests from sample progress data
 - weak-topic grouping tests by tag
 
+Current status:
+
+- completed
+
 ### Milestone 9: Polish And MVP Hardening
 
 Goal:
@@ -301,4 +305,5 @@ For now:
 - Milestone 5 is `completed`
 - Milestone 6 is `completed`
 - Milestone 7 is `completed`
-- Milestone 8 and beyond are `planned`
+- Milestone 8 is `completed`
+- Milestone 9 is `planned`

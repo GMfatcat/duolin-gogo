@@ -15,6 +15,7 @@ const card = computed(() => dashboard.value?.currentCard ?? null)
 const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
 const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
+const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [] })
 const explanation = computed(() => {
   if (!card.value) {
     return ''
@@ -24,6 +25,7 @@ const explanation = computed(() => {
 })
 
 const formattedCorrectRate = computed(() => `${Math.round((stats.value.correctRate ?? 0) * 100)}%`)
+const nextReviewText = computed(() => summary.value.nextReviewAt || 'Not scheduled')
 
 onMounted(async () => {
   dashboard.value = await loadDashboard()
@@ -169,6 +171,27 @@ async function handleSubmit() {
         <span class="label">Review queue</span>
         <strong>{{ reviewQueue.length }}</strong>
       </article>
+      <article class="status-card">
+        <span class="label">Next review</span>
+        <strong>{{ nextReviewText }}</strong>
+      </article>
+    </section>
+
+    <section class="study-card">
+      <div class="study-header">
+        <div>
+          <p class="label">Weak topics</p>
+          <h2>Git concepts to revisit</h2>
+        </div>
+      </div>
+
+      <div v-if="summary.weakTopics.length" class="weak-topics">
+        <article v-for="topic in summary.weakTopics" :key="topic.tag" class="topic-chip">
+          <strong>{{ topic.tag }}</strong>
+          <span>{{ Math.round(topic.accuracy * 100) }}% accuracy</span>
+        </article>
+      </div>
+      <p v-else class="explanation">No weak topics yet. Keep studying to generate insights.</p>
     </section>
   </main>
 </template>
