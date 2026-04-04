@@ -112,6 +112,10 @@ body {
   min-height: 470px;
 }
 
+.completion-card {
+  justify-content: center;
+}
+
 .sidebar-panel {
   background: rgba(11, 20, 28, 0.74);
 }

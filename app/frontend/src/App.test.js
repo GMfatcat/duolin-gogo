@@ -112,6 +112,35 @@ describe('App', () => {
     expect(wrapper.findAll('.status-card strong')[0].text()).toBe('0')
   })
 
+  it('shows a completion state after the last review card', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    wrapper.vm.dashboard = {
+      ...wrapper.vm.dashboard,
+      reviewMode: true,
+      reviewQueue: [wrapper.vm.dashboard.currentCard],
+    }
+    wrapper.vm.phase = 'feedback'
+    wrapper.vm.feedback = {
+      isCorrect: true,
+      correctAnswer: 'true',
+    }
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.next-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('複習完成')
+    expect(wrapper.find('.complete-review-button').exists()).toBe(true)
+
+    await wrapper.find('.complete-review-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Cherry-pick 的用途')
+  })
+
   it('switches global shell copy to english without changing the product name', async () => {
     const wrapper = mount(App)
 

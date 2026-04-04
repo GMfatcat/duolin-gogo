@@ -28,6 +28,9 @@ const translations = {
     learnPhase: '先看觀念',
     answerPhase: '開始作答',
     feedbackPhase: '作答回饋',
+    reviewCompleteTitle: '複習完成',
+    reviewCompleteBody: '這一輪複習已經做完了，先收一下成果，再決定要不要繼續新卡。',
+    reviewCompleteAction: '回到下一張卡',
     quickQuestion: '快速問題',
     submitAnswer: '送出答案',
     checking: '檢查中...',
@@ -115,6 +118,9 @@ const translations = {
     learnPhase: 'Learn',
     answerPhase: 'Start question',
     feedbackPhase: 'Feedback',
+    reviewCompleteTitle: 'Review session complete',
+    reviewCompleteBody: 'You finished this review batch. Take a beat, then jump back into the next card when ready.',
+    reviewCompleteAction: 'Back to the next card',
     quickQuestion: 'Quick question',
     submitAnswer: 'Submit answer',
     checking: 'Checking...',
@@ -209,6 +215,7 @@ const changingLanguage = ref(false)
 const phase = ref('learn')
 const settingsOpen = ref(false)
 const resetWarningOpen = ref(false)
+const reviewCompleted = ref(false)
 const diagnosticsFilter = ref({
   severity: 'all',
   topic: 'all',
@@ -490,7 +497,16 @@ async function handleSubmit() {
 }
 
 async function handleNextCard() {
+  const wasReviewMode = reviewMode.value
+  const previousQueueLength = reviewQueue.value.length
   await refreshDashboard()
+  if (wasReviewMode && previousQueueLength > 0 && !dashboard.value.reviewMode) {
+    reviewCompleted.value = true
+  }
+}
+
+function handleReturnToLearning() {
+  reviewCompleted.value = false
 }
 
 async function handleSendTestNotification() {
@@ -698,6 +714,20 @@ function toggleSettings() {
         <section v-if="loading" class="study-card emphasis">
           <p class="label">{{ t.loading }}</p>
           <strong>{{ t.preparingCard }}</strong>
+        </section>
+
+        <section v-else-if="reviewCompleted" class="study-card emphasis completion-card">
+          <div class="study-header">
+            <div>
+              <p class="label">{{ t.reviewCard }}</p>
+              <h2>{{ t.reviewCompleteTitle }}</h2>
+            </div>
+            <span class="phase-pill">{{ t.feedbackPhase }}</span>
+          </div>
+          <p class="callout">{{ t.reviewCompleteBody }}</p>
+          <button class="next-button complete-review-button" type="button" @click="handleReturnToLearning">
+            {{ t.reviewCompleteAction }}
+          </button>
         </section>
 
         <section v-else-if="card" class="study-card emphasis">
