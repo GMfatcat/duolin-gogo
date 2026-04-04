@@ -68,6 +68,7 @@ Next targets:
   - fifth slice implemented: `Authoring preview` inside settings can load one local card, switch files, and show per-card diagnostics
   - sixth slice implemented: `AI draft review` can validate pasted Markdown and show a normalized preview before saving
   - seventh slice implemented: reviewed drafts can now be saved straight into `knowledge/<topic>/<id>.md`
+  - eighth slice implemented: saving a reviewed draft now auto-rescans knowledge and focuses authoring preview on the new card
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

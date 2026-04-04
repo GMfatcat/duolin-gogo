@@ -236,5 +236,6 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     expect(wrapper.text()).toContain('Draft saved to')
     expect(wrapper.text()).toContain('knowledge/git/git-ai-review.md')
+    expect(wrapper.findAll('.preview-card')[0].text()).toContain('Git Fetch Draft')
   })
 })

@@ -82,6 +82,8 @@ const fallbackAuthoringPreview = {
   importErrors: [],
 }
 
+const fallbackSavedDrafts = new Map()
+
 const hasBackend = () => typeof window !== 'undefined' && typeof window.go !== 'undefined'
 
 export async function loadDashboard() {
@@ -169,12 +171,36 @@ export async function loadAuthoringPreview() {
     return LoadAuthoringPreview()
   }
 
-  return structuredClone(fallbackAuthoringPreview)
+  const savedFiles = Array.from(fallbackSavedDrafts.entries()).map(([path]) => ({
+    path,
+    name: path.split('/').at(-1),
+  }))
+
+  return structuredClone({
+    ...fallbackAuthoringPreview,
+    files: [...fallbackAuthoringPreview.files, ...savedFiles],
+  })
 }
 
 export async function previewKnowledgeCard(path) {
   if (hasBackend()) {
     return PreviewKnowledgeCard(path)
+  }
+
+  if (fallbackSavedDrafts.has(path)) {
+    const savedCard = fallbackSavedDrafts.get(path)
+    return {
+      ...structuredClone(fallbackAuthoringPreview),
+      files: [
+        ...fallbackAuthoringPreview.files,
+        ...Array.from(fallbackSavedDrafts.keys()).map((savedPath) => ({
+          path: savedPath,
+          name: savedPath.split('/').at(-1),
+        })),
+      ],
+      selectedPath: path,
+      currentCard: structuredClone(savedCard),
+    }
   }
 
   if (path.endsWith('rebase.md')) {
@@ -261,10 +287,36 @@ export async function saveDraft({ raw, topic }) {
     return SaveDraft(raw, topic)
   }
 
+  const pickField = (name) => {
+    const match = raw.match(new RegExp(`^${name}:\\s*"?(.+?)"?$`, 'm'))
+    return match ? match[1] : ''
+  }
+
+  const resolvedTopic = topic || 'git'
+  const savedPath = `D:/duolin-gogo/knowledge/${resolvedTopic}/${pickField('id') || 'git-ai-review'}.md`
+  fallbackSavedDrafts.set(savedPath, {
+    ...structuredClone(fallbackDashboard.currentCard),
+    id: pickField('id') || fallbackDashboard.currentCard.id,
+    title: pickField('title_en') || pickField('title') || fallbackDashboard.currentCard.title,
+    titleZh: pickField('title_zh') || pickField('title') || fallbackDashboard.currentCard.titleZh,
+    titleEn: pickField('title_en') || pickField('title') || fallbackDashboard.currentCard.titleEn,
+    questionText: pickField('question_en') || pickField('question') || fallbackDashboard.currentCard.questionText,
+    questionTextZh: pickField('question_zh') || pickField('question') || fallbackDashboard.currentCard.questionTextZh,
+    questionTextEn: pickField('question_en') || pickField('question') || fallbackDashboard.currentCard.questionTextEn,
+    clickbait: pickField('clickbait_en') || pickField('clickbait') || fallbackDashboard.currentCard.clickbait,
+    clickbaitZh: pickField('clickbait_zh') || pickField('clickbait') || fallbackDashboard.currentCard.clickbaitZh,
+    clickbaitEn: pickField('clickbait_en') || pickField('clickbait') || fallbackDashboard.currentCard.clickbaitEn,
+    reviewHint: pickField('review_hint_en') || pickField('review_hint') || fallbackDashboard.currentCard.reviewHint,
+    reviewHintZh: pickField('review_hint_zh') || pickField('review_hint') || fallbackDashboard.currentCard.reviewHintZh,
+    reviewHintEn: pickField('review_hint_en') || pickField('review_hint') || fallbackDashboard.currentCard.reviewHintEn,
+    explanationZh: raw.split('## zh-TW')[1]?.split('## en')[0]?.trim() || fallbackDashboard.currentCard.explanationZh,
+    explanationEn: raw.split('## en')[1]?.trim() || fallbackDashboard.currentCard.explanationEn,
+  })
+
   return {
-    message: `Draft saved to D:/duolin-gogo/knowledge/${topic || 'git'}/git-ai-review.md.`,
-    savedPath: `D:/duolin-gogo/knowledge/${topic || 'git'}/git-ai-review.md`,
-    topic: topic || 'git',
+    message: `Draft saved to ${savedPath}.`,
+    savedPath,
+    topic: resolvedTopic,
     successful: true,
   }
 }

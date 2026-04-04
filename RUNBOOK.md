@@ -119,6 +119,7 @@ Current useful controls:
 - `Authoring preview` inside settings for single-card inspection
 - `AI draft review` inside settings for pasted Markdown inspection
 - `Save draft` from reviewed AI Markdown into `knowledge/<topic>/`
+- saving a draft now auto-refreshes authoring preview onto the new card
 - `zh-TW` / `en` language toggle
 - answer submission
 

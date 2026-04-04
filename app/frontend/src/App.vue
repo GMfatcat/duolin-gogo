@@ -448,8 +448,10 @@ async function handleSaveDraft() {
       raw: draftReview.value.raw,
       topic: draftReview.value.topic,
     })
-    actionMessage.value = result.message
+    await rescanKnowledge()
+    await refreshDashboard()
     await refreshAuthoringPreview(result.savedPath)
+    actionMessage.value = result.message
   } catch (error) {
     actionMessage.value = `Save draft failed: ${error?.message ?? String(error)}`
   }
