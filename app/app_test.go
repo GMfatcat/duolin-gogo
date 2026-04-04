@@ -252,7 +252,7 @@ func TestSendTestNotificationUsesSelectedCard(t *testing.T) {
 		t.Fatalf("unexpected status: %s", status.Message)
 	}
 
-	if sender.message.Title != "測試通知" {
+	if sender.message.Title != "哪個 Git 指令可以只拿走一個 commit？" {
 		t.Fatalf("unexpected notification title: %s", sender.message.Title)
 	}
 }

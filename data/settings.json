@@ -20,7 +20,8 @@
     "allow_toggle": true
   },
   "notifications": {
-    "style": "playful"
+    "style": "playful",
+    "title_mode": "prefer_manual"
   },
   "study_rules": {
     "max_new_cards_per_day": 12,

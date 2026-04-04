@@ -254,6 +254,11 @@ Recommended initial notification styles:
 - `aggressive`
 - `chaotic`
 
+Recommended title-source modes:
+
+- `prefer_manual`
+- `prefer_generated`
+
 ## 12. Scheduling Strategy
 
 For MVP, scheduling should be app-managed while the app is running.

@@ -544,7 +544,8 @@ Suggested schema:
     "allow_toggle": true
   },
   "notifications": {
-    "style": "playful"
+    "style": "playful",
+    "title_mode": "prefer_manual"
   },
   "study_rules": {
     "max_new_cards_per_day": 12,
@@ -569,6 +570,7 @@ Suggested schema:
 - `batch_size`: recommended `5` to `20`
 - `language.default`: allowed MVP values `zh-TW` or `en`
 - `notifications.style`: allowed initial values `safe`, `playful`, `aggressive`, `chaotic`
+- `notifications.title_mode`: allowed initial values `prefer_manual`, `prefer_generated`
 
 ## 6. `data/cards-cache.json` Schema
 

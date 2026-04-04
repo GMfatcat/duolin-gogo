@@ -394,6 +394,11 @@ Recommended hook styles:
 - `aggressive`
 - `chaotic`
 
+Recommended title-source modes:
+
+- `prefer_manual`
+- `prefer_generated`
+
 Offline hook generator rules:
 
 - must not require network access
