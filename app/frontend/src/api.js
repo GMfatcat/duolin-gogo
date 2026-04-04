@@ -7,6 +7,7 @@ import {
   SubmitAnswer,
   UpdateNotificationSettings,
   UpdatePreferredLanguage,
+  UpdateScheduleSettings,
 } from '../wailsjs/go/main/App'
 
 const fallbackDashboard = {
@@ -32,6 +33,10 @@ const fallbackDashboard = {
   notificationSettings: {
     style: 'playful',
     titleMode: 'prefer_manual',
+  },
+  scheduleSettings: {
+    notificationIntervalMinutes: 10,
+    reviewTime: '21:00',
   },
   importErrors: [],
   currentCard: {
@@ -151,4 +156,16 @@ export async function updatePreferredLanguage(language) {
 
   fallbackDashboard.preferredLanguage = language
   return { message: 'Language updated.' }
+}
+
+export async function updateScheduleSettings({ notificationIntervalMinutes, reviewTime }) {
+  if (hasBackend()) {
+    return UpdateScheduleSettings(notificationIntervalMinutes, reviewTime)
+  }
+
+  fallbackDashboard.scheduleSettings = {
+    notificationIntervalMinutes,
+    reviewTime,
+  }
+  return { message: 'Schedule settings updated.' }
 }

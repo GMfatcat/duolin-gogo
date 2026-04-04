@@ -388,6 +388,31 @@ func TestUpdatePreferredLanguagePersistsValue(t *testing.T) {
 	}
 }
 
+func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
+	app := newTestApp(t)
+
+	status, err := app.UpdateScheduleSettings(30, "20:30")
+	if err != nil {
+		t.Fatalf("update schedule settings failed: %v", err)
+	}
+
+	if status.Message != "Schedule settings updated." {
+		t.Fatalf("unexpected status: %s", status.Message)
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if dashboard.ScheduleSettings.NotificationIntervalMinutes != 30 {
+		t.Fatalf("expected notification interval 30, got %d", dashboard.ScheduleSettings.NotificationIntervalMinutes)
+	}
+	if dashboard.ScheduleSettings.ReviewTime != "20:30" {
+		t.Fatalf("expected review time 20:30, got %s", dashboard.ScheduleSettings.ReviewTime)
+	}
+}
+
 func TestLoadDashboardEntersReviewModeWhenReviewIsDue(t *testing.T) {
 	app := newTestApp(t)
 	now := time.Date(2026, 4, 5, 21, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))

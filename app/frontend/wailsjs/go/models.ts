@@ -190,6 +190,20 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class ScheduleSettings {
+	    notificationIntervalMinutes: number;
+	    reviewTime: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ScheduleSettings(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.notificationIntervalMinutes = source["notificationIntervalMinutes"];
+	        this.reviewTime = source["reviewTime"];
+	    }
+	}
 	export class NotificationSettings {
 	    style: string;
 	    titleMode: string;
@@ -225,6 +239,7 @@ export namespace main {
 	    summary: dashboard.Summary;
 	    importErrors: diagnostics.Error[];
 	    notificationSettings: NotificationSettings;
+	    scheduleSettings: ScheduleSettings;
 	    currentCard?: StudyCard;
 	    reviewQueue: StudyCard[];
 	    reviewMode: boolean;
@@ -241,6 +256,7 @@ export namespace main {
 	        this.summary = this.convertValues(source["summary"], dashboard.Summary);
 	        this.importErrors = this.convertValues(source["importErrors"], diagnostics.Error);
 	        this.notificationSettings = this.convertValues(source["notificationSettings"], NotificationSettings);
+	        this.scheduleSettings = this.convertValues(source["scheduleSettings"], ScheduleSettings);
 	        this.currentCard = this.convertValues(source["currentCard"], StudyCard);
 	        this.reviewQueue = this.convertValues(source["reviewQueue"], StudyCard);
 	        this.reviewMode = source["reviewMode"];
@@ -264,6 +280,7 @@ export namespace main {
 		    return a;
 		}
 	}
+	
 	
 	
 	

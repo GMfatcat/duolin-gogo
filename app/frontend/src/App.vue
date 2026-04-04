@@ -10,12 +10,12 @@ import {
   submitAnswer,
   updateNotificationSettings,
   updatePreferredLanguage,
+  updateScheduleSettings,
 } from './api'
 
 const translations = {
   'zh-TW': {
     summary: '把你的雙語 Markdown 筆記變成定時提醒、微學習卡片與複習節奏。',
-    bilingualCards: '雙語知識卡',
     reviewCard: '複習卡',
     nextCard: '下一張卡',
     reviewSessionActive: '目前正在複習，佇列數量：',
@@ -42,6 +42,9 @@ const translations = {
     hookMode: 'Hook 模式',
     style: '風格',
     titleSource: '標題來源',
+    scheduleLabel: '排程設定',
+    reviewTime: '複習時間',
+    intervalMinutes: '通知間隔（分鐘）',
     diagnosticsLabel: '匯入診斷',
     diagnosticsTitle: '知識檔案健康度',
     noDiagnostics: '目前沒有匯入問題。',
@@ -58,10 +61,10 @@ const translations = {
     accuracySuffix: '正確率',
     settingsLabel: '設定',
     close: '關閉',
+    saveSchedule: '儲存排程',
   },
   en: {
-    summary: 'Turn your bilingual Markdown notes into timed nudges, micro-lessons, and review rhythm.',
-    bilingualCards: 'Bilingual knowledge cards',
+    summary: 'Turn Markdown notes into timely study nudges and review loops.',
     reviewCard: 'Review card',
     nextCard: 'Next card',
     reviewSessionActive: 'Review session active. Queue size:',
@@ -88,6 +91,9 @@ const translations = {
     hookMode: 'Hook mode',
     style: 'Style',
     titleSource: 'Title source',
+    scheduleLabel: 'Schedule settings',
+    reviewTime: 'Review time',
+    intervalMinutes: 'Notification interval (minutes)',
     diagnosticsLabel: 'Import diagnostics',
     diagnosticsTitle: 'Knowledge file health',
     noDiagnostics: 'No import issues detected.',
@@ -104,6 +110,7 @@ const translations = {
     accuracySuffix: 'accuracy',
     settingsLabel: 'Settings',
     close: 'Close',
+    saveSchedule: 'Save schedule',
   },
 }
 
@@ -115,9 +122,14 @@ const actionMessage = ref('')
 const loading = ref(true)
 const submitting = ref(false)
 const savingNotificationSettings = ref(false)
+const savingScheduleSettings = ref(false)
 const changingLanguage = ref(false)
 const phase = ref('learn')
 const settingsOpen = ref(false)
+const scheduleForm = ref({
+  notificationIntervalMinutes: 10,
+  reviewTime: '21:00',
+})
 let unsubscribe = null
 
 const card = computed(() => dashboard.value?.currentCard ?? null)
@@ -129,6 +141,9 @@ const importErrors = computed(() => dashboard.value?.importErrors ?? [])
 const notificationSettings = computed(() =>
   dashboard.value?.notificationSettings ?? { style: 'playful', titleMode: 'prefer_manual' },
 )
+const scheduleSettings = computed(() =>
+  dashboard.value?.scheduleSettings ?? { notificationIntervalMinutes: 10, reviewTime: '21:00' },
+)
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
 
 const currentPhaseLabel = computed(() => {
@@ -137,20 +152,19 @@ const currentPhaseLabel = computed(() => {
   return t.value.learnPhase
 })
 
-const titleText = computed(() => {
-  if (!card.value) return ''
-  return selectedLanguage.value === 'en' ? card.value.titleEn : card.value.titleZh
-})
-
-const questionText = computed(() => {
-  if (!card.value) return ''
-  return selectedLanguage.value === 'en' ? card.value.questionTextEn : card.value.questionTextZh
-})
-
-const clickbaitText = computed(() => {
-  if (!card.value) return ''
-  return selectedLanguage.value === 'en' ? card.value.clickbaitEn : card.value.clickbaitZh
-})
+const titleText = computed(() => (card.value ? (selectedLanguage.value === 'en' ? card.value.titleEn : card.value.titleZh) : ''))
+const questionText = computed(() =>
+  card.value ? (selectedLanguage.value === 'en' ? card.value.questionTextEn : card.value.questionTextZh) : '',
+)
+const clickbaitText = computed(() =>
+  card.value ? (selectedLanguage.value === 'en' ? card.value.clickbaitEn : card.value.clickbaitZh) : '',
+)
+const explanation = computed(() =>
+  card.value ? (selectedLanguage.value === 'en' ? card.value.explanationEn : card.value.explanationZh) : '',
+)
+const reviewHintText = computed(() =>
+  card.value ? (selectedLanguage.value === 'en' ? card.value.reviewHintEn : card.value.reviewHintZh) : '',
+)
 
 const localizedChoices = computed(() =>
   (card.value?.choices ?? []).map((choice) => ({
@@ -158,16 +172,6 @@ const localizedChoices = computed(() =>
     label: selectedLanguage.value === 'en' ? choice.labelEn : choice.labelZh,
   })),
 )
-
-const explanation = computed(() => {
-  if (!card.value) return ''
-  return selectedLanguage.value === 'en' ? card.value.explanationEn : card.value.explanationZh
-})
-
-const reviewHintText = computed(() => {
-  if (!card.value) return ''
-  return selectedLanguage.value === 'en' ? card.value.reviewHintEn : card.value.reviewHintZh
-})
 
 const formattedCorrectRate = computed(() => `${Math.round((stats.value.correctRate ?? 0) * 100)}%`)
 const nextReviewText = computed(() => formatDisplayTime(summary.value.nextReviewAt, t.value.notScheduled))
@@ -181,10 +185,7 @@ const correctAnswerLabel = computed(() => {
   return feedback.value.correctAnswer
 })
 
-const feedbackMessage = computed(() => {
-  if (!feedback.value) return ''
-  return feedback.value.isCorrect ? t.value.correctFeedback : t.value.incorrectFeedback
-})
+const feedbackMessage = computed(() => (feedback.value ? (feedback.value.isCorrect ? t.value.correctFeedback : t.value.incorrectFeedback) : ''))
 
 onMounted(async () => {
   await refreshDashboard()
@@ -210,6 +211,10 @@ onUnmounted(() => {
 async function refreshDashboard() {
   dashboard.value = await loadDashboard()
   selectedLanguage.value = dashboard.value.preferredLanguage || dashboard.value.info.defaultLanguage
+  scheduleForm.value = {
+    notificationIntervalMinutes: scheduleSettings.value.notificationIntervalMinutes,
+    reviewTime: scheduleSettings.value.reviewTime,
+  }
   resetStudyFlow()
   loading.value = false
 }
@@ -222,10 +227,8 @@ function resetStudyFlow() {
 
 function formatDisplayTime(value, fallback) {
   if (!value) return fallback
-
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return fallback
-
   const year = parsed.getFullYear()
   const month = `${parsed.getMonth() + 1}`.padStart(2, '0')
   const day = `${parsed.getDate()}`.padStart(2, '0')
@@ -306,6 +309,28 @@ async function handleNotificationSettingChange(field, value) {
   }
 }
 
+async function handleScheduleSave() {
+  try {
+    savingScheduleSettings.value = true
+    const result = await updateScheduleSettings({
+      notificationIntervalMinutes: Number(scheduleForm.value.notificationIntervalMinutes),
+      reviewTime: scheduleForm.value.reviewTime,
+    })
+    dashboard.value = {
+      ...dashboard.value,
+      scheduleSettings: {
+        notificationIntervalMinutes: Number(scheduleForm.value.notificationIntervalMinutes),
+        reviewTime: scheduleForm.value.reviewTime,
+      },
+    }
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Schedule update failed: ${error?.message ?? String(error)}`
+  } finally {
+    savingScheduleSettings.value = false
+  }
+}
+
 async function handleLanguageChange(language) {
   if (selectedLanguage.value === language) return
 
@@ -343,26 +368,12 @@ function toggleSettings() {
 
       <div class="hero-actions">
         <div class="language-toggle hero-toggle">
-          <button
-            :class="{ active: selectedLanguage === 'zh-TW' }"
-            :disabled="changingLanguage"
-            type="button"
-            @click="handleLanguageChange('zh-TW')"
-          >
-            zh-TW
-          </button>
-          <button
-            :class="{ active: selectedLanguage === 'en' }"
-            :disabled="changingLanguage"
-            type="button"
-            @click="handleLanguageChange('en')"
-          >
-            en
-          </button>
+          <button :class="{ active: selectedLanguage === 'zh-TW' }" :disabled="changingLanguage" type="button" @click="handleLanguageChange('zh-TW')">zh-TW</button>
+          <button :class="{ active: selectedLanguage === 'en' }" :disabled="changingLanguage" type="button" @click="handleLanguageChange('en')">en</button>
         </div>
 
-        <button class="settings-button" type="button" @click="toggleSettings">
-          ⚙
+        <button class="settings-button" type="button" @click="toggleSettings" aria-label="settings">
+          S
         </button>
       </div>
     </section>
@@ -383,16 +394,12 @@ function toggleSettings() {
             <span class="phase-pill">{{ currentPhaseLabel }}</span>
           </div>
 
-          <p v-if="reviewMode" class="review-banner">
-            {{ t.reviewSessionActive }} {{ reviewQueue.length }}
-          </p>
+          <p v-if="reviewMode" class="review-banner">{{ t.reviewSessionActive }} {{ reviewQueue.length }}</p>
           <p class="callout">{{ clickbaitText }}</p>
 
           <div v-if="phase === 'learn'" class="phase-panel">
             <p class="explanation">{{ explanation }}</p>
-            <button class="phase-button" type="button" @click="phase = 'answer'">
-              {{ t.answerPhase }}
-            </button>
+            <button class="phase-button" type="button" @click="phase = 'answer'">{{ t.answerPhase }}</button>
           </div>
 
           <div v-else-if="phase === 'answer'" class="phase-panel">
@@ -420,9 +427,7 @@ function toggleSettings() {
               <p>{{ reviewHintText }}</p>
             </div>
             <p class="explanation feedback-explanation">{{ explanation }}</p>
-            <button class="next-button" type="button" @click="handleNextCard">
-              {{ t.nextStep }}
-            </button>
+            <button class="next-button" type="button" @click="handleNextCard">{{ t.nextStep }}</button>
           </div>
         </section>
 
@@ -438,12 +443,6 @@ function toggleSettings() {
       </div>
 
       <aside class="sidebar-column">
-        <section class="status-card lead-card">
-          <span class="label">{{ t.bilingualCards }}</span>
-          <strong>{{ t.nextReview }}</strong>
-          <p class="sidebar-time">{{ nextReviewText }}</p>
-        </section>
-
         <section class="status-grid compact">
           <article class="status-card">
             <span class="label">{{ t.studiedToday }}</span>
@@ -457,7 +456,7 @@ function toggleSettings() {
             <span class="label">{{ t.reviewQueue }}</span>
             <strong>{{ reviewQueue.length }}</strong>
           </article>
-          <article class="status-card">
+          <article class="status-card review-highlight">
             <span class="label">{{ t.nextReview }}</span>
             <strong>{{ nextReviewText }}</strong>
           </article>
@@ -489,22 +488,14 @@ function toggleSettings() {
             <p class="label">{{ t.notificationSettings }}</p>
             <h2>{{ t.settingsLabel }}</h2>
           </div>
-          <button class="close-button" type="button" @click="toggleSettings">
-            {{ t.close }}
-          </button>
+          <button class="close-button" type="button" @click="toggleSettings">{{ t.close }}</button>
         </div>
 
         <section class="study-card inset-card">
           <div class="toolbar">
-            <button class="toolbar-button" type="button" @click="handleSendTestNotification">
-              {{ t.sendTestNotification }}
-            </button>
-            <button class="toolbar-button secondary" type="button" @click="handleSnooze">
-              {{ t.snoozeNotifications }}
-            </button>
-            <button class="toolbar-button secondary" type="button" @click="handleRescanKnowledge">
-              {{ t.rescanKnowledge }}
-            </button>
+            <button class="toolbar-button" type="button" @click="handleSendTestNotification">{{ t.sendTestNotification }}</button>
+            <button class="toolbar-button secondary" type="button" @click="handleSnooze">{{ t.snoozeNotifications }}</button>
+            <button class="toolbar-button secondary" type="button" @click="handleRescanKnowledge">{{ t.rescanKnowledge }}</button>
           </div>
           <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
         </section>
@@ -520,11 +511,7 @@ function toggleSettings() {
           <div class="settings-grid">
             <label class="settings-field">
               <span>{{ t.style }}</span>
-              <select
-                :value="notificationSettings.style"
-                :disabled="savingNotificationSettings"
-                @change="handleNotificationSettingChange('style', $event.target.value)"
-              >
+              <select :value="notificationSettings.style" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('style', $event.target.value)">
                 <option value="safe">safe</option>
                 <option value="playful">playful</option>
                 <option value="aggressive">aggressive</option>
@@ -534,16 +521,36 @@ function toggleSettings() {
 
             <label class="settings-field">
               <span>{{ t.titleSource }}</span>
-              <select
-                :value="notificationSettings.titleMode"
-                :disabled="savingNotificationSettings"
-                @change="handleNotificationSettingChange('titleMode', $event.target.value)"
-              >
+              <select :value="notificationSettings.titleMode" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('titleMode', $event.target.value)">
                 <option value="prefer_manual">prefer_manual</option>
                 <option value="prefer_generated">prefer_generated</option>
               </select>
             </label>
           </div>
+        </section>
+
+        <section class="study-card inset-card">
+          <div class="study-header">
+            <div>
+              <p class="label">{{ t.scheduleLabel }}</p>
+              <h2>{{ t.scheduleLabel }}</h2>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <label class="settings-field">
+              <span>{{ t.intervalMinutes }}</span>
+              <input v-model="scheduleForm.notificationIntervalMinutes" type="number" min="5" max="120">
+            </label>
+            <label class="settings-field">
+              <span>{{ t.reviewTime }}</span>
+              <input v-model="scheduleForm.reviewTime" type="time">
+            </label>
+          </div>
+
+          <button class="phase-button save-button" type="button" :disabled="savingScheduleSettings" @click="handleScheduleSave">
+            {{ t.saveSchedule }}
+          </button>
         </section>
 
         <section class="study-card inset-card">

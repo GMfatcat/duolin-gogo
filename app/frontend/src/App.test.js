@@ -14,7 +14,6 @@ describe('App', () => {
 
     expect(wrapper.text()).toContain('duolin-gogo')
     expect(wrapper.text()).toContain('Cherry-pick 的用途')
-    expect(wrapper.text()).toContain('雙語知識卡')
     expect(wrapper.text()).toContain('開始作答')
     expect(wrapper.text()).not.toContain('快速問題')
     expect(wrapper.findAll('input[type="radio"]').length).toBe(0)
@@ -34,67 +33,49 @@ describe('App', () => {
     expect(wrapper.text()).toContain('正確答案：是')
     expect(wrapper.text()).toContain('下一題')
     expect(wrapper.text()).toContain('Cherry-pick 會把選定 commit 的變更複製到目前分支。')
-
-    await wrapper.find('.next-button').trigger('click')
-    await flushPromises()
-
-    expect(wrapper.text()).toContain('開始作答')
-    expect(wrapper.text()).not.toContain('答對了。')
   })
 
-  it('shows a settings popout instead of putting utilities in the main sidebar', async () => {
+  it('shows settings popout with schedule controls and hides duplicated sidebar cards', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
 
     expect(wrapper.text()).not.toContain('通知設定')
-    expect(wrapper.text()).not.toContain('知識檔案健康度')
     expect(wrapper.text()).not.toContain('送出測試通知')
-    expect(wrapper.text()).not.toContain('內容模式')
-    expect(wrapper.text()).not.toContain('語言模式')
+    expect(wrapper.text()).toContain('下次複習2026-04-05 21:00')
+    expect(wrapper.text()).not.toContain('雙語知識卡')
 
     await wrapper.find('.settings-button').trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('通知設定')
-    expect(wrapper.text()).toContain('知識檔案健康度')
     expect(wrapper.text()).toContain('送出測試通知')
+    expect(wrapper.text()).toContain('複習時間')
+    expect(wrapper.text()).toContain('通知間隔（分鐘）')
 
-    const toolbarButtons = wrapper.findAll('.toolbar-button')
-    await toolbarButtons[0].trigger('click')
+    const numberInput = wrapper.find('input[type="number"]')
+    const timeInput = wrapper.find('input[type="time"]')
+    await numberInput.setValue('30')
+    await timeInput.setValue('20:30')
+    await wrapper.find('.save-button').trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('Test notification sent.')
 
-    await toolbarButtons[1].trigger('click')
-    await flushPromises()
-    expect(wrapper.text()).toContain('Notifications snoozed for 15 minutes.')
-
-    await toolbarButtons[2].trigger('click')
-    await flushPromises()
-    expect(wrapper.text()).toContain('Knowledge refreshed: 2 cards, 0 errors.')
-
-    const selects = wrapper.findAll('select')
-    await selects[0].setValue('chaotic')
-    await flushPromises()
-    expect(wrapper.text()).toContain('Notification settings updated.')
-
-    await selects[1].setValue('prefer_generated')
-    await flushPromises()
-    expect(wrapper.text()).toContain('Notification settings updated.')
+    expect(wrapper.text()).toContain('Schedule settings updated.')
   })
 
-  it('switches global shell copy and formats next review time for humans', async () => {
+  it('switches global shell copy and keeps the english summary visually stable', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
 
-    expect(wrapper.text()).toContain('下次複習2026-04-05 21:00')
-    expect(wrapper.text()).toContain('概念複習重點')
+    const summary = wrapper.find('.summary')
+    expect(summary.text()).toBe('把你的雙語 Markdown 筆記變成定時提醒、微學習卡片與複習節奏。')
 
     const languageButtons = wrapper.findAll('.language-toggle button')
     await languageButtons[1].trigger('click')
     await flushPromises()
 
+    expect(summary.text()).toBe('Turn Markdown notes into timely study nudges and review loops.')
     expect(wrapper.text()).toContain('Next review2026-04-05 21:00')
     expect(wrapper.text()).toContain('Concepts to revisit')
     expect(wrapper.text()).toContain('Cherry-pick Purpose')

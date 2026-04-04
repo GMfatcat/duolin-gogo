@@ -49,6 +49,11 @@ type NotificationSettings struct {
 	TitleMode string `json:"titleMode"`
 }
 
+type ScheduleSettings struct {
+	NotificationIntervalMinutes int    `json:"notificationIntervalMinutes"`
+	ReviewTime                  string `json:"reviewTime"`
+}
+
 type AnswerChoice struct {
 	Value   string `json:"value"`
 	LabelZH string `json:"labelZh"`
@@ -83,6 +88,7 @@ type DashboardData struct {
 	Summary              dashboard.Summary    `json:"summary"`
 	ImportErrors         []diagnostics.Error  `json:"importErrors"`
 	NotificationSettings NotificationSettings `json:"notificationSettings"`
+	ScheduleSettings     ScheduleSettings     `json:"scheduleSettings"`
 	CurrentCard          *StudyCard           `json:"currentCard"`
 	ReviewQueue          []StudyCard          `json:"reviewQueue"`
 	ReviewMode           bool                 `json:"reviewMode"`
@@ -173,6 +179,10 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		NotificationSettings: NotificationSettings{
 			Style:     normalizeNotificationStyle(a.mustLoadSettings().Notifications.Style),
 			TitleMode: normalizeNotificationTitleMode(a.mustLoadSettings().Notifications.TitleMode),
+		},
+		ScheduleSettings: ScheduleSettings{
+			NotificationIntervalMinutes: normalizeNotificationInterval(a.mustLoadSettings().NotificationIntervalMinutes),
+			ReviewTime:                  normalizeReviewTime(a.mustLoadSettings().ReviewSchedule.Time),
 		},
 		CurrentCard: currentCard,
 		ReviewQueue: reviewQueue,
@@ -380,6 +390,23 @@ func (a *App) UpdatePreferredLanguage(language string) (ActionStatus, error) {
 	return ActionStatus{Message: "Language updated."}, nil
 }
 
+func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime string) (ActionStatus, error) {
+	path := filepath.Join(a.dataDir, "settings.json")
+	file, err := settings.Load(path)
+	if err != nil {
+		return ActionStatus{}, err
+	}
+
+	file.NotificationIntervalMinutes = normalizeNotificationInterval(notificationIntervalMinutes)
+	file.ReviewSchedule.Time = normalizeReviewTime(reviewTime)
+
+	if err := writeSettingsFile(path, file); err != nil {
+		return ActionStatus{}, err
+	}
+
+	return ActionStatus{Message: "Schedule settings updated."}, nil
+}
+
 func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error) {
 	if _, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir); err != nil {
 		return cards.CacheFile{}, progress.ProgressFile{}, "", err
@@ -458,6 +485,30 @@ func normalizePreferredLanguage(language string) string {
 	default:
 		return "zh-TW"
 	}
+}
+
+func normalizeNotificationInterval(minutes int) int {
+	if minutes < 5 {
+		return 5
+	}
+	if minutes > 120 {
+		return 120
+	}
+	return minutes
+}
+
+func normalizeReviewTime(value string) string {
+	if len(value) != 5 || value[2] != ':' {
+		return "21:00"
+	}
+
+	hour := value[:2]
+	minute := value[3:]
+	if hour < "00" || hour > "23" || minute < "00" || minute > "59" {
+		return "21:00"
+	}
+
+	return value
 }
 
 func writeSettingsFile(path string, file settings.File) error {
