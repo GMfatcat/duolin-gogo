@@ -13,6 +13,8 @@ let unsubscribe = null
 
 const card = computed(() => dashboard.value?.currentCard ?? null)
 const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
+const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
+const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
 const explanation = computed(() => {
   if (!card.value) {
     return ''
@@ -90,6 +92,10 @@ async function handleSubmit() {
         <span class="label">Development mode</span>
         <strong>TDD mode</strong>
       </article>
+      <article class="status-card">
+        <span class="label">Session mode</span>
+        <strong>{{ reviewMode ? 'Review session' : 'Learn session' }}</strong>
+      </article>
     </section>
 
     <section v-if="loading" class="study-card">
@@ -100,7 +106,7 @@ async function handleSubmit() {
     <section v-else-if="card" class="study-card">
       <div class="study-header">
         <div>
-          <p class="label">Next card</p>
+          <p class="label">{{ reviewMode ? 'Review card' : 'Next card' }}</p>
           <h2>{{ card.title }}</h2>
         </div>
         <div class="language-toggle">
@@ -121,6 +127,9 @@ async function handleSubmit() {
         </div>
       </div>
 
+      <p v-if="reviewMode" class="review-banner">
+        Review session active. Queue size: {{ reviewQueue.length }}
+      </p>
       <p class="callout">{{ card.clickbait }}</p>
       <p class="explanation">{{ explanation }}</p>
 
@@ -155,6 +164,10 @@ async function handleSubmit() {
       <article class="status-card">
         <span class="label">Correct rate</span>
         <strong>{{ formattedCorrectRate }}</strong>
+      </article>
+      <article class="status-card">
+        <span class="label">Review queue</span>
+        <strong>{{ reviewQueue.length }}</strong>
       </article>
     </section>
   </main>

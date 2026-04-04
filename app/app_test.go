@@ -8,6 +8,7 @@ import (
 
 	"duolin-gogo/internal/cards"
 	"duolin-gogo/internal/notifications"
+	"duolin-gogo/internal/progress"
 )
 
 func TestNewAppReturnsApp(t *testing.T) {
@@ -162,6 +163,41 @@ func TestCheckAndSendNotificationRespectsIntervalAndSnooze(t *testing.T) {
 	}
 }
 
+func TestLoadDashboardEntersReviewModeWhenReviewIsDue(t *testing.T) {
+	app := newTestApp(t)
+	now := time.Date(2026, 4, 5, 21, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+	app.nowFunc = func() time.Time { return now }
+
+	_, _, err := progress.RecordAndPersist(
+		filepath.Join(app.dataDir, "progress.json"),
+		filepath.Join(app.dataDir, "attempts.jsonl"),
+		progress.RecordAttemptInput{
+			CardID:         "git-rebase-vs-merge",
+			SessionType:    "learn",
+			SelectedAnswer: "1",
+			IsCorrect:      true,
+			ShownAt:        now.Add(-24 * time.Hour),
+			AnsweredAt:     now.Add(-24*time.Hour + 10*time.Second),
+		},
+	)
+	if err != nil {
+		t.Fatalf("seed progress failed: %v", err)
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if !dashboard.ReviewMode {
+		t.Fatal("expected review mode")
+	}
+
+	if len(dashboard.ReviewQueue) == 0 {
+		t.Fatal("expected review queue")
+	}
+}
+
 func newTestApp(t *testing.T) *App {
 	t.Helper()
 
@@ -223,6 +259,21 @@ English cherry-pick explanation.
 	}
 
 	settings := `{
+  "notification_interval_minutes": 10,
+  "active_hours": {
+    "enabled": true,
+    "start": "09:00",
+    "end": "22:00"
+  },
+  "review_schedule": {
+    "mode": "daily",
+    "weekday": null,
+    "time": "21:00",
+    "batch_size": 5
+  },
+  "study_rules": {
+    "snooze_minutes": 15
+  },
   "language": {
     "default": "zh-TW"
   }

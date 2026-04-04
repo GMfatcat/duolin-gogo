@@ -12,6 +12,7 @@ import (
 	"duolin-gogo/internal/cards"
 	"duolin-gogo/internal/notifications"
 	"duolin-gogo/internal/progress"
+	"duolin-gogo/internal/review"
 	"duolin-gogo/internal/scheduler"
 	"duolin-gogo/internal/selection"
 	"duolin-gogo/internal/settings"
@@ -27,6 +28,7 @@ type App struct {
 	notificationSender notifications.Sender
 	schedulerState     scheduler.State
 	tickerFactory      func(time.Duration) *time.Ticker
+	lastReviewRunAt    *time.Time
 }
 
 type AppInfo struct {
@@ -63,6 +65,8 @@ type DashboardData struct {
 	PreferredLanguage string         `json:"preferredLanguage"`
 	Stats             DashboardStats `json:"stats"`
 	CurrentCard       *StudyCard     `json:"currentCard"`
+	ReviewQueue       []StudyCard    `json:"reviewQueue"`
+	ReviewMode        bool           `json:"reviewMode"`
 }
 
 type SubmitAnswerResult struct {
@@ -118,17 +122,26 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		return DashboardData{}, err
 	}
 
-	card, ok := selection.SelectNextCard(cache.Cards, state.Cards, a.nowFunc())
+	now := a.nowFunc()
+	reviewQueue := a.buildReviewQueue(cache, state, now)
+	reviewMode := review.ShouldStartReview(a.mustLoadSettings(), a.lastReviewRunAt, now) && len(reviewQueue) > 0
+
+	card, ok := selection.SelectNextCard(cache.Cards, state.Cards, now)
 	var currentCard *StudyCard
-	if ok {
-		currentCard = studyCardFromCard(card, a.nowFunc())
+	if reviewMode {
+		first := reviewQueue[0]
+		currentCard = &first
+	} else if ok {
+		currentCard = studyCardFromCard(card, now)
 	}
 
 	return DashboardData{
 		Info:              a.AppInfo(),
 		PreferredLanguage: preferredLanguage,
-		Stats:             calculateStats(state, a.nowFunc()),
+		Stats:             calculateStats(state, now),
 		CurrentCard:       currentCard,
+		ReviewQueue:       reviewQueue,
+		ReviewMode:        reviewMode,
 	}, nil
 }
 
@@ -210,6 +223,21 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 	cache, state, _, err := a.loadState()
 	if err != nil {
 		return false, err
+	}
+
+	if review.ShouldStartReview(config, a.lastReviewRunAt, now) {
+		queue := review.BuildQueue(cache.Cards, state.Cards, now, config.ReviewSchedule.BatchSize)
+		if len(queue) > 0 {
+			message := notifications.BuildStudyMessage(queue[0])
+			message.Title = "Review time"
+			message.Body = "Time to review your recent Git concepts."
+			if err := a.notificationSender.Send(message); err != nil {
+				return false, err
+			}
+			a.lastReviewRunAt = &now
+			a.schedulerState.LastNotificationAt = &now
+			return true, nil
+		}
 	}
 
 	card, ok := selection.SelectNextCard(cache.Cards, state.Cards, now)
@@ -297,6 +325,24 @@ func (a *App) loadPreferredLanguage() string {
 	}
 
 	return file.Language.Default
+}
+
+func (a *App) mustLoadSettings() settings.File {
+	file, err := settings.Load(filepath.Join(a.dataDir, "settings.json"))
+	if err != nil {
+		return settings.File{}
+	}
+	return file
+}
+
+func (a *App) buildReviewQueue(cache cards.CacheFile, state progress.ProgressFile, now time.Time) []StudyCard {
+	config := a.mustLoadSettings()
+	queue := review.BuildQueue(cache.Cards, state.Cards, now, config.ReviewSchedule.BatchSize)
+	out := make([]StudyCard, 0, len(queue))
+	for _, card := range queue {
+		out = append(out, *studyCardFromCard(card, now))
+	}
+	return out
 }
 
 func calculateStats(state progress.ProgressFile, now time.Time) DashboardStats {

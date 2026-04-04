@@ -24,6 +24,8 @@ const fallbackDashboard = {
     explanationEn: '`git cherry-pick` lets you apply a chosen commit onto the current branch.',
     shownAt: '2026-04-05T10:00:00+08:00',
   },
+  reviewQueue: [],
+  reviewMode: false,
 }
 
 export async function loadDashboard() {

@@ -45,8 +45,8 @@ npm run build
 
 Current completed milestone:
 
-- Milestone 6: Notification And App Scheduling
+- Milestone 7: Review Session Mode
 
 Next target:
 
-- Milestone 7: Review Session Mode
+- Milestone 8: Basic Dashboard And Weak Topic Summary

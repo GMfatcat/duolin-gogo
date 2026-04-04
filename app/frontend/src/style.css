@@ -120,6 +120,16 @@ body {
     line-height: 1.6;
 }
 
+.review-banner {
+    display: inline-flex;
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(233, 196, 106, 0.12);
+    color: #f7f3e8;
+    font-size: 0.92rem;
+}
+
 .explanation {
     margin: 0;
     color: #d4dde5;

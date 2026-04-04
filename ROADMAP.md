@@ -215,6 +215,10 @@ TDD focus:
 - review queue composition tests
 - review result persistence tests
 
+Current status:
+
+- completed
+
 ### Milestone 8: Basic Dashboard And Weak Topic Summary
 
 Goal:
@@ -296,4 +300,5 @@ For now:
 - Milestone 4 is `completed`
 - Milestone 5 is `completed`
 - Milestone 6 is `completed`
-- Milestone 7 and beyond are `planned`
+- Milestone 7 is `completed`
+- Milestone 8 and beyond are `planned`
