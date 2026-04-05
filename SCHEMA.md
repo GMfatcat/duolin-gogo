@@ -20,9 +20,15 @@ knowledge/
   docker/
     run.md
     ps.md
+  go/
+    goroutine.md
+    channel.md
   linux/
     pwd.md
     ls.md
+  python/
+    venv.md
+    list-vs-tuple.md
   git/
     rebase.md
     cherry-pick.md

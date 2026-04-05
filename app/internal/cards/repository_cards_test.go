@@ -47,10 +47,18 @@ func TestRepositoryKnowledgeCardsImportWithoutErrors(t *testing.T) {
 		"git-status-purpose",
 		"git-switch-branch",
 		"git-tag-release-marker",
+		"go-channel-communication",
+		"go-defer-late-execution",
+		"go-goroutine-concurrency",
+		"go-slice-dynamic-view",
 		"linux-chmod-permissions",
 		"linux-grep-search-text",
 		"linux-ls-list-files",
 		"linux-pwd-current-directory",
+		"python-dict-key-value",
+		"python-generator-lazy-iteration",
+		"python-list-vs-tuple",
+		"python-venv-isolation",
 	}
 
 	importedIDs := make([]string, 0, len(result.Cards))
