@@ -19,6 +19,10 @@ func TestRepositoryKnowledgeCardsImportWithoutErrors(t *testing.T) {
 	}
 
 	expectedIDs := []string{
+		"docker-compose-up-services",
+		"docker-exec-running-container",
+		"docker-ps-running-containers",
+		"docker-run-start-container",
 		"git-add-staging",
 		"git-branch-list",
 		"git-checkout-legacy",
@@ -43,6 +47,10 @@ func TestRepositoryKnowledgeCardsImportWithoutErrors(t *testing.T) {
 		"git-status-purpose",
 		"git-switch-branch",
 		"git-tag-release-marker",
+		"linux-chmod-permissions",
+		"linux-grep-search-text",
+		"linux-ls-list-files",
+		"linux-pwd-current-directory",
 	}
 
 	importedIDs := make([]string, 0, len(result.Cards))

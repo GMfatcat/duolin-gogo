@@ -84,6 +84,8 @@ Next targets:
 - Phase C: multi-topic expansion
   - prepare the deck model for topics beyond Git
   - support topic-aware summaries and selection filters
+  - first content expansion slice starts with `docker` and `linux`
+  - next planned decks are `go` and `python`
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting
   - keep notifications active while the app window is hidden

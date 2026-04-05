@@ -17,6 +17,12 @@ The goal is to make parsing, scheduling, review logic, and future UI implementat
 
 ```text
 knowledge/
+  docker/
+    run.md
+    ps.md
+  linux/
+    pwd.md
+    ls.md
   git/
     rebase.md
     cherry-pick.md
@@ -52,6 +58,11 @@ MVP parsing rule:
 - one file contains both `zh-TW` and `en` content sections
 
 This keeps the importer simple and makes file-level editing easy.
+
+Topic rule:
+
+- cards should live under a topic folder such as `knowledge/git/`, `knowledge/docker/`, `knowledge/linux/`, `knowledge/go/`, or `knowledge/python/`
+- include the topic itself in `tags` so dashboard and weak-topic summaries stay useful
 
 ## 3.2 Required Frontmatter Fields
 

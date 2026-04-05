@@ -537,7 +537,7 @@ Deliverables:
 - topic-aware card organization
 - optional topic filters in study selection
 - dashboard summaries grouped by topic
-- support for decks such as `javascript`, `typescript`, or `react`
+- support for decks such as `docker`, `linux`, `go`, and `python`
 
 TDD focus:
 
@@ -547,7 +547,7 @@ TDD focus:
 
 Current status:
 
-- completed
+- in_progress
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 
