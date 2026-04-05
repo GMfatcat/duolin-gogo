@@ -514,7 +514,7 @@ func (a *App) StartLearnBreak() (LearnBreakStatus, error) {
 
 func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 	config := a.mustLoadSettings()
-	cache, err := cards.LoadCache(filepath.Join(a.dataDir, "cards-cache.gob"))
+	cache, err := a.loadKnowledgeCache()
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
@@ -536,7 +536,7 @@ func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 
 func (a *App) GetDGReaction(trigger string) (DGInteractionStatus, error) {
 	config := a.mustLoadSettings()
-	cache, err := cards.LoadCache(filepath.Join(a.dataDir, "cards-cache.gob"))
+	cache, err := a.loadKnowledgeCache()
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
@@ -1006,7 +1006,7 @@ func (a *App) UpdateSelectedTopic(topic string) (ActionStatus, error) {
 		return ActionStatus{}, err
 	}
 
-	cache, err := cards.LoadCache(filepath.Join(a.dataDir, "cards-cache.gob"))
+	cache, err := a.loadKnowledgeCache()
 	if err != nil {
 		return ActionStatus{}, err
 	}
@@ -1059,8 +1059,16 @@ func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error
 	return cache, state, a.loadPreferredLanguage(), nil
 }
 
+func (a *App) loadKnowledgeCache() (cards.CacheFile, error) {
+	cache, _, err := cards.EnsureKnowledgeCache(a.knowledgeDir, a.dataDir)
+	if err != nil {
+		return cards.CacheFile{}, err
+	}
+	return cache, nil
+}
+
 func (a *App) previewKnowledgeCard(path string, files []string) (AuthoringPreviewData, error) {
-	cache, _ := cards.LoadCache(filepath.Join(a.dataDir, "cards-cache.gob"))
+	cache, _ := a.loadKnowledgeCache()
 	cacheByPath := make(map[string]cards.Card, len(cache.Cards))
 	for _, card := range cache.Cards {
 		if card.SourcePath == "" {

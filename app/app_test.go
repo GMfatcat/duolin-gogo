@@ -898,6 +898,27 @@ func TestLoadAuthoringPreviewIncludesModifiedAt(t *testing.T) {
 	}
 }
 
+func TestLoadAuthoringPreviewRebuildsMissingGobCache(t *testing.T) {
+	app := newTestApp(t)
+
+	cachePath := filepath.Join(app.dataDir, "cards-cache.gob")
+	if err := os.Remove(cachePath); err != nil {
+		t.Fatalf("remove gob cache failed: %v", err)
+	}
+
+	preview, err := app.LoadAuthoringPreview()
+	if err != nil {
+		t.Fatalf("load authoring preview failed: %v", err)
+	}
+	if len(preview.Files) == 0 || preview.CurrentCard == nil {
+		t.Fatal("expected preview to work even when gob cache is missing")
+	}
+
+	if _, err := os.Stat(cachePath); err != nil {
+		t.Fatalf("expected missing gob cache to be rebuilt: %v", err)
+	}
+}
+
 func TestPreviewKnowledgeCardReturnsDiagnosticsForBrokenCard(t *testing.T) {
 	app := newTestApp(t)
 
