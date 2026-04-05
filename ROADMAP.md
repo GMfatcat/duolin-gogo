@@ -755,6 +755,7 @@ Current status:
 - ninth slice planned: pull the app chrome and mascot states into a shared `DG teal + spark gold` color system so the UI feels like one visual world instead of splitting between gold and unrelated bright blue accents
 - ninth slice implemented: the shell, top controls, and popout surfaces now share the same `DG teal + spark gold` palette, so mascot chrome, settings, library, and diagnostics no longer feel like separate themes
 - tenth slice implemented: Easter Egg V1 has begun with hidden `rapid_click` and `welcome_back` reactions, keeping rare companion surprises inside the existing DG bubble without adding visible unlock UI
+- eleventh slice implemented: Easter Egg V1 now also includes topic inside jokes and rare celebration lines, and DG reaction rotation is less script-like because repeated triggers no longer lock into the same exact sentence order
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

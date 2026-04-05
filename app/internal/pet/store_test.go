@@ -302,3 +302,68 @@ func TestInteractTriggersWelcomeBackAfterLongGap(t *testing.T) {
 		t.Fatalf("expected welcome-back pose wave, got %s", second.Reaction.Pose)
 	}
 }
+
+func TestInteractRotatesClickLinesWithinSameMinute(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 6, 12, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	for index := 0; index < 4; index++ {
+		if _, err := RecordStudyEvent(path, StudyEventAnsweredCorrect, base.Add(time.Duration(index)*time.Minute)); err != nil {
+			t.Fatalf("seed study event %d failed: %v", index, err)
+		}
+	}
+
+	first, err := Interact(path, "en", "all", base.Add(20*time.Minute))
+	if err != nil {
+		t.Fatalf("first interaction failed: %v", err)
+	}
+
+	second, err := Interact(path, "en", "all", base.Add(20*time.Minute+20*time.Second))
+	if err != nil {
+		t.Fatalf("second interaction failed: %v", err)
+	}
+
+	if first.Reaction.Key == second.Reaction.Key {
+		t.Fatalf("expected click lines to vary within the same minute, got %s twice", first.Reaction.Key)
+	}
+}
+
+func TestReactionForTriggerCanUseTopicInsideJoke(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 6, 13, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	for offset := 0; offset < 20; offset++ {
+		result, err := ReactionForTrigger(path, TriggerReturn, "en", "http", base.Add(time.Duration(offset)*time.Minute))
+		if err != nil {
+			t.Fatalf("topic inside joke check failed: %v", err)
+		}
+		if result.Reaction.Key == "inside_joke_http_status" {
+			return
+		}
+	}
+
+	t.Fatal("expected at least one topic-inside-joke reaction in sampled window")
+}
+
+func TestReactionForTriggerCanUseRareCelebration(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 6, 14, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	for index := 0; index < 6; index++ {
+		if _, err := RecordStudyEvent(path, StudyEventReviewBatch, base.Add(time.Duration(index)*time.Minute)); err != nil {
+			t.Fatalf("seed review event %d failed: %v", index, err)
+		}
+	}
+
+	for offset := 0; offset < 20; offset++ {
+		result, err := ReactionForTrigger(path, TriggerReviewComplete, "en", "backend-tools", base.Add(time.Duration(offset)*5*time.Minute))
+		if err != nil {
+			t.Fatalf("rare celebration check failed: %v", err)
+		}
+		if result.Reaction.Key == "rare_celebration_backend" || result.Reaction.Key == "rare_celebration_general" || result.Reaction.Key == "rare_celebration_general_soft" {
+			return
+		}
+	}
+
+	t.Fatal("expected at least one rare celebration reaction in sampled window")
+}

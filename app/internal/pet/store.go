@@ -36,6 +36,7 @@ const (
 type State struct {
 	BondXP            int     `json:"bond_xp"`
 	Stage             int     `json:"stage"`
+	ReactionStep      int     `json:"reaction_step,omitempty"`
 	LastInteractionAt *string `json:"last_interaction_at,omitempty"`
 	LastReactionAt    *string `json:"last_reaction_at,omitempty"`
 	LastRapidClickAt  *string `json:"last_rapid_click_at,omitempty"`
@@ -111,13 +112,15 @@ func Interact(path string, language string, topic string, now time.Time) (Intera
 		stamp := now.Format(time.RFC3339)
 		state.LastReactionAt = &stamp
 		state.LastEasterEggAt = &stamp
+		state.ReactionStep++
+		reaction := pickReaction(rapidClickReactions(language, topic, state.Stage), state, "rapid_click", now)
 		if err := Save(path, state); err != nil {
 			return InteractionResult{}, err
 		}
 
 		return InteractionResult{
 			State:    state,
-			Reaction: pickReaction(rapidClickReactions(language, topic, state.Stage), state, "rapid_click", now),
+			Reaction: reaction,
 		}, nil
 	}
 
@@ -142,13 +145,17 @@ func Interact(path string, language string, topic string, now time.Time) (Intera
 		state.LastEasterEggAt = &stamp
 	}
 
-	if err := Save(path, state); err != nil {
-		return InteractionResult{}, err
-	}
-
 	reaction := pickReaction(clickReactions(language, topic, state.Stage), state, TriggerClicked, now)
 	if wasAwayLongEnough {
 		reaction = pickReaction(welcomeBackReactions(language, topic, state.Stage), state, "welcome_back", now)
+	} else if shouldTriggerTopicInsideJoke(state, TriggerClicked, topic, now) {
+		state.LastEasterEggAt = &stamp
+		reaction = pickReaction(topicInsideJokeReactions(language, topic, TriggerClicked), state, "topic_inside_joke", now)
+	}
+	state.ReactionStep++
+
+	if err := Save(path, state); err != nil {
+		return InteractionResult{}, err
 	}
 
 	return InteractionResult{
@@ -167,14 +174,24 @@ func ReactionForTrigger(path string, trigger string, language string, topic stri
 		return InteractionResult{State: state}, nil
 	}
 
-	state.LastReactionAt = stringPtr(now.Format(time.RFC3339))
+	stamp := now.Format(time.RFC3339)
+	state.LastReactionAt = stringPtr(stamp)
+	reaction := reactionForTrigger(language, topic, trigger, state, now)
+	if shouldTriggerRareCelebration(state, trigger, now) {
+		state.LastEasterEggAt = &stamp
+		reaction = pickReaction(rareCelebrationReactions(language, topic), state, "rare_celebration", now)
+	} else if shouldTriggerTopicInsideJoke(state, trigger, topic, now) {
+		state.LastEasterEggAt = &stamp
+		reaction = pickReaction(topicInsideJokeReactions(language, topic, trigger), state, "topic_inside_joke", now)
+	}
+	state.ReactionStep++
 	if err := Save(path, state); err != nil {
 		return InteractionResult{}, err
 	}
 
 	return InteractionResult{
 		State:    state,
-		Reaction: reactionForTrigger(language, topic, trigger, state, now),
+		Reaction: reaction,
 	}, nil
 }
 
@@ -249,7 +266,7 @@ func pickReaction(pool []Reaction, state State, trigger string, now time.Time) R
 		return Reaction{Key: "fallback", Variant: "neutral", Pose: "idle", Title: "DG", Body: "..."}
 	}
 
-	index := int((now.Unix()/60)+int64(state.BondXP)+int64(len(trigger))) % len(pool)
+	index := (state.ReactionStep + len(trigger)) % len(pool)
 	return pool[index]
 }
 
@@ -546,6 +563,82 @@ func welcomeBackReactions(language string, topic string, stage int) []Reaction {
 	}
 }
 
+func topicInsideJokeReactions(language string, topic string, trigger string) []Reaction {
+	switch normalizeTopic(topic) {
+	case "git":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "inside_joke_git_force_push", Variant: "celebration", Pose: "think", Title: "DG", Body: "先別急著 force push，我們還沒走到那一步。"},
+			}
+		}
+		return []Reaction{
+			{Key: "inside_joke_git_force_push", Variant: "celebration", Pose: "think", Title: "DG", Body: "Easy there. We are nowhere near needing a force push yet."},
+		}
+	case "docker":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "inside_joke_docker_port", Variant: "celebration", Pose: "think", Title: "DG", Body: "這次真的先確認一下，不要又是 port 沒開。"},
+			}
+		}
+		return []Reaction{
+			{Key: "inside_joke_docker_port", Variant: "celebration", Pose: "think", Title: "DG", Body: "This might not be broken. It might still just be the port mapping again."},
+		}
+	case "sql":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "inside_joke_sql_where", Variant: "celebration", Pose: "think", Title: "DG", Body: "我先幫你問一句：這次 where 有寫對吧？"},
+			}
+		}
+		return []Reaction{
+			{Key: "inside_joke_sql_where", Variant: "celebration", Pose: "think", Title: "DG", Body: "Quick check: this time we definitely remembered the where clause, right?"},
+		}
+	case "http":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "inside_joke_http_status", Variant: "celebration", Pose: "think", Title: "DG", Body: "先看 status code，再決定要不要怪 server。"},
+			}
+		}
+		return []Reaction{
+			{Key: "inside_joke_http_status", Variant: "celebration", Pose: "think", Title: "DG", Body: "Before blaming the server, let us at least check the status code."},
+		}
+	}
+	return nil
+}
+
+func rareCelebrationReactions(language string, topic string) []Reaction {
+	switch normalizeTopic(topic) {
+	case "languages":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "rare_celebration_languages", Variant: "celebration", Pose: "spark", Title: "DG", Body: "這輪語感長得很漂亮，今天的節奏真的不錯。"},
+			}
+		}
+		return []Reaction{
+			{Key: "rare_celebration_languages", Variant: "celebration", Pose: "spark", Title: "DG", Body: "That one landed beautifully. The language instinct is really showing today."},
+		}
+	case "backend-tools":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "rare_celebration_backend", Variant: "celebration", Pose: "spark", Title: "DG", Body: "這輪後端工具題收得很順，像把整個工作台整理好了。"},
+			}
+		}
+		return []Reaction{
+			{Key: "rare_celebration_backend", Variant: "celebration", Pose: "spark", Title: "DG", Body: "That backend-tools finish was crisp. It feels like the whole bench just got organized."},
+		}
+	}
+
+	if language == "zh-TW" {
+		return []Reaction{
+			{Key: "rare_celebration_general", Variant: "celebration", Pose: "spark", Title: "DG", Body: "這輪收得特別漂亮，我偷偷幫你記一筆。"},
+			{Key: "rare_celebration_general_soft", Variant: "celebration", Pose: "spark", Title: "DG", Body: "這種收尾值得亮一下，今天的手感很可以。"},
+		}
+	}
+	return []Reaction{
+		{Key: "rare_celebration_general", Variant: "celebration", Pose: "spark", Title: "DG", Body: "That finish was unusually clean. I am quietly filing this one away."},
+		{Key: "rare_celebration_general_soft", Variant: "celebration", Pose: "spark", Title: "DG", Body: "This one deserves a little extra glow. The rhythm is good today."},
+	}
+}
+
 func topicClickReactions(language string, topic string) []Reaction {
 	switch normalizeTopic(topic) {
 	case "docker":
@@ -745,6 +838,35 @@ func shouldTriggerWelcomeBack(state State, now time.Time) bool {
 		return false
 	}
 	return true
+}
+
+func shouldTriggerTopicInsideJoke(state State, trigger string, topic string, now time.Time) bool {
+	if len(topicInsideJokeReactions("en", topic, trigger)) == 0 {
+		return false
+	}
+	if state.LastEasterEggAt != nil && lastTimestampWithin(state.LastEasterEggAt, easterEggCooldown, now) {
+		return false
+	}
+
+	seed := state.ReactionStep + state.BondXP + len(trigger) + len(normalizeTopic(topic)) + int(now.Unix()/60)
+	switch trigger {
+	case TriggerClicked, TriggerWrong, TriggerCorrect, TriggerReturn:
+		return seed%7 == 0
+	default:
+		return false
+	}
+}
+
+func shouldTriggerRareCelebration(state State, trigger string, now time.Time) bool {
+	if trigger != TriggerReviewComplete && trigger != TriggerLearnBreak {
+		return false
+	}
+	if state.LastEasterEggAt != nil && lastTimestampWithin(state.LastEasterEggAt, easterEggCooldown, now) {
+		return false
+	}
+
+	seed := state.ReactionStep + state.BondXP + len(trigger) + int(now.Unix()/300)
+	return seed%5 == 0
 }
 
 func lastTimestampWithin(value *string, window time.Duration, now time.Time) bool {
