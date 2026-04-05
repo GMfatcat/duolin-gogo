@@ -115,3 +115,4 @@ Next targets:
   - first slices should focus on weak-deck nudges, review-complete encouragement, and compact collapse/expand behavior
   - avoid marquee-style motion or persistent animation that competes with reading
   - first slice implemented: the existing top hint is now a `DG` bubble with stateful copy, a lightweight entrance animation, and a compact collapsed badge mode
+  - second slice implemented: `DG` now reacts to learn, answer, correct-feedback, and wrong-feedback states with distinct copy and tone, so the mascot stays useful even outside review flows

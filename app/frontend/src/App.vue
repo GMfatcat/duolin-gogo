@@ -24,9 +24,16 @@ const translations = {
   'zh-TW': {
     summary: '把筆記變成定時提醒、微課與複習節奏。',
     dgLabel: 'DG',
+    dgGuideTitle: 'DG 導讀',
     dgWeakestTitle: 'DG 提醒',
     dgReviewTitle: 'DG 恭喜',
     dgReviewBody: '這輪複習完成了，先收一下成果，再看要不要繼續下一張。',
+    dgLearnBody: '先把這個觀念讀進去，等一下再開始作答。',
+    dgAnswerBody: '準備好的話就選答案，不用急，先找最合理的選項。',
+    dgCorrectTitle: 'DG 說答得好',
+    dgCorrectBody: '這題抓得不錯。看一下提示，再進下一張就好。',
+    dgWrongTitle: 'DG 說繼續',
+    dgWrongBody: '這題值得再冷靜看一次。先記住關鍵差異，下一次就會更穩。',
     reviewCard: '複習卡',
     nextCard: '下一張卡',
     reviewSessionActive: '複習模式進行中，待答題數：',
@@ -131,9 +138,16 @@ const translations = {
   en: {
     summary: 'Turn notes into study nudges and review loops.',
     dgLabel: 'DG',
+    dgGuideTitle: 'DG guide',
     dgWeakestTitle: 'DG hint',
     dgReviewTitle: 'DG says nice work',
     dgReviewBody: 'That review batch is done. Take a beat, then decide if you want another card.',
+    dgLearnBody: 'Take the concept in first, then move into the question when you are ready.',
+    dgAnswerBody: 'Pick the most grounded answer. You do not need to rush this one.',
+    dgCorrectTitle: 'DG says you nailed it',
+    dgCorrectBody: 'Nice hit. Read the hint once, then roll into the next card.',
+    dgWrongTitle: 'DG says keep going',
+    dgWrongBody: 'This one is worth one more calm pass. Lock in the key difference and try again later.',
     reviewCard: 'Review card',
     nextCard: 'Next card',
     reviewSessionActive: 'Review session active. Queue size:',
@@ -469,16 +483,26 @@ const weakestDeckInsightText = computed(() => {
 })
 const assistantHintTone = computed(() => {
   if (reviewCompleted.value) return 'celebration'
+  if (phase.value === 'feedback' && feedback.value?.isCorrect) return 'celebration'
+  if (phase.value === 'feedback' && feedback.value && !feedback.value.isCorrect) return 'warning'
+  if (phase.value === 'answer') return 'focus'
   if (weakestDeck.value) return 'warning'
   return 'neutral'
 })
 const assistantHintTitle = computed(() => {
   if (reviewCompleted.value) return t.value.dgReviewTitle
+  if (phase.value === 'feedback' && feedback.value?.isCorrect) return t.value.dgCorrectTitle
+  if (phase.value === 'feedback' && feedback.value && !feedback.value.isCorrect) return t.value.dgWrongTitle
+  if (phase.value === 'learn' || phase.value === 'answer') return t.value.dgGuideTitle
   if (weakestDeck.value) return t.value.dgWeakestTitle
   return t.value.dgLabel
 })
 const assistantHintText = computed(() => {
   if (reviewCompleted.value) return t.value.dgReviewBody
+  if (phase.value === 'feedback' && feedback.value?.isCorrect) return t.value.dgCorrectBody
+  if (phase.value === 'feedback' && feedback.value && !feedback.value.isCorrect) return t.value.dgWrongBody
+  if (phase.value === 'answer') return t.value.dgAnswerBody
+  if (phase.value === 'learn') return t.value.dgLearnBody
   return weakestDeckInsightText.value || topicDescription.value
 })
 const reviewCompleteBodyText = computed(() => {

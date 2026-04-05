@@ -246,13 +246,23 @@ describe('App', () => {
     await flushPromises()
     await switchToEnglish(wrapper)
 
-    expect(wrapper.find('.assistant-hint').text()).toContain('DG hint')
-    expect(wrapper.find('.assistant-hint').text()).toContain('docker')
+    wrapper.vm.phase = 'feedback'
+    wrapper.vm.feedback = {
+      isCorrect: false,
+      correctAnswer: 'false',
+    }
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.assistant-hint').text()).toContain('DG says keep going')
 
     await wrapper.find('.mode-select select').setValue('languages')
     await flushPromises()
 
-    expect(wrapper.find('.assistant-hint').text()).toContain('go')
+    wrapper.vm.phase = 'learn'
+    wrapper.vm.feedback = null
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.assistant-hint').text()).toContain('Take the concept in first')
 
     await wrapper.find('.assistant-hint').trigger('click')
     await flushPromises()
@@ -273,6 +283,55 @@ describe('App', () => {
     expect(bubble.classes()).toContain('celebration')
     expect(bubble.text()).toContain('DG says nice work')
     expect(bubble.text()).toContain('That review batch is done.')
+  })
+
+  it('uses a focused learn-stage dg prompt before answering', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    const bubble = wrapper.find('.assistant-hint')
+    expect(bubble.text()).toContain('DG guide')
+    expect(bubble.text()).toContain('Take the concept in first')
+  })
+
+  it('switches the dg bubble after a correct answer', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    wrapper.vm.phase = 'feedback'
+    wrapper.vm.feedback = {
+      isCorrect: true,
+      correctAnswer: 'true',
+    }
+    await wrapper.vm.$nextTick()
+
+    const bubble = wrapper.find('.assistant-hint')
+    expect(bubble.classes()).toContain('celebration')
+    expect(bubble.text()).toContain('DG says you nailed it')
+    expect(bubble.text()).toContain('Nice hit.')
+  })
+
+  it('switches the dg bubble after a wrong answer', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    wrapper.vm.phase = 'feedback'
+    wrapper.vm.feedback = {
+      isCorrect: false,
+      correctAnswer: 'false',
+    }
+    await wrapper.vm.$nextTick()
+
+    const bubble = wrapper.find('.assistant-hint')
+    expect(bubble.classes()).toContain('warning')
+    expect(bubble.text()).toContain('DG says keep going')
+    expect(bubble.text()).toContain('This one is worth one more calm pass')
   })
 
   it('keeps diagnostics collapsed by default and shows severity grouping', async () => {
