@@ -20,6 +20,7 @@ type WeakTopic struct {
 type Summary struct {
 	StudiedToday  int             `json:"studiedToday"`
 	CorrectRate   float64         `json:"correctRate"`
+	StudyStreak   int             `json:"studyStreak"`
 	NextReviewAt  string          `json:"nextReviewAt"`
 	WeakTopics    []WeakTopic     `json:"weakTopics"`
 	TopicProgress []TopicProgress `json:"topicProgress"`
@@ -46,11 +47,28 @@ func BuildSummary(allCards []cards.Card, state progress.ProgressFile, now time.T
 	return Summary{
 		StudiedToday:  day.Answered,
 		CorrectRate:   correctRate,
+		StudyStreak:   studyStreak(state.DailySummary, now),
 		NextReviewAt:  nextReviewTime(allCards, state.Cards, now),
 		WeakTopics:    weakTopics(allCards, state.Cards),
 		TopicProgress: progressItems,
 		WeakestDeck:   weakestDeck(progressItems),
 	}
+}
+
+func studyStreak(days map[string]progress.DailySummary, now time.Time) int {
+	streak := 0
+	cursor := now
+
+	for {
+		day := days[cursor.Format("2006-01-02")]
+		if day.Answered <= 0 {
+			break
+		}
+		streak++
+		cursor = cursor.AddDate(0, 0, -1)
+	}
+
+	return streak
 }
 
 func weakestDeck(items []TopicProgress) *TopicProgress {

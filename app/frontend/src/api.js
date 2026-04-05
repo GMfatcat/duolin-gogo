@@ -243,6 +243,7 @@ const fallbackDashboard = {
   },
   summary: {
     nextReviewAt: '2026-04-05T21:00:00+08:00',
+    studyStreak: 3,
     weakTopics: structuredClone(topicWeakTopics.all),
     topicProgress: structuredClone(topicProgressByMode.all),
     weakestDeck: structuredClone(weakestDeckByMode.all),
@@ -294,6 +295,7 @@ export function __resetFallbackState() {
   }
   fallbackDashboard.summary = {
     nextReviewAt: '2026-04-05T21:00:00+08:00',
+    studyStreak: 3,
     weakTopics: structuredClone(topicWeakTopics.all),
     topicProgress: structuredClone(topicProgressByMode.all),
     weakestDeck: structuredClone(weakestDeckByMode.all),

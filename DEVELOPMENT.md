@@ -84,6 +84,7 @@ Next targets:
   - fourth slice implemented: review completion now shows a lightweight session summary with answered count, estimated accuracy, and the weakest current topic
   - fifth slice implemented: standard learn mode now enforces a 3-card mini batch, then shows a short rest state until the current notification interval has passed
   - sixth slice implemented: that learn-break state now also gives a small batch summary so normal learning has the same sense of closure as review mode
+  - seventh slice implemented: dashboard stats and learn/review wrap-ups now surface a simple study streak for daily momentum
 - Phase C: multi-topic expansion
   - prepare the deck model for topics beyond Git
 - support topic-aware summaries and selection filters

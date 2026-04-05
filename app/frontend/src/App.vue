@@ -66,6 +66,8 @@ const translations = {
     studiedToday: '今日作答',
     correctRate: '正答率',
     reviewQueue: '複習佇列',
+    studyStreak: '連續天數',
+    streakUnit: '天',
     nextReview: '下次複習',
     topicLabel: '主題',
     languageLabel: '語言',
@@ -184,6 +186,8 @@ const translations = {
     studiedToday: 'Studied today',
     correctRate: 'Correct rate',
     reviewQueue: 'Review queue',
+    studyStreak: 'Streak',
+    streakUnit: 'days',
     nextReview: 'Next review',
     topicLabel: 'Topic',
     languageLabel: 'Language',
@@ -343,7 +347,7 @@ const availableTopics = computed(() => dashboard.value?.availableTopics ?? ['all
 const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
 const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
-const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [], topicProgress: [], weakestDeck: null })
+const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [], topicProgress: [], weakestDeck: null, studyStreak: 0 })
 const topicProgressItems = computed(() => summary.value?.topicProgress ?? [])
 const weakestDeck = computed(() => summary.value?.weakestDeck ?? null)
 const importErrors = computed(() => dashboard.value?.importErrors ?? [])
@@ -1232,6 +1236,10 @@ function toggleAssistantHint() {
                 </article>
               </div>
               <p class="explanation session-summary-note">
+                {{ t.studyStreak }}:
+                <strong>{{ summary.studyStreak }} {{ t.streakUnit }}</strong>
+              </p>
+              <p class="explanation session-summary-note">
                 {{ t.sessionWeakTopic }}:
                 <strong>{{ learnSessionSummary.weakTopic || t.noSessionWeakTopic }}</strong>
               </p>
@@ -1263,6 +1271,10 @@ function toggleAssistantHint() {
                 <strong>{{ Math.round((sessionSummary.accuracy ?? 0) * 100) }}%</strong>
               </article>
             </div>
+            <p class="explanation session-summary-note">
+              {{ t.studyStreak }}:
+              <strong>{{ summary.studyStreak }} {{ t.streakUnit }}</strong>
+            </p>
             <p class="explanation session-summary-note">
               {{ t.sessionWeakTopic }}:
               <strong>{{ sessionSummary.weakTopic || t.noSessionWeakTopic }}</strong>
@@ -1344,8 +1356,8 @@ function toggleAssistantHint() {
             <strong>{{ formattedCorrectRate }}</strong>
           </article>
           <article class="status-card">
-            <span class="label">{{ t.reviewQueue }}</span>
-            <strong>{{ reviewQueue.length }}</strong>
+            <span class="label">{{ t.studyStreak }}</span>
+            <strong>{{ summary.studyStreak }} {{ t.streakUnit }}</strong>
           </article>
           <article class="status-card review-highlight">
             <span class="label">{{ t.nextReview }}</span>

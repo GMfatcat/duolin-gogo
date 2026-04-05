@@ -75,6 +75,16 @@ describe('App', () => {
     expect(wrapper.find('.settings-meta').text()).toContain('import OK')
   })
 
+  it('shows the current study streak in the sidebar stats', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    expect(wrapper.text()).toContain('Streak')
+    expect(wrapper.text()).toContain('3 days')
+  })
+
   it('uses 20 minutes as the default notification interval', async () => {
     const wrapper = mount(App)
 
@@ -201,6 +211,7 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Session summary')
     expect(wrapper.text()).toContain('67%')
     expect(wrapper.text()).toContain('docker')
+    expect(wrapper.text()).toContain('3 days')
   })
 
   it('shows review session progress cues while a batch is active', async () => {

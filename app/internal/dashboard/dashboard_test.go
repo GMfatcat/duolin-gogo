@@ -28,6 +28,10 @@ func TestBuildSummaryCalculatesStatsAndNextReview(t *testing.T) {
 				Answered: 4,
 				Correct:  3,
 			},
+			"2026-04-04": {
+				Answered: 2,
+				Correct:  2,
+			},
 		},
 	}, now)
 
@@ -37,6 +41,9 @@ func TestBuildSummaryCalculatesStatsAndNextReview(t *testing.T) {
 
 	if summary.CorrectRate != 0.75 {
 		t.Fatalf("expected correct rate 0.75, got %.2f", summary.CorrectRate)
+	}
+	if summary.StudyStreak != 2 {
+		t.Fatalf("expected study streak 2, got %d", summary.StudyStreak)
 	}
 
 	if summary.NextReviewAt == "" {

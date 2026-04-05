@@ -527,6 +527,7 @@ Current status:
 - fourth slice implemented: review completion now includes a lightweight end-of-session summary with answered count, accuracy, and the current weakest topic
 - fifth slice implemented: normal learn mode now pauses after each 3-card mini batch and waits until the next notification interval before unlocking another card
 - sixth slice implemented: the learn-break state now includes a lightweight session summary with answered count, accuracy, and the current topic to revisit
+- seventh slice implemented: dashboard stats and session wrap-ups now expose a simple study streak so day-to-day momentum is visible
 
 ### Next Phase C: Multi-Topic Expansion
 

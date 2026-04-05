@@ -493,6 +493,11 @@ Useful measurements:
 - total attempts
 - weakest 5 concepts
 
+The first streak implementation can stay local and simple:
+
+- count consecutive calendar days with at least one answered card
+- show the streak in the sidebar and in session wrap-up states
+
 ## 16. Acceptance Criteria
 
 The MVP is successful if:
