@@ -674,6 +674,7 @@ Deliverables:
 - eleventh slice implemented: a third wave of practical deck cards now covers Docker networking/storage cleanup, Linux file inspection and movement, Go error/package/receiver concepts, and Python classes/comprehensions/context managers/imports
 - twelfth slice implemented: a fourth wave of practical deck cards now covers Docker compose inspection and env/port workflows, Linux pipes/redirection/counting/xargs, Go interface/context/error-wrapping edge cases, and Python iterator/init/module-boundary workflows
 - thirteenth slice implemented: three new high-value decks now broaden the app into SQL, HTTP, and backend engineering basics, covering query logic and optimization traps, transport/protocol fundamentals, and testing/async/cache design concepts
+- fourteenth slice implemented: the second wave for SQL, HTTP, and backend decks now adds optimization pitfalls, protocol metadata and connection behavior, plus practical retry/TTL/queue/test-double concepts
 - next UI refinement: promote grouped-topic guidance into a top assistant-style hint, collapse diagnostics by default, and replace parallel language/mode controls with dropdown selectors
 - next interaction refinement: evolve the top assistant hint into a lightweight `DG` mascot surface with contextual copy and subtle animation states
 

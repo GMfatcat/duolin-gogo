@@ -120,6 +120,7 @@ Next targets:
 - thirteenth slice implemented: multi-topic decks now have a third practical wave, adding Docker networking/storage cleanup, Linux file movement and log-tail basics, Go error/package/receiver ideas, and Python class/comprehension/context-manager/import concepts
 - fourteenth slice implemented: multi-topic decks now have a fourth practical wave, adding Docker compose inspection and env/port workflows, Linux pipe/redirection/counting/xargs patterns, Go interface/context/error-wrapping edge cases, and Python iterator/init/module-boundary workflows
 - fifteenth slice implemented: the content map now expands beyond tools and languages into three new high-value decks for SQL, HTTP, and backend engineering basics, covering query optimization pitfalls, protocol/transport concepts, and testing/async/cache strategy
+- sixteenth slice implemented: those SQL, HTTP, and backend decks now have a second wave covering join/null/update pitfalls, headers/content-type/keep-alive/TLS handshake/REST, and practical backend patterns such as stubs, E2E tests, retries, TTL, hot keys, and queues
 - next UI refinement queued: move grouped-topic guidance toward the top as an assistant hint, collapse diagnostics by default, and simplify language/topic controls into dropdowns
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting
