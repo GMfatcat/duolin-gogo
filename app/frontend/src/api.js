@@ -1,6 +1,7 @@
 ﻿import {
   GetStudyCard,
   GetDGReaction,
+  GenerateDraftScaffold,
   InteractWithDG,
   LoadAuthoringPreview,
   LoadAuthoringPrompt,
@@ -843,6 +844,60 @@ export async function copyText(text) {
   }
 
   return { message: 'Copied.' }
+}
+
+export async function generateDraftScaffold({ sourceNotes, topic }) {
+  if (hasBackend()) {
+    return GenerateDraftScaffold(sourceNotes, topic)
+  }
+
+  const firstMeaningfulLine =
+    sourceNotes
+      .replaceAll('\r\n', '\n')
+      .split('\n')
+      .map((line) => line.replace(/^#+\s*/, '').trim())
+      .find(Boolean) || `${topic || 'git'} note`
+  const normalizedId = `${topic || 'git'}-${firstMeaningfulLine
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'note-card'}`
+
+  return {
+    raw: `---
+id: ${normalizedId}
+title_zh: ${firstMeaningfulLine}
+title_en: ${firstMeaningfulLine}
+type: true-false
+question_zh: "TODO：把這段筆記改成一個可以判斷對錯的觀念題目。"
+question_en: "TODO: turn this note into a true-or-false concept check."
+clickbait_zh: "這段筆記真正想你記住的是哪個觀念？"
+clickbait_en: "What is the one idea this note is actually trying to teach?"
+review_hint_zh: "TODO：補一句短而好記的提示。"
+review_hint_en: "TODO: add one short memorable hint."
+tags: [${topic || 'git'}]
+difficulty: 2
+answer: false
+enabled: true
+body_format: bilingual-section
+---
+
+## zh-TW
+
+TODO：把下面的原始筆記整理成精簡的繁體中文說明。
+
+原始筆記：
+
+> ${sourceNotes.replaceAll('\r\n', '\n').split('\n').join('\n> ')}
+
+## en
+
+TODO: rewrite the note below into a concise English explanation.
+
+Source note:
+
+> ${sourceNotes.replaceAll('\r\n', '\n').split('\n').join('\n> ')}
+`,
+  }
 }
 
 export async function saveDraft({ raw, topic }) {

@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -1175,6 +1176,31 @@ func TestLoadAuthoringPromptReturnsPromptContent(t *testing.T) {
 	}
 	if result.Content != prompt {
 		t.Fatalf("unexpected prompt content: %q", result.Content)
+	}
+}
+
+func TestGenerateDraftScaffoldBuildsCardShapedMarkdownFromNotes(t *testing.T) {
+	app := newTestApp(t)
+
+	result, err := app.GenerateDraftScaffold("# git fetch\n\nFetch updates remote-tracking refs without merging.", "git")
+	if err != nil {
+		t.Fatalf("generate draft scaffold failed: %v", err)
+	}
+
+	if result.Raw == "" {
+		t.Fatal("expected scaffold markdown")
+	}
+	if !strings.Contains(result.Raw, "id: git-git-fetch") {
+		t.Fatalf("expected scaffold id, got %s", result.Raw)
+	}
+	if !strings.Contains(result.Raw, "title_en: git fetch") {
+		t.Fatalf("expected inferred title, got %s", result.Raw)
+	}
+	if !strings.Contains(result.Raw, "## zh-TW") || !strings.Contains(result.Raw, "## en") {
+		t.Fatal("expected bilingual scaffold sections")
+	}
+	if !strings.Contains(result.Raw, "> Fetch updates remote-tracking refs without merging.") {
+		t.Fatal("expected source notes to be included in scaffold body")
 	}
 }
 

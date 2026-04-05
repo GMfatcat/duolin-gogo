@@ -568,7 +568,7 @@ TDD focus:
 Current status:
 
 - in_progress
-- first slice implemented: common diagnostics now carry direct fix suggestions, and authoring surfaces render those suggestions beside the original error or warning message
+- first slice implemented: batch draft saves now return an import report with saved, skipped, warning, and error counts, plus per-draft outcome details
 
 ### Next Phase A5.5: In-App AI Prompt Viewer
 
@@ -612,7 +612,7 @@ TDD focus:
 Current status:
 
 - in_progress
-- first slice implemented: batch draft saves now return an import report with saved, skipped, warning, and error counts, plus per-draft outcome details
+- first slice implemented: plain Markdown notes can now be scaffolded into a card-shaped draft, then passed directly into the existing draft-review flow inside Library
 
 ### Next Phase B: Session And Progress UX
 
@@ -701,7 +701,7 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
 - first slice implemented: `DG` now has hidden local growth state plus click-to-react behavior, without exposing visible pet stats, levels, or progress bars
 - first slice implemented: the top-shell assistant hint now behaves as a compact `DG` mascot bubble with weak-deck and review-complete states, plus subtle entrance and collapse motion
 - second slice implemented: `DG` now changes tone across learn, answer, correct-feedback, and wrong-feedback states so users can feel the study flow without waiting for review mode

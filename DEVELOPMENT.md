@@ -83,6 +83,7 @@ Next targets:
   - next authoring utility slice: surface the reusable AI card prompt inside the Library popout with a direct copy action
   - fifteenth slice implemented: the reusable AI authoring prompt now lives inside the Library surface with a one-click copy action, so users can generate new cards without leaving the app
   - sixteenth slice implemented: saving reviewed batch drafts now produces an import report with saved/skipped counts and per-draft outcomes, so larger AI-assisted authoring passes are auditable
+  - seventeenth slice implemented: Markdown-to-card assist now turns plain notes into a card-shaped scaffold and feeds that scaffold into the existing draft review flow inside Library
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

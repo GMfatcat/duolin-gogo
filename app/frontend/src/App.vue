@@ -30,6 +30,7 @@ import {
   updateScheduleSettings,
   validateKnowledge,
   copyText,
+  generateDraftScaffold,
 } from './api'
 
 const translations = {
@@ -164,6 +165,10 @@ const translations = {
     aiPrompt: 'AI 產卡 Prompt',
     aiPromptCopy: '複製 Prompt',
     aiPromptHint: '直接把這段 prompt 丟給 LLM，會比較符合目前卡片 schema。',
+    markdownAssist: '筆記轉卡片骨架',
+    markdownAssistInput: '貼上原始筆記',
+    markdownAssistGenerate: '生成草稿骨架',
+    markdownAssistHint: '先把一般筆記轉成卡片骨架，再接著用下方的草稿審查修整。',
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
@@ -296,6 +301,10 @@ const translations = {
     aiPrompt: 'AI card prompt',
     aiPromptCopy: 'Copy prompt',
     aiPromptHint: 'Use this prompt with your LLM to stay closer to the current card schema.',
+    markdownAssist: 'Markdown-to-card assist',
+    markdownAssistInput: 'Paste source notes',
+    markdownAssistGenerate: 'Generate scaffold',
+    markdownAssistHint: 'Turn plain notes into a card-shaped draft first, then refine it through the review flow below.',
   },
 }
 
@@ -365,6 +374,7 @@ const authoringPreview = ref({
   importErrors: [],
 })
 const authoringPrompt = ref('')
+const scaffoldSource = ref('')
 const draftReview = ref({
   raw: '',
   items: [],
@@ -1274,6 +1284,23 @@ async function handleCopyAuthoringPrompt() {
   }
 }
 
+async function handleGenerateDraftScaffold() {
+  try {
+    const result = await generateDraftScaffold({
+      sourceNotes: scaffoldSource.value,
+      topic: draftReview.value.topic,
+    })
+    draftReview.value = {
+      ...draftReview.value,
+      raw: result.raw ?? '',
+    }
+    actionMessage.value = selectedLanguage.value === 'en' ? 'Draft scaffold generated.' : '草稿骨架已產生。'
+    await handleDraftReview()
+  } catch (error) {
+    actionMessage.value = `Scaffold failed: ${error?.message ?? String(error)}`
+  }
+}
+
 async function showPetReaction(trigger) {
   try {
     const result = await getDGReaction(trigger)
@@ -1809,6 +1836,30 @@ async function showPetReaction(trigger) {
                 </button>
               </div>
               <pre class="prompt-viewer">{{ authoringPrompt }}</pre>
+            </section>
+
+            <section class="study-card inset-card preview-panel">
+              <div class="study-header">
+                <div>
+                  <h2>{{ t.markdownAssist }}</h2>
+                </div>
+              </div>
+
+              <p class="explanation compact">{{ t.markdownAssistHint }}</p>
+              <label class="settings-field">
+                <span>{{ t.markdownAssistInput }}</span>
+                <textarea
+                  v-model="scaffoldSource"
+                  class="draft-input"
+                  rows="8"
+                  spellcheck="false"
+                />
+              </label>
+              <div class="draft-actions">
+                <button class="phase-button" type="button" @click="handleGenerateDraftScaffold">
+                  {{ t.markdownAssistGenerate }}
+                </button>
+              </div>
             </section>
 
             <section class="study-card inset-card preview-panel">

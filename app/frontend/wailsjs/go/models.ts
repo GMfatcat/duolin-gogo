@@ -540,6 +540,18 @@ export namespace main {
 		}
 	}
 	
+	export class DraftScaffoldData {
+	    raw: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new DraftScaffoldData(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.raw = source["raw"];
+	    }
+	}
 	export class LearnBreakStatus {
 	    message: string;
 	    unlockAt: string;

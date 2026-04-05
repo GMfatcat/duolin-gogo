@@ -8,6 +8,16 @@ async function switchToEnglish(wrapper) {
   await flushPromises()
 }
 
+function findPreviewPanel(wrapper, heading) {
+  return wrapper
+    .findAll('.preview-panel')
+    .find((panel) => panel.find('h2').exists() && panel.find('h2').text().includes(heading))
+}
+
+function findButtonByText(scope, selector, text) {
+  return scope.findAll(selector).find((button) => button.text().includes(text))
+}
+
 describe('App', () => {
   beforeEach(() => {
     __resetFallbackState()
@@ -639,8 +649,9 @@ git fetch 只會更新遠端追蹤參照，不會直接把變更合併進目前�
 
 git fetch only updates remote-tracking refs and does not merge into the current branch.`
 
-    await wrapper.find('.draft-input').setValue(draft)
-    const reviewButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Review draft'))
+    const reviewPanel = findPreviewPanel(wrapper, 'AI draft review')
+    await reviewPanel.find('.draft-input').setValue(draft)
+    const reviewButton = findButtonByText(reviewPanel, '.phase-button', 'Review draft')
     await reviewButton.trigger('click')
     await flushPromises()
 
@@ -692,8 +703,9 @@ answer: true
 
 Only one language section.`
 
-    await wrapper.find('.draft-input').setValue(batchDraft)
-    const reviewButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Review draft'))
+    const reviewPanel = findPreviewPanel(wrapper, 'AI draft review')
+    await reviewPanel.find('.draft-input').setValue(batchDraft)
+    const reviewButton = findButtonByText(reviewPanel, '.phase-button', 'Review draft')
     await reviewButton.trigger('click')
     await flushPromises()
 
@@ -705,7 +717,7 @@ Only one language section.`
     expect(wrapper.text()).toContain('Suggested fix')
     expect(wrapper.text()).toContain('Add both `## zh-TW` and `## en` sections')
     expect(wrapper.findAll('.batch-review-card').length).toBe(2)
-    const saveButton = wrapper.findAll('.toolbar-button.secondary').find((button) => button.text().includes('Save valid drafts'))
+    const saveButton = findButtonByText(reviewPanel, '.toolbar-button.secondary', 'Save valid drafts')
     expect(saveButton).toBeDefined()
     expect(saveButton.attributes('disabled')).toBeUndefined()
   })
@@ -740,17 +752,19 @@ git fetch 只會更新遠端追蹤參照，不會直接把變更合併進目前�
 
 git fetch only updates remote-tracking refs and does not merge into the current branch.`
 
-    await wrapper.find('.draft-input').setValue(draft)
-    const reviewButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Review draft'))
+    const reviewPanel = findPreviewPanel(wrapper, 'AI draft review')
+    await reviewPanel.find('.draft-input').setValue(draft)
+    const reviewButton = findButtonByText(reviewPanel, '.phase-button', 'Review draft')
     await reviewButton.trigger('click')
     await flushPromises()
-    const secondaryButtons = wrapper.findAll('.toolbar-button.secondary')
-    await secondaryButtons[secondaryButtons.length - 1].trigger('click')
+    const saveButton = findButtonByText(reviewPanel, '.toolbar-button.secondary', 'Save draft')
+    await saveButton.trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('Draft saved to')
     expect(wrapper.text()).toContain('knowledge/git/git-ai-review.md')
-    expect(wrapper.findAll('.preview-card')[0].text()).toContain('Git Fetch')
+    const previewPanel = findPreviewPanel(wrapper, 'Authoring preview')
+    expect(previewPanel.find('.preview-card').text()).toContain('Git Fetch')
   })
 
   it('shows the in-app AI prompt panel and copies the prompt', async () => {
@@ -769,7 +783,8 @@ git fetch only updates remote-tracking refs and does not merge into the current 
     expect(wrapper.text()).toContain('AI card prompt')
     expect(wrapper.text()).toContain('You are generating one Markdown study card for duolin-gogo.')
 
-    const promptButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Copy prompt'))
+    const promptPanel = findPreviewPanel(wrapper, 'AI card prompt')
+    const promptButton = findButtonByText(promptPanel, '.phase-button', 'Copy prompt')
     await promptButton.trigger('click')
     await flushPromises()
 
@@ -821,12 +836,14 @@ answer: true
 
 Only one language section.`
 
-    await wrapper.find('.draft-input').setValue(batchDraft)
-    const reviewButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Review draft'))
+    const reviewPanel = findPreviewPanel(wrapper, 'AI draft review')
+    await reviewPanel.find('.draft-input').setValue(batchDraft)
+    const reviewButton = findButtonByText(reviewPanel, '.phase-button', 'Review draft')
     await reviewButton.trigger('click')
     await flushPromises()
 
-    const saveButton = wrapper.findAll('.toolbar-button.secondary').find((button) => button.text().includes('Save valid drafts'))
+    const saveButton = findButtonByText(reviewPanel, '.toolbar-button.secondary', 'Save valid drafts')
+    expect(saveButton).toBeDefined()
     await saveButton.trigger('click')
     await flushPromises()
 
@@ -835,5 +852,26 @@ Only one language section.`
     expect(wrapper.text()).toContain('Saved')
     expect(wrapper.text()).toContain('Skipped')
     expect(wrapper.text()).toContain('git-import-one')
+  })
+
+  it('generates a card scaffold from plain notes and feeds it into draft review', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+    await wrapper.find('.library-button').trigger('click')
+    await flushPromises()
+
+    const assistPanel = findPreviewPanel(wrapper, 'Markdown-to-card assist')
+    await assistPanel.find('.draft-input').setValue('# git fetch\n\nFetch updates remote-tracking refs without merging.')
+
+    const generateButton = findButtonByText(assistPanel, '.phase-button', 'Generate scaffold')
+    await generateButton.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Draft scaffold generated.')
+    expect(wrapper.text()).toContain('git fetch')
+    expect(wrapper.text()).toContain('TODO: turn this note into a true-or-false concept check.')
+    expect(wrapper.text()).toContain('Fetch updates remote-tracking refs without merging.')
   })
 })

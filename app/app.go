@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -115,6 +116,10 @@ type BatchImportItem struct {
 
 type AuthoringPromptData struct {
 	Content string `json:"content"`
+}
+
+type DraftScaffoldData struct {
+	Raw string `json:"raw"`
 }
 
 type AnswerChoice struct {
@@ -753,6 +758,48 @@ func (a *App) LoadAuthoringPrompt() (AuthoringPromptData, error) {
 	}, nil
 }
 
+func (a *App) GenerateDraftScaffold(sourceNotes string, topic string) (DraftScaffoldData, error) {
+	topic = normalizeTopic(topic)
+	title := inferScaffoldTitle(sourceNotes, topic)
+	id := scaffoldID(topic, title)
+	scaffold := fmt.Sprintf(`---
+id: %s
+title_zh: %s
+title_en: %s
+type: true-false
+question_zh: "TODO：把這段筆記改成一個可以判斷對錯的觀念題目。"
+question_en: "TODO: turn this note into a true-or-false concept check."
+clickbait_zh: "這段筆記真正想你記住的是哪個觀念？"
+clickbait_en: "What is the one idea this note is actually trying to teach?"
+review_hint_zh: "TODO：補一句短而好記的提示。"
+review_hint_en: "TODO: add one short memorable hint."
+tags: [%s]
+difficulty: 2
+answer: false
+enabled: true
+body_format: bilingual-section
+---
+
+## zh-TW
+
+TODO：把下面的原始筆記整理成精簡的繁體中文說明。
+
+原始筆記：
+
+%s
+
+## en
+
+TODO: rewrite the note below into a concise English explanation.
+
+Source note:
+
+%s
+`, id, title, title, topic, indentScaffoldBody(sourceNotes), indentScaffoldBody(sourceNotes))
+
+	return DraftScaffoldData{Raw: scaffold}, nil
+}
+
 func splitDraftBatch(raw string) []string {
 	normalized := strings.ReplaceAll(raw, "\r\n", "\n")
 	normalized = strings.ReplaceAll(normalized, "\n<!-- draft-break -->\n", "\n===\n")
@@ -768,6 +815,43 @@ func splitDraftBatch(raw string) []string {
 	}
 
 	return drafts
+}
+
+func inferScaffoldTitle(sourceNotes string, topic string) string {
+	lines := strings.Split(strings.ReplaceAll(sourceNotes, "\r\n", "\n"), "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(strings.TrimLeft(line, "#-*0123456789. "))
+		if trimmed != "" {
+			return trimmed
+		}
+	}
+
+	return strings.Title(topic) + " Note"
+}
+
+func scaffoldID(topic string, title string) string {
+	normalized := strings.ToLower(title)
+	replacer := strings.NewReplacer(" ", "-", "_", "-", "/", "-", "\\", "-", ":", "", ".", "", ",", "", "`", "", "'", "")
+	normalized = replacer.Replace(normalized)
+	normalized = regexp.MustCompile(`[^a-z0-9-]+`).ReplaceAllString(normalized, "-")
+	normalized = regexp.MustCompile(`-+`).ReplaceAllString(normalized, "-")
+	normalized = strings.Trim(normalized, "-")
+	if normalized == "" {
+		normalized = "note-card"
+	}
+	return fmt.Sprintf("%s-%s", topic, normalized)
+}
+
+func indentScaffoldBody(source string) string {
+	source = strings.TrimSpace(source)
+	if source == "" {
+		return "- TODO: paste or summarize your note here."
+	}
+	lines := strings.Split(strings.ReplaceAll(source, "\r\n", "\n"), "\n")
+	for index, line := range lines {
+		lines[index] = "> " + strings.TrimRight(line, " ")
+	}
+	return strings.Join(lines, "\n")
 }
 
 func toDiagnosticsErrors(items []cards.ImportError) []diagnostics.Error {
