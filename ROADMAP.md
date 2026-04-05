@@ -589,6 +589,31 @@ Current status:
 - first slice implemented: the top-shell assistant hint now behaves as a compact `DG` mascot bubble with weak-deck and review-complete states, plus subtle entrance and collapse motion
 - second slice implemented: `DG` now changes tone across learn, answer, correct-feedback, and wrong-feedback states so users can feel the study flow without waiting for review mode
 
+### Cross-Cut: DG Pet Growth
+
+Goal:
+
+- evolve `DG` from a contextual hint bubble into a lightweight companion that feels more alive over time without turning the app into a visible stats game
+
+Deliverables:
+
+- hidden growth state for `DG`, such as internal bond or stage progression that is not exposed as `xp`, `level`, or public meters
+- click interaction on `DG` so users can poke or greet the mascot directly
+- unlock-based reaction growth, where later usage gradually reveals more lines, moods, and micro-reactions
+- growth driven by real study behavior such as answered cards, completed mini batches, completed review batches, and streak continuation
+- low-noise behavior rules so `DG` does not react on every single event
+
+TDD focus:
+
+- state-transition tests for hidden growth thresholds
+- interaction tests for click-to-react behavior
+- UI tests ensuring unlocked reactions change visible copy without adding public progress meters
+- cooldown tests so repeated clicking does not spam reactions or growth
+
+Current status:
+
+- planned
+
 ### Cross-Cut: Background Running And Tray Lifecycle
 
 Goal:

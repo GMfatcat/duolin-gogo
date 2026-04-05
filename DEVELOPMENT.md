@@ -123,3 +123,9 @@ Next targets:
   - avoid marquee-style motion or persistent animation that competes with reading
   - first slice implemented: the existing top hint is now a `DG` bubble with stateful copy, a lightweight entrance animation, and a compact collapsed badge mode
   - second slice implemented: `DG` now reacts to learn, answer, correct-feedback, and wrong-feedback states with distinct copy and tone, so the mascot stays useful even outside review flows
+- Cross-cut hidden pet growth work
+  - evolve `DG` into a lightweight companion with hidden growth instead of visible game stats
+  - do not expose `xp`, `level`, or progress bars to the user
+  - let growth show up through richer click reactions, more moods, and more familiar tone over time
+  - tie hidden progression to real study behavior such as answered cards, mini-batch completion, review completion, and streak continuation
+  - keep reaction frequency controlled so the companion supports the study loop instead of becoming a toy layer

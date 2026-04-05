@@ -228,6 +228,11 @@ Question types deferred until later:
 - Grouped topic guidance should be promoted closer to the top of the shell as a compact assistant-style hint instead of living only lower in the sidebar
 - The assistant-style hint should evolve into a lightweight `DG` mascot surface that can speak short contextual guidance such as the weakest deck, review completion, or gentle encouragement
 - Mascot motion should stay subtle and low-noise, favoring small entrance, idle, and collapse animations over marquee-like movement
+- `DG` should be able to evolve into a hidden-growth companion:
+  - users should not see explicit `level`, `xp`, or stat bars
+  - growth should instead show up as richer reactions, more varied moods, and slightly more familiar companion behavior over time
+  - growth should come from real study activity such as answered cards, completed mini batches, completed reviews, streak continuation, and occasional direct clicks on `DG`
+  - click interaction should feel playful but should not become a spammy mini-game
 - Language and study-mode controls should converge toward compact dropdown selectors instead of parallel button groups
 - User can dismiss and return later
 
@@ -404,6 +409,11 @@ Suggested review scheduling:
   - lightweight collapse/expand motion
   - small feedback states for review completion or weak-deck reminders
 - avoid continuous marquee or aggressive movement that competes with study content
+- the next mascot layer can introduce hidden pet-style growth:
+  - no visible pet stats
+  - click-to-react interaction
+  - unlockable reaction pools and mood variations
+  - stronger sense of companionship after repeated real study activity
 
 ### 11.4 Review Session Screen
 
