@@ -528,6 +528,7 @@ Current status:
 - fifth slice implemented: normal learn mode now pauses after each 3-card mini batch and waits until the next notification interval before unlocking another card
 - sixth slice implemented: the learn-break state now includes a lightweight session summary with answered count, accuracy, and the current topic to revisit
 - seventh slice implemented: dashboard stats and session wrap-ups now expose a simple study streak so day-to-day momentum is visible
+- eighth slice implemented: when a learn break ends, the next card now starts with a lightweight `new batch ready` cue so the restart boundary is visible
 
 ### Next Phase C: Multi-Topic Expansion
 

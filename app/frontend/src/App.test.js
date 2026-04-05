@@ -236,6 +236,24 @@ describe('App', () => {
     expect(wrapper.text()).toContain('remaining 2')
   })
 
+  it('shows a new-batch cue after a learn break ends', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    wrapper.vm.learnRestartCue = true
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('New batch ready')
+    expect(wrapper.text()).toContain('Cards are open again')
+
+    await wrapper.find('.phase-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain('New batch ready')
+  })
+
   it('switches global shell copy to english without changing the product name', async () => {
     const wrapper = mount(App)
 

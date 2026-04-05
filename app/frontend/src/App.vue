@@ -49,6 +49,8 @@ const translations = {
     learnBreakBody: '這一小輪先到這裡，等下一次提醒再回來會更剛好。',
     learnBreakUnlocksAt: '下一張卡會在這個時間再開放',
     learnBatchAnswered: '這輪完成',
+    learnRestartTitle: '新一輪開始',
+    learnRestartBody: '卡片已經重新開放，慢慢回來就好。',
     learnPhase: '先看觀念',
     answerPhase: '開始作答',
     feedbackPhase: '作答回饋',
@@ -169,6 +171,8 @@ const translations = {
     learnBreakBody: 'This mini study batch is done. Come back on the next notification rhythm.',
     learnBreakUnlocksAt: 'Next card unlocks at',
     learnBatchAnswered: 'Batch answered',
+    learnRestartTitle: 'New batch ready',
+    learnRestartBody: 'Cards are open again. Ease back in with the next one.',
     learnPhase: 'Learn',
     answerPhase: 'Start question',
     feedbackPhase: 'Feedback',
@@ -284,6 +288,7 @@ const resetWarningOpen = ref(false)
 const reviewCompleted = ref(false)
 const learnBreakActive = ref(false)
 const learnResumeTimer = ref(null)
+const learnRestartCue = ref(false)
 const reviewSessionProgress = ref({
   active: false,
   total: 0,
@@ -781,6 +786,12 @@ function resetLearnBreakState() {
   }
 }
 
+async function resumeLearnSession() {
+  resetLearnBreakState()
+  await refreshDashboard()
+  learnRestartCue.value = true
+}
+
 function formatDisplayTime(value, fallback) {
   if (!value) return fallback
   const parsed = new Date(value)
@@ -847,8 +858,7 @@ async function handleNextCard() {
         clearTimeout(learnResumeTimer.value)
       }
       learnResumeTimer.value = setTimeout(async () => {
-        resetLearnBreakState()
-        await refreshDashboard()
+        await resumeLearnSession()
       }, intervalMinutes * 60 * 1000)
       return
     }
@@ -1298,11 +1308,15 @@ function toggleAssistantHint() {
           <p v-if="reviewMode && reviewSessionProgress.active" class="review-progress-line">
             {{ t.reviewProgress }} {{ reviewProgressText }} · {{ t.remainingCards }} {{ reviewSessionProgress.remaining }}
           </p>
+          <div v-if="learnRestartCue && !reviewMode" class="restart-banner">
+            <strong>{{ t.learnRestartTitle }}</strong>
+            <span>{{ t.learnRestartBody }}</span>
+          </div>
           <p class="callout">{{ clickbaitText }}</p>
 
           <div v-if="phase === 'learn'" class="phase-panel">
             <p class="explanation">{{ explanation }}</p>
-            <button class="phase-button" type="button" @click="phase = 'answer'">{{ t.answerPhase }}</button>
+            <button class="phase-button" type="button" @click="learnRestartCue = false; phase = 'answer'">{{ t.answerPhase }}</button>
           </div>
 
           <div v-else-if="phase === 'answer'" class="phase-panel">
