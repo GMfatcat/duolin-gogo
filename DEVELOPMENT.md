@@ -142,3 +142,4 @@ Next targets:
   - seventh slice implemented: pose-specific motion polish now adds clearer one-shot transitions and idle float behavior, so users can actually feel `nod`, `think`, `rest`, `spark`, and `wave` without the mascot becoming visually noisy
   - eighth slice implemented: DG reaction copy is now topic-aware, so focused study scopes like `docker` and grouped scopes like `languages` can sound different from general mixed-mode nudges
   - next visual slice: tighten the shell palette around `DG teal + spark gold`, replacing leftover bright-blue focus accents so the mascot and the app chrome feel like the same system
+  - latest visual slice: that palette now extends through the top controls and popout surfaces as well, so settings, library, diagnostics, and authoring panels read as part of the same mascot-led UI system
