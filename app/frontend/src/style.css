@@ -92,13 +92,18 @@ body {
   cursor: pointer;
   font: inherit;
   text-align: left;
+  transition:
+    max-width 180ms ease,
+    padding 180ms ease,
+    gap 180ms ease,
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+  animation: assistant-enter 220ms ease-out;
 }
 
-.assistant-hint p {
-  margin: 0;
-  color: #f7f3e8;
-  font-size: 0.93rem;
-  line-height: 1.5;
+.assistant-hint:hover {
+  transform: translateY(-1px);
 }
 
 .assistant-hint.collapsed {
@@ -107,6 +112,38 @@ body {
   min-width: 56px;
   max-width: 56px;
   padding: 10px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.assistant-hint.warning {
+  background: rgba(49, 59, 32, 0.52);
+  border-color: rgba(233, 196, 106, 0.3);
+}
+
+.assistant-hint.celebration {
+  background: rgba(25, 72, 64, 0.54);
+  border-color: rgba(42, 157, 143, 0.36);
+}
+
+.assistant-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.assistant-copy strong {
+  color: #f7f3e8;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.assistant-copy p {
+  margin: 0;
+  color: #f7f3e8;
+  font-size: 0.93rem;
+  line-height: 1.5;
 }
 
 .assistant-avatar {
@@ -122,6 +159,24 @@ body {
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
+  box-shadow: inset 0 -2px 0 rgba(16, 33, 47, 0.15);
+}
+
+.assistant-hint.celebration .assistant-avatar {
+  background: #2a9d8f;
+  color: #f7f3e8;
+}
+
+@keyframes assistant-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-actions {

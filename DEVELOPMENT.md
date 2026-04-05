@@ -114,3 +114,4 @@ Next targets:
   - keep motion subtle, contextual, and secondary to the study flow
   - first slices should focus on weak-deck nudges, review-complete encouragement, and compact collapse/expand behavior
   - avoid marquee-style motion or persistent animation that competes with reading
+  - first slice implemented: the existing top hint is now a `DG` bubble with stateful copy, a lightweight entrance animation, and a compact collapsed badge mode

@@ -246,6 +246,7 @@ describe('App', () => {
     await flushPromises()
     await switchToEnglish(wrapper)
 
+    expect(wrapper.find('.assistant-hint').text()).toContain('DG hint')
     expect(wrapper.find('.assistant-hint').text()).toContain('docker')
 
     await wrapper.find('.mode-select select').setValue('languages')
@@ -257,6 +258,21 @@ describe('App', () => {
     await flushPromises()
 
     expect(wrapper.find('.assistant-hint').classes()).toContain('collapsed')
+  })
+
+  it('switches the dg bubble into a review-complete encouragement state', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    wrapper.vm.reviewCompleted = true
+    await wrapper.vm.$nextTick()
+
+    const bubble = wrapper.find('.assistant-hint')
+    expect(bubble.classes()).toContain('celebration')
+    expect(bubble.text()).toContain('DG says nice work')
+    expect(bubble.text()).toContain('That review batch is done.')
   })
 
   it('keeps diagnostics collapsed by default and shows severity grouping', async () => {

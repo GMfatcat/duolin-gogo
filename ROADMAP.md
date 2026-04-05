@@ -582,6 +582,7 @@ TDD focus:
 Current status:
 
 - planned
+- first slice implemented: the top-shell assistant hint now behaves as a compact `DG` mascot bubble with weak-deck and review-complete states, plus subtle entrance and collapse motion
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

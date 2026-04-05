@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
 import {
@@ -23,6 +23,10 @@ import {
 const translations = {
   'zh-TW': {
     summary: '把筆記變成定時提醒、微課與複習節奏。',
+    dgLabel: 'DG',
+    dgWeakestTitle: 'DG 提醒',
+    dgReviewTitle: 'DG 恭喜',
+    dgReviewBody: '這輪複習完成了，先收一下成果，再看要不要繼續下一張。',
     reviewCard: '複習卡',
     nextCard: '下一張卡',
     reviewSessionActive: '複習模式進行中，待答題數：',
@@ -126,6 +130,10 @@ const translations = {
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
+    dgLabel: 'DG',
+    dgWeakestTitle: 'DG hint',
+    dgReviewTitle: 'DG says nice work',
+    dgReviewBody: 'That review batch is done. Take a beat, then decide if you want another card.',
     reviewCard: 'Review card',
     nextCard: 'Next card',
     reviewSessionActive: 'Review session active. Queue size:',
@@ -459,7 +467,20 @@ const weakestDeckInsightText = computed(() => {
     ? `Within ${topicName(selectedTopic.value)}, ${topicName(weakestDeck.value.topic)} is currently slipping the most.`
     : `目前群組內最弱的是 ${topicName(weakestDeck.value.topic)}。`
 })
-const assistantHintText = computed(() => weakestDeckInsightText.value || topicDescription.value)
+const assistantHintTone = computed(() => {
+  if (reviewCompleted.value) return 'celebration'
+  if (weakestDeck.value) return 'warning'
+  return 'neutral'
+})
+const assistantHintTitle = computed(() => {
+  if (reviewCompleted.value) return t.value.dgReviewTitle
+  if (weakestDeck.value) return t.value.dgWeakestTitle
+  return t.value.dgLabel
+})
+const assistantHintText = computed(() => {
+  if (reviewCompleted.value) return t.value.dgReviewBody
+  return weakestDeckInsightText.value || topicDescription.value
+})
 const reviewCompleteBodyText = computed(() => {
   if (selectedTopic.value === 'all') {
     return t.value.reviewCompleteBody
@@ -945,12 +966,15 @@ function toggleAssistantHint() {
         <button
           v-if="assistantHintText"
           class="assistant-hint"
-          :class="{ collapsed: assistantHintCollapsed }"
+          :class="[assistantHintTone, { collapsed: assistantHintCollapsed }]"
           type="button"
           @click="toggleAssistantHint"
         >
-          <span class="assistant-avatar">dg</span>
-          <p v-if="!assistantHintCollapsed">{{ assistantHintText }}</p>
+          <span class="assistant-avatar">{{ t.dgLabel }}</span>
+          <div v-if="!assistantHintCollapsed" class="assistant-copy">
+            <strong>{{ assistantHintTitle }}</strong>
+            <p>{{ assistantHintText }}</p>
+          </div>
         </button>
       </div>
 
