@@ -139,3 +139,4 @@ Next targets:
   - fourth slice implemented: ambient pet reactions now use low-noise cooldown/probability rules, and DG bubbles expose lightweight pose states like `nod`, `think`, `rest`, and `spark` so the UI can show subtle micro-expression changes
   - fifth slice implemented: the DG badge has now been replaced in-app by the first mascot asset pack, with SVG pose assets wired to the existing `pose-*` states and a dedicated collapsed-badge asset for the compact mode
   - sixth slice implemented: the mascot SVGs have already been compressed substantially after initial import, so the app keeps the new character visuals without carrying the original heavier asset footprint
+  - seventh slice implemented: pose-specific motion polish now adds clearer one-shot transitions and idle float behavior, so users can actually feel `nod`, `think`, `rest`, `spark`, and `wave` without the mascot becoming visually noisy

@@ -625,6 +625,7 @@ Current status:
 - fourth slice implemented: low-noise rules now let some ambient `correct` and `wrong` cues stay quiet, while always-on moments like breaks, returns, and review completion still react; DG also now exposes lightweight pose states for micro-expression styling
 - fifth slice implemented: Mascot V1 is now integrated into the top DG bubble using pose-mapped SVG assets for `idle`, `wave`, `nod`, `think`, `rest`, `spark`, plus a dedicated collapsed badge asset
 - sixth slice implemented: the first mascot asset pack has already been SVG-compressed for lighter frontend delivery while keeping the pose mapping intact
+- seventh slice implemented: pose-specific motion polish now makes `idle`, `wave`, `nod`, `think`, `rest`, and `spark` transitions easier to notice without turning DG into a noisy animated element
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 
