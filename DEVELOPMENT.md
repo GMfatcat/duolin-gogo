@@ -73,6 +73,12 @@ Next targets:
   - tenth slice implemented: batch report diagnostics can now be filtered by severity and topic
   - eleventh slice implemented: batch report now includes a recently changed cards summary using authoring preview file timestamps
   - twelfth slice implemented: settings tools now include a guarded `Reset study data` action that clears local progress and attempts only after an explicit confirmation step
+  - next authoring slices:
+    - A4: batch draft review for reviewing multiple pasted AI drafts in one pass
+    - A5: fix suggestions layered on top of diagnostics
+    - A6: batch import report for larger AI-assisted save operations
+    - A7: Markdown-to-card assist for turning plain notes into draft scaffolds
+  - thirteenth slice implemented: AI draft review now supports batch input with `===` separators, per-draft normalized previews, and per-draft diagnostics in one pass
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

@@ -647,6 +647,63 @@ git fetch only updates remote-tracking refs and does not merge into the current 
     expect(wrapper.text()).toContain('git fetch only updates remote-tracking refs and does not merge into the current branch')
   })
 
+  it('reviews multiple pasted drafts as separate batch items', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+    await wrapper.find('.library-button').trigger('click')
+    await flushPromises()
+
+    const batchDraft = `---
+id: git-batch-one
+title_zh: 第一張
+title_en: First Draft
+type: true-false
+question_zh: "git fetch 會 merge。"
+question_en: "git fetch merges."
+clickbait_zh: "第一張草稿"
+clickbait_en: "First draft"
+review_hint_zh: "fetch 不會 merge。"
+review_hint_en: "fetch does not merge."
+answer: false
+---
+
+## zh-TW
+
+第一張草稿內容。
+
+## en
+
+First draft body.
+
+===
+
+---
+id: git-batch-two
+title: Broken
+type: true-false
+question: "broken?"
+answer: true
+---
+
+## zh-TW
+
+Only one language section.`
+
+    await wrapper.find('.draft-input').setValue(batchDraft)
+    await wrapper.findAll('.phase-button')[1].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Draft 1')
+    expect(wrapper.text()).toContain('First Draft')
+    expect(wrapper.text()).toContain('Draft 2')
+    expect(wrapper.text()).toContain('Needs fixes')
+    expect(wrapper.text()).toContain('missing_language_section')
+    expect(wrapper.findAll('.batch-review-card').length).toBe(2)
+    expect(wrapper.findAll('.toolbar-button.secondary')[wrapper.findAll('.toolbar-button.secondary').length - 1].attributes('disabled')).toBeDefined()
+  })
+
   it('saves a reviewed draft and reports the saved path', async () => {
     const wrapper = mount(App)
 

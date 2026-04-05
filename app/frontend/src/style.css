@@ -1370,3 +1370,23 @@ body {
     padding: 12px;
   }
 }
+.field-hint {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.draft-review-results {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.batch-review-card.valid {
+  border-color: rgba(23, 168, 181, 0.28);
+  box-shadow: 0 12px 24px rgba(9, 29, 42, 0.24);
+}
+
+.batch-review-card.invalid {
+  border-color: rgba(217, 107, 87, 0.24);
+}

@@ -970,6 +970,73 @@ This AI draft card relies on fallback fields.`
 	}
 }
 
+func TestReviewDraftReturnsPerDraftResultsForBatchInput(t *testing.T) {
+	app := newTestApp(t)
+
+	raw := `---
+id: git-batch-valid
+title_en: Batch Valid
+title_zh: 批次有效
+type: true-false
+question_en: "git fetch merges immediately."
+question_zh: "git fetch 會立刻 merge。"
+clickbait_en: "Looks quiet, right?"
+clickbait_zh: "看起來很安靜？"
+review_hint_en: "Fetch does not merge."
+review_hint_zh: "fetch 不會 merge。"
+answer: false
+---
+
+## zh-TW
+
+git fetch 只會更新遠端追蹤資訊。
+
+## en
+
+git fetch only updates remote-tracking refs.
+
+===
+
+---
+id: git-batch-broken
+title: Broken Batch
+type: true-false
+question: "Broken?"
+answer: true
+---
+
+## zh-TW
+
+Only one language section.`
+
+	result, err := app.ReviewDraft(raw)
+	if err != nil {
+		t.Fatalf("review draft batch failed: %v", err)
+	}
+
+	if len(result.Items) != 2 {
+		t.Fatalf("expected 2 review items, got %d", len(result.Items))
+	}
+	if !result.Items[0].Valid || result.Items[0].CurrentCard == nil {
+		t.Fatal("expected first draft to be valid")
+	}
+	if result.Items[0].CurrentCard.ID != "git-batch-valid" {
+		t.Fatalf("unexpected first draft id: %s", result.Items[0].CurrentCard.ID)
+	}
+	if result.Items[1].Valid {
+		t.Fatal("expected second draft to be invalid")
+	}
+	if result.Items[1].CurrentCard != nil {
+		t.Fatal("expected no preview card for broken draft")
+	}
+	if len(result.Items[1].ImportErrors) == 0 {
+		t.Fatal("expected diagnostics for broken draft")
+	}
+	if result.Items[1].ImportErrors[0].Code != "missing_language_section" {
+		t.Fatalf("unexpected diagnostic code: %s", result.Items[1].ImportErrors[0].Code)
+	}
+}
+
 func TestSaveDraftPersistsMarkdownIntoTopicFolder(t *testing.T) {
 	app := newTestApp(t)
 

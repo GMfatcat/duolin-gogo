@@ -147,6 +147,11 @@ const translations = {
     noDraftYet: '貼上草稿後，就可以在這裡看到 normalized preview 與診斷。',
     saveDraft: '儲存草稿',
     draftTopic: '主題資料夾',
+    draftDividerHint: '用 `===` 分隔多張草稿。',
+    draftBatchItem: '草稿',
+    draftValid: '可用',
+    draftNeedsFix: '需修正',
+    saveSingleDraftOnly: '批次審查時請先逐張修完，再單張儲存。',
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
@@ -264,6 +269,11 @@ const translations = {
     noDraftYet: 'Paste a draft to inspect the normalized preview and diagnostics here.',
     saveDraft: 'Save draft',
     draftTopic: 'Topic folder',
+    draftDividerHint: 'Separate multiple drafts with `===`.',
+    draftBatchItem: 'Draft',
+    draftValid: 'Ready',
+    draftNeedsFix: 'Needs fixes',
+    saveSingleDraftOnly: 'Save is available when one reviewed draft is active.',
   },
 }
 
@@ -334,6 +344,7 @@ const authoringPreview = ref({
 })
 const draftReview = ref({
   raw: '',
+  items: [],
   currentCard: null,
   importErrors: [],
   topic: 'git',
@@ -372,8 +383,10 @@ const scheduleSettings = computed(() =>
 const previewCard = computed(() => authoringPreview.value?.currentCard ?? null)
 const previewFiles = computed(() => authoringPreview.value?.files ?? [])
 const previewErrors = computed(() => authoringPreview.value?.importErrors ?? [])
+const draftReviewItems = computed(() => draftReview.value?.items ?? [])
 const draftReviewErrors = computed(() => draftReview.value?.importErrors ?? [])
 const draftReviewCard = computed(() => draftReview.value?.currentCard ?? null)
+const canSaveDraft = computed(() => draftReviewItems.value.length === 1 && !!draftReviewCard.value)
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
 const reviewProgressText = computed(() => {
   if (!reviewSessionProgress.value.active || reviewSessionProgress.value.total <= 0) return ''
@@ -1011,6 +1024,7 @@ async function handleDraftReview() {
   const result = await reviewDraft(draftReview.value.raw)
   draftReview.value = {
     ...draftReview.value,
+    items: result.items ?? [],
     currentCard: result.currentCard ?? null,
     importErrors: result.importErrors ?? [],
   }
@@ -1678,13 +1692,14 @@ async function showPetReaction(trigger) {
 
             <label class="settings-field">
               <span>{{ t.draftInput }}</span>
-              <textarea
-                v-model="draftReview.raw"
-                class="draft-input"
-                rows="12"
-                spellcheck="false"
-              />
-            </label>
+                <textarea
+                  v-model="draftReview.raw"
+                  class="draft-input"
+                  rows="12"
+                  spellcheck="false"
+                />
+                <small class="field-hint">{{ t.draftDividerHint }}</small>
+              </label>
 
             <label class="settings-field">
               <span>{{ t.draftTopic }}</span>
@@ -1693,48 +1708,63 @@ async function showPetReaction(trigger) {
               </select>
             </label>
 
-            <div class="draft-actions">
-              <button class="phase-button" type="button" @click="handleDraftReview">{{ t.reviewDraft }}</button>
-              <button
-                class="toolbar-button secondary"
-                type="button"
-                :disabled="!draftReviewCard"
-                @click="handleSaveDraft"
-              >
-                {{ t.saveDraft }}
-              </button>
-            </div>
+              <div class="draft-actions">
+                <button class="phase-button" type="button" @click="handleDraftReview">{{ t.reviewDraft }}</button>
+                <button
+                  class="toolbar-button secondary"
+                  type="button"
+                  :disabled="!canSaveDraft"
+                  @click="handleSaveDraft"
+                >
+                  {{ t.saveDraft }}
+                </button>
+              </div>
 
-            <div v-if="draftReviewCard" class="preview-card">
-              <p class="label">{{ t.draftPreview }}</p>
-              <strong>{{ selectedLanguage === 'en' ? draftReviewCard.titleEn : draftReviewCard.titleZh }}</strong>
-              <p class="callout compact">{{ selectedLanguage === 'en' ? draftReviewCard.clickbaitEn : draftReviewCard.clickbaitZh }}</p>
-              <p class="explanation compact">{{ selectedLanguage === 'en' ? draftReviewCard.explanationEn : draftReviewCard.explanationZh }}</p>
-              <p class="label">{{ selectedLanguage === 'en' ? draftReviewCard.questionTextEn : draftReviewCard.questionTextZh }}</p>
-            </div>
-            <p v-else class="explanation">{{ t.noDraftYet }}</p>
-
-            <div class="preview-diagnostics">
-              <span class="label">{{ t.previewDiagnostics }}</span>
-              <div v-if="draftReviewErrors.length" class="diagnostics-list compact">
+              <div v-if="draftReviewItems.length" class="draft-review-results">
                 <article
-                  v-for="item in draftReviewErrors"
-                  :key="`draft-${item.source_path}-${item.code}-${item.field || ''}`"
-                  class="diagnostic-item"
-                  :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'"
+                  v-for="item in draftReviewItems"
+                  :key="`draft-review-${item.index}`"
+                  class="preview-card batch-review-card"
+                  :class="item.valid ? 'valid' : 'invalid'"
                 >
                   <div class="diagnostic-head">
-                    <span class="severity-pill" :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'">
-                      {{ severityLabel(item) }}
+                    <span class="label">{{ t.draftBatchItem }} {{ item.index }}</span>
+                    <span class="severity-pill" :class="item.valid ? 'warning' : 'error'">
+                      {{ item.valid ? t.draftValid : t.draftNeedsFix }}
                     </span>
-                    <strong>{{ item.code }}</strong>
                   </div>
-                  <p>{{ item.message }}</p>
+                  <template v-if="item.currentCard">
+                    <strong>{{ selectedLanguage === 'en' ? item.currentCard.titleEn : item.currentCard.titleZh }}</strong>
+                    <p class="callout compact">{{ selectedLanguage === 'en' ? item.currentCard.clickbaitEn : item.currentCard.clickbaitZh }}</p>
+                    <p class="explanation compact">{{ selectedLanguage === 'en' ? item.currentCard.explanationEn : item.currentCard.explanationZh }}</p>
+                    <p class="label">{{ selectedLanguage === 'en' ? item.currentCard.questionTextEn : item.currentCard.questionTextZh }}</p>
+                  </template>
+
+                  <div class="preview-diagnostics">
+                    <span class="label">{{ t.previewDiagnostics }}</span>
+                    <div v-if="item.importErrors.length" class="diagnostics-list compact">
+                      <article
+                        v-for="error in item.importErrors"
+                        :key="`draft-${item.index}-${error.source_path}-${error.code}-${error.field || ''}`"
+                        class="diagnostic-item"
+                        :class="(error.severity || 'error') === 'warning' ? 'warning' : 'error'"
+                      >
+                        <div class="diagnostic-head">
+                          <span class="severity-pill" :class="(error.severity || 'error') === 'warning' ? 'warning' : 'error'">
+                            {{ severityLabel(error) }}
+                          </span>
+                          <strong>{{ error.code }}</strong>
+                        </div>
+                        <p>{{ error.message }}</p>
+                      </article>
+                    </div>
+                    <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
+                  </div>
                 </article>
               </div>
-              <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
-            </div>
-          </section>
+              <p v-else class="explanation">{{ t.noDraftYet }}</p>
+              <p v-if="draftReviewItems.length > 1" class="field-hint">{{ t.saveSingleDraftOnly }}</p>
+            </section>
         </div>
 
         <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>

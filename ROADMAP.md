@@ -498,6 +498,97 @@ Current status:
 
 - completed
 
+### Next Phase A4: Batch Draft Review
+
+Goal:
+
+- let authors review multiple AI-generated Markdown drafts in one pass before saving anything into `knowledge/`
+
+Deliverables:
+
+- accept multiple pasted Markdown drafts in a single review surface
+- split the raw input into draft-sized review units
+- validate each draft independently
+- show per-draft pass, warning, or error state
+- show normalized preview per draft instead of only one global preview
+- keep save actions scoped to reviewed items rather than forcing an all-or-nothing flow
+
+TDD focus:
+
+- backend tests for mixed valid/invalid draft batches
+- frontend tests for rendering multiple review results from one paste
+- per-item diagnostics tests for valid, warning, and error cases
+
+Current status:
+
+- in_progress
+- first slice implemented: pasted AI Markdown can now be split into multiple drafts with `===`, reviewed per item, and rendered as separate normalized preview cards with their own diagnostics
+
+### Next Phase A5: Fix Suggestions
+
+Goal:
+
+- turn diagnostics into direct authoring guidance instead of only error reporting
+
+Deliverables:
+
+- suggest likely fixes for common draft and card issues
+- explain missing bilingual sections and field mismatches in plain language
+- surface the most important fix first for each broken draft
+- keep suggestions visible beside diagnostics in preview and batch review flows
+
+TDD focus:
+
+- tests for mapping parser codes to human-readable fix suggestions
+- UI tests for suggestion rendering alongside diagnostics
+
+Current status:
+
+- planned
+
+### Next Phase A6: Batch Import Report
+
+Goal:
+
+- make larger AI-assisted content imports easier to audit and trust
+
+Deliverables:
+
+- summarize imported, skipped, warned, and errored cards for a batch operation
+- show per-topic import breakdown
+- make recently added or changed cards easy to identify after a batch save
+
+TDD focus:
+
+- aggregation tests for batch import summaries
+- UI tests for grouped report rendering after multi-card import operations
+
+Current status:
+
+- planned
+
+### Next Phase A7: Markdown-To-Card Assist
+
+Goal:
+
+- help authors convert plain technical notes into card-shaped Markdown drafts faster
+
+Deliverables:
+
+- accept general-purpose Markdown notes as source input
+- scaffold a draft card structure from that input
+- preserve bilingual and schema expectations in the generated scaffold
+- keep the result reviewable through the same draft-review flow
+
+TDD focus:
+
+- conversion tests for scaffold generation
+- validation tests for generated draft skeletons
+
+Current status:
+
+- planned
+
 ### Next Phase B: Session And Progress UX
 
 Goal:

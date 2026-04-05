@@ -76,8 +76,16 @@ type AuthoringPreviewData struct {
 }
 
 type DraftReviewData struct {
+	Items        []DraftReviewItem     `json:"items"`
 	CurrentCard  *StudyCard          `json:"currentCard"`
 	ImportErrors []diagnostics.Error `json:"importErrors"`
+}
+
+type DraftReviewItem struct {
+	Index        int                 `json:"index"`
+	CurrentCard  *StudyCard          `json:"currentCard"`
+	ImportErrors []diagnostics.Error `json:"importErrors"`
+	Valid        bool                `json:"valid"`
 }
 
 type SaveDraftStatus struct {
@@ -593,30 +601,40 @@ func (a *App) PreviewKnowledgeCard(path string) (AuthoringPreviewData, error) {
 }
 
 func (a *App) ReviewDraft(raw string) (DraftReviewData, error) {
-	result, err := cards.PreviewDraft("draft://ai-card.md", raw)
-	if err != nil {
-		return DraftReviewData{}, err
+	drafts := splitDraftBatch(raw)
+	if len(drafts) == 0 {
+		drafts = []string{strings.TrimSpace(raw)}
 	}
 
-	diagnosticItems := make([]diagnostics.Error, 0, len(result.Errors))
-	for _, item := range result.Errors {
-		diagnosticItems = append(diagnosticItems, diagnostics.Error{
-			SourcePath: item.SourcePath,
-			Severity:   item.Severity,
-			Code:       item.Code,
-			Field:      item.Field,
-			Message:    item.Message,
+	items := make([]DraftReviewItem, 0, len(drafts))
+	for index, draft := range drafts {
+		result, err := cards.PreviewDraft(fmt.Sprintf("draft://ai-card-%d.md", index+1), draft)
+		if err != nil {
+			return DraftReviewData{}, err
+		}
+
+		var previewCard *StudyCard
+		if result.Card != nil {
+			previewCard = studyCardFromCard(*result.Card, a.nowFunc())
+		}
+
+		items = append(items, DraftReviewItem{
+			Index:        index + 1,
+			CurrentCard:  previewCard,
+			ImportErrors: toDiagnosticsErrors(result.Errors),
+			Valid:        result.Card != nil,
 		})
 	}
 
-	var previewCard *StudyCard
-	if result.Card != nil {
-		previewCard = studyCardFromCard(*result.Card, a.nowFunc())
+	first := DraftReviewItem{}
+	if len(items) > 0 {
+		first = items[0]
 	}
 
 	return DraftReviewData{
-		CurrentCard:  previewCard,
-		ImportErrors: diagnosticItems,
+		Items:        items,
+		CurrentCard:  first.CurrentCard,
+		ImportErrors: first.ImportErrors,
 	}, nil
 }
 
@@ -647,6 +665,38 @@ func (a *App) SaveDraft(raw string, topic string) (SaveDraftStatus, error) {
 		Topic:      topic,
 		Successful: true,
 	}, nil
+}
+
+func splitDraftBatch(raw string) []string {
+	normalized := strings.ReplaceAll(raw, "\r\n", "\n")
+	normalized = strings.ReplaceAll(normalized, "\n<!-- draft-break -->\n", "\n===\n")
+
+	parts := strings.Split(normalized, "\n===\n")
+	drafts := make([]string, 0, len(parts))
+	for _, part := range parts {
+		trimmed := strings.TrimSpace(part)
+		if trimmed == "" {
+			continue
+		}
+		drafts = append(drafts, trimmed)
+	}
+
+	return drafts
+}
+
+func toDiagnosticsErrors(items []cards.ImportError) []diagnostics.Error {
+	diagnosticItems := make([]diagnostics.Error, 0, len(items))
+	for _, item := range items {
+		diagnosticItems = append(diagnosticItems, diagnostics.Error{
+			SourcePath: item.SourcePath,
+			Severity:   item.Severity,
+			Code:       item.Code,
+			Field:      item.Field,
+			Message:    item.Message,
+		})
+	}
+
+	return diagnosticItems
 }
 
 func (a *App) UpdateNotificationSettings(style string, titleMode string) (ActionStatus, error) {

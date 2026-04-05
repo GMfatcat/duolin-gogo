@@ -442,6 +442,9 @@ Suggested review scheduling:
 - AI-generated drafts should be reviewable against the same schema before saving into `knowledge/`
 - the first AI-draft implementation can use a pasted Markdown textarea plus normalized preview and diagnostics before any save flow exists
 - whole-deck validation should later support grouped warning/error review for batch AI generation
+- the next authoring slice should support batch draft review, so multiple pasted drafts can be validated and previewed independently in one pass
+- later authoring slices should add fix suggestions, batch import reporting, and Markdown-to-card scaffolding
+- the first batch-draft implementation should use a simple delimiter such as `===` so several AI-generated drafts can be reviewed in one review panel before any save step
 
 ## 12. Local Storage Strategy
 

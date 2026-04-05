@@ -763,46 +763,65 @@ export async function reviewDraft(raw) {
     return ReviewDraft(raw)
   }
 
-  if (!raw.includes('## zh-TW') || !raw.includes('## en')) {
-    return {
-      currentCard: null,
-      importErrors: [
-        {
-          source_path: 'draft://ai-card.md',
-          severity: 'error',
-          code: 'missing_language_section',
-          field: 'body',
-          message: 'Body must contain both ## zh-TW and ## en sections.',
-        },
-      ],
-    }
-  }
+  const splitDrafts = raw
+    .replaceAll('\r\n', '\n')
+    .replaceAll('\n<!-- draft-break -->\n', '\n===\n')
+    .split('\n===\n')
+    .map((item) => item.trim())
+    .filter(Boolean)
 
-  const pickField = (name) => {
-    const match = raw.match(new RegExp(`^${name}:\\s*"?(.+?)"?$`, 'm'))
+  const pickField = (source, name) => {
+    const match = source.match(new RegExp(`^${name}:\\s*"?(.+?)"?$`, 'm'))
     return match ? match[1] : ''
   }
 
+  const items = (splitDrafts.length ? splitDrafts : [raw]).map((draft, index) => {
+    if (!draft.includes('## zh-TW') || !draft.includes('## en')) {
+      return {
+        index: index + 1,
+        currentCard: null,
+        importErrors: [
+          {
+            source_path: `draft://ai-card-${index + 1}.md`,
+            severity: 'error',
+            code: 'missing_language_section',
+            field: 'body',
+            message: 'Body must contain both ## zh-TW and ## en sections.',
+          },
+        ],
+        valid: false,
+      }
+    }
+
+    return {
+      index: index + 1,
+      currentCard: {
+        ...cloneCard('git'),
+        id: pickField(draft, 'id') || fallbackCardsByTopic.git.id,
+        title: pickField(draft, 'title_en') || pickField(draft, 'title') || fallbackCardsByTopic.git.title,
+        titleZh: pickField(draft, 'title_zh') || pickField(draft, 'title') || fallbackCardsByTopic.git.titleZh,
+        titleEn: pickField(draft, 'title_en') || pickField(draft, 'title') || fallbackCardsByTopic.git.titleEn,
+        questionText: pickField(draft, 'question_en') || pickField(draft, 'question') || fallbackCardsByTopic.git.questionText,
+        questionTextZh: pickField(draft, 'question_zh') || pickField(draft, 'question') || fallbackCardsByTopic.git.questionTextZh,
+        questionTextEn: pickField(draft, 'question_en') || pickField(draft, 'question') || fallbackCardsByTopic.git.questionTextEn,
+        clickbait: pickField(draft, 'clickbait_en') || pickField(draft, 'clickbait') || fallbackCardsByTopic.git.clickbait,
+        clickbaitZh: pickField(draft, 'clickbait_zh') || pickField(draft, 'clickbait') || fallbackCardsByTopic.git.clickbaitZh,
+        clickbaitEn: pickField(draft, 'clickbait_en') || pickField(draft, 'clickbait') || fallbackCardsByTopic.git.clickbaitEn,
+        reviewHint: pickField(draft, 'review_hint_en') || pickField(draft, 'review_hint') || fallbackCardsByTopic.git.reviewHint,
+        reviewHintZh: pickField(draft, 'review_hint_zh') || pickField(draft, 'review_hint') || fallbackCardsByTopic.git.reviewHintZh,
+        reviewHintEn: pickField(draft, 'review_hint_en') || pickField(draft, 'review_hint') || fallbackCardsByTopic.git.reviewHintEn,
+        explanationZh: draft.split('## zh-TW')[1]?.split('## en')[0]?.trim() || fallbackCardsByTopic.git.explanationZh,
+        explanationEn: draft.split('## en')[1]?.trim() || fallbackCardsByTopic.git.explanationEn,
+      },
+      importErrors: [],
+      valid: true,
+    }
+  })
+
   return {
-    currentCard: {
-      ...cloneCard('git'),
-      id: pickField('id') || fallbackCardsByTopic.git.id,
-      title: pickField('title_en') || pickField('title') || fallbackCardsByTopic.git.title,
-      titleZh: pickField('title_zh') || pickField('title') || fallbackCardsByTopic.git.titleZh,
-      titleEn: pickField('title_en') || pickField('title') || fallbackCardsByTopic.git.titleEn,
-      questionText: pickField('question_en') || pickField('question') || fallbackCardsByTopic.git.questionText,
-      questionTextZh: pickField('question_zh') || pickField('question') || fallbackCardsByTopic.git.questionTextZh,
-      questionTextEn: pickField('question_en') || pickField('question') || fallbackCardsByTopic.git.questionTextEn,
-      clickbait: pickField('clickbait_en') || pickField('clickbait') || fallbackCardsByTopic.git.clickbait,
-      clickbaitZh: pickField('clickbait_zh') || pickField('clickbait') || fallbackCardsByTopic.git.clickbaitZh,
-      clickbaitEn: pickField('clickbait_en') || pickField('clickbait') || fallbackCardsByTopic.git.clickbaitEn,
-      reviewHint: pickField('review_hint_en') || pickField('review_hint') || fallbackCardsByTopic.git.reviewHint,
-      reviewHintZh: pickField('review_hint_zh') || pickField('review_hint') || fallbackCardsByTopic.git.reviewHintZh,
-      reviewHintEn: pickField('review_hint_en') || pickField('review_hint') || fallbackCardsByTopic.git.reviewHintEn,
-      explanationZh: raw.split('## zh-TW')[1]?.split('## en')[0]?.trim() || fallbackCardsByTopic.git.explanationZh,
-      explanationEn: raw.split('## en')[1]?.trim() || fallbackCardsByTopic.git.explanationEn,
-    },
-    importErrors: [],
+    items,
+    currentCard: items[0]?.currentCard ?? null,
+    importErrors: items[0]?.importErrors ?? [],
   }
 }
 
