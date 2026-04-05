@@ -668,6 +668,7 @@ Deliverables:
 - eighth slice implemented: grouped topic modes now surface the weakest deck inside the group, so presets like `languages` can directly point back to `go` or `python`
 - ninth slice implemented: Learn-phase concept copy now reveals line by line with a lightweight staggered animation and replay control, so short knowledge notes feel more guided without slowing the whole card flow
 - tenth slice implemented: reveal timing is now user-configurable through Settings with simple fast/normal/slow options, so guided intros can match different reading preferences
+- eleventh slice implemented: a third wave of practical deck cards now covers Docker networking/storage cleanup, Linux file inspection and movement, Go error/package/receiver concepts, and Python classes/comprehensions/context managers/imports
 - next UI refinement: promote grouped-topic guidance into a top assistant-style hint, collapse diagnostics by default, and replace parallel language/mode controls with dropdown selectors
 - next interaction refinement: evolve the top assistant hint into a lightweight `DG` mascot surface with contextual copy and subtle animation states
 
