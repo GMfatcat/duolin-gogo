@@ -137,3 +137,5 @@ Next targets:
   - second slice implemented: stage-aware reactions now differentiate direct clicks from correct/wrong answers, learn breaks, review completion, and returning after a pause
   - third slice implemented: those trigger-specific reactions now rotate through multi-line pools at each hidden stage, so DG feels more alive without adding visible progression UI
   - fourth slice implemented: ambient pet reactions now use low-noise cooldown/probability rules, and DG bubbles expose lightweight pose states like `nod`, `think`, `rest`, and `spark` so the UI can show subtle micro-expression changes
+  - fifth slice implemented: the DG badge has now been replaced in-app by the first mascot asset pack, with SVG pose assets wired to the existing `pose-*` states and a dedicated collapsed-badge asset for the compact mode
+  - sixth slice implemented: the mascot SVGs have already been compressed substantially after initial import, so the app keeps the new character visuals without carrying the original heavier asset footprint

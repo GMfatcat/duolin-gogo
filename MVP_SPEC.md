@@ -557,7 +557,25 @@ For Windows-first usage, the app should behave like a lightweight background uti
 
 The first implementation may defer minimize-to-tray behavior if close-to-tray is stable first.
 
-## 19. Recommended MVP Delivery Order
+## 20. DG Mascot Delivery Notes
+
+The companion layer is no longer only a text badge.
+
+Current mascot baseline:
+
+- `DG` now uses real mascot SVG assets inside the top assistant bubble
+- pose switching already maps to:
+  - `idle`
+  - `wave`
+  - `nod`
+  - `think`
+  - `rest`
+  - `spark`
+- collapsed mode uses a dedicated compact badge asset
+- mascot growth remains hidden from the user and only shows up through richer reactions and pose changes
+- the first imported SVG pack has already been compressed to reduce frontend asset weight
+
+## 21. Recommended MVP Delivery Order
 
 ### Phase 1: Core Content + Study Loop
 
@@ -587,7 +605,7 @@ The first implementation may defer minimize-to-tray behavior if close-to-tray is
 - staged study flow with clearer next actions
 - global i18n across shell copy
 
-## 20. Open Decisions For Framework Discussion
+## 22. Open Decisions For Framework Discussion
 
 - Desktop shell: Tauri or Electron
 - Frontend: React, Svelte, or another lightweight UI layer
@@ -595,7 +613,7 @@ The first implementation may defer minimize-to-tray behavior if close-to-tray is
 - Scheduler: in-app timer only or OS-level scheduled trigger fallback
 - Markdown parser: strict frontmatter schema vs forgiving parser
 
-## 21. Recommendation
+## 23. Recommendation
 
 For this product shape, the MVP should optimize for:
 
