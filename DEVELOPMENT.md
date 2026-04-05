@@ -109,6 +109,7 @@ Next targets:
   - move detailed diagnostics and batch validation into a dedicated diagnostics popout
   - implemented: the top-right chrome now uses separate gear and book buttons so authoring tools no longer crowd the main settings surface
   - implemented: diagnostics and batch validation now use their own top-right popout so the library surface stays shorter and cleaner
+  - the shell eyebrow copy can be playful and separate from the main `duolin-gogo` product title
 - Cross-cut mascot and motion work
   - evolve the top assistant hint into a `DG` mascot surface
   - keep motion subtle, contextual, and secondary to the study flow

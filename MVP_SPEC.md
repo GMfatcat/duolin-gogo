@@ -379,7 +379,8 @@ Suggested review scheduling:
 - separate library/authoring popout: authoring preview, AI draft review, detailed diagnostics, batch validation, recently changed cards
 - import health should be summarized inline near the settings title, with detailed diagnostics only expanded when issues exist
 - active-hours values should be editable from the same settings popout so users can debug notification timing without hand-editing JSON
-- keep `duolin-gogo` as the only fixed product label across languages
+- keep `duolin-gogo` as the primary fixed product label across languages
+- a playful eyebrow or slogan line above the main title is allowed to vary independently from the product name
 - all other shell copy should follow the selected global UI language
 - visible time values should use `YYYY-MM-DD HH:mm` style formatting
 - avoid duplicated `next review` summaries across multiple cards in the sidebar

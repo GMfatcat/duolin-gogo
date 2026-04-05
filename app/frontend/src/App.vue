@@ -983,7 +983,7 @@ function toggleAssistantHint() {
   <main class="shell">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">duolin-gogo</p>
+        <p class="eyebrow">THE CLICK-BATE MASTER</p>
         <h1>duolin-gogo</h1>
         <p class="summary">{{ t.summary }}</p>
         <p class="topic-context">{{ topicDescription }}</p>
