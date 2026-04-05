@@ -86,6 +86,7 @@ Next targets:
   - sixth slice implemented: that learn-break state now also gives a small batch summary so normal learning has the same sense of closure as review mode
   - seventh slice implemented: dashboard stats and learn/review wrap-ups now surface a simple study streak for daily momentum
   - eighth slice implemented: when a learn break expires, the next card now re-enters with a visible `new batch ready` cue instead of silently resuming
+  - current state: the first session/progress baseline is complete, so future work here can focus on stronger gamification or pet-layer progression instead of core flow fixes
 - Phase C: multi-topic expansion
   - prepare the deck model for topics beyond Git
 - support topic-aware summaries and selection filters
