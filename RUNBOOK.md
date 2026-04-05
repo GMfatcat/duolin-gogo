@@ -102,6 +102,7 @@ Expected current UI behavior:
 
 - one study card is shown
 - `zh-TW` / `en` buttons switch explanation language
+- `Topic` can switch between mixed mode and one focused deck
 - answer options can be selected
 - `Submit answer` shows correctness feedback
 - studied-today / correct-rate values update
@@ -132,6 +133,7 @@ Current useful controls:
 - active review batches now show explicit progress cues for completed, total, and remaining cards
 - the review completion state now includes a lightweight session summary with answered count, estimated accuracy, and the weakest current topic
 - `zh-TW` / `en` language toggle
+- topic-aware messaging now reflects whether you are in mixed mode or focused on one deck
 - separate top-right `Settings`, `Library`, and `Diagnostics` buttons
 - answer submission
 

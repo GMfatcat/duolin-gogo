@@ -72,6 +72,13 @@ body {
   min-height: 3.2em;
 }
 
+.topic-context {
+  margin: 0;
+  color: #9fb3c3;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
 .hero-actions {
   display: flex;
   align-items: center;
@@ -161,6 +168,10 @@ body {
 
 .schedule-pill {
   color: #e9c46a;
+}
+
+.topic-pill {
+  text-transform: none;
 }
 
 .callout {

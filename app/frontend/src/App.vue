@@ -356,6 +356,54 @@ const localizedChoices = computed(() =>
 
 const formattedCorrectRate = computed(() => `${Math.round((stats.value.correctRate ?? 0) * 100)}%`)
 const nextReviewText = computed(() => formatDisplayTime(summary.value.nextReviewAt, t.value.notScheduled))
+const topicDisplayLabel = computed(() => {
+  if (selectedTopic.value === 'all') {
+    return selectedLanguage.value === 'en' ? 'Mixed mode' : '混合模式'
+  }
+  return selectedTopic.value
+})
+const topicDescription = computed(() => {
+  if (selectedTopic.value === 'all') {
+    return selectedLanguage.value === 'en'
+      ? 'Drawing cards from every topic.'
+      : '目前會從所有主題一起抽題。'
+  }
+  return selectedLanguage.value === 'en'
+    ? `Focused on ${selectedTopic.value}.`
+    : `目前專注在 ${selectedTopic.value} 主題。`
+})
+const weakTopicsHeading = computed(() => {
+  if (selectedTopic.value === 'all') {
+    return t.value.weakTopicsTitle
+  }
+  return selectedLanguage.value === 'en'
+    ? `${selectedTopic.value} concepts to revisit`
+    : `${selectedTopic.value} 建議多看幾次`
+})
+const noWeakTopicsText = computed(() => {
+  if (selectedTopic.value === 'all') {
+    return t.value.noWeakTopics
+  }
+  return selectedLanguage.value === 'en'
+    ? `No weak ${selectedTopic.value} concepts yet. Keep studying to generate insights.`
+    : `目前還沒有特別弱的 ${selectedTopic.value} 主題，繼續學習就會慢慢有輪廓。`
+})
+const reviewCompleteBodyText = computed(() => {
+  if (selectedTopic.value === 'all') {
+    return t.value.reviewCompleteBody
+  }
+  return selectedLanguage.value === 'en'
+    ? `You finished this ${selectedTopic.value} review batch. Take a beat, then jump back into the next card when ready.`
+    : `你完成了這輪 ${selectedTopic.value} 複習。休息一下，準備好後再進下一張卡。`
+})
+const noCardsBodyText = computed(() => {
+  if (selectedTopic.value === 'all') {
+    return t.value.noCardsBody
+  }
+  return selectedLanguage.value === 'en'
+    ? `No cards are available for ${selectedTopic.value} right now. Add valid bilingual cards or inspect diagnostics.`
+    : `目前沒有可用的 ${selectedTopic.value} 卡片。可以新增雙語卡片，或先查看匯入診斷。`
+})
 const diagnosticsSummary = computed(() => {
   if (warningCount.value === 0 && errorCount.value === 0) {
     return `(${t.value.importHealthOk})`
@@ -813,6 +861,7 @@ function toggleDiagnostics() {
         <p class="eyebrow">duolin-gogo</p>
         <h1>duolin-gogo</h1>
         <p class="summary">{{ t.summary }}</p>
+        <p class="topic-context">{{ topicDescription }}</p>
       </div>
 
       <div class="hero-actions">
@@ -910,7 +959,7 @@ function toggleDiagnostics() {
           <p v-if="reviewSessionProgress.total" class="review-progress-line">
             {{ t.reviewProgress }} {{ reviewProgressText }}
           </p>
-          <p class="callout">{{ t.reviewCompleteBody }}</p>
+          <p class="callout">{{ reviewCompleteBodyText }}</p>
           <div v-if="sessionSummary.visible" class="session-summary">
             <p class="label">{{ t.sessionSummaryTitle }}</p>
             <div class="session-summary-grid">
@@ -989,7 +1038,7 @@ function toggleDiagnostics() {
               <h2>{{ t.noCardsTitle }}</h2>
             </div>
           </div>
-          <p class="explanation">{{ t.noCardsBody }}</p>
+          <p class="explanation">{{ noCardsBodyText }}</p>
         </section>
       </div>
 
@@ -1017,8 +1066,9 @@ function toggleDiagnostics() {
           <div class="study-header">
             <div>
               <p class="label">{{ t.weakTopicsLabel }}</p>
-              <h2>{{ t.weakTopicsTitle }}</h2>
+              <h2>{{ weakTopicsHeading }}</h2>
             </div>
+            <span class="phase-pill topic-pill">{{ topicDisplayLabel }}</span>
           </div>
 
           <div v-if="summary.weakTopics.length" class="weak-topics">
@@ -1027,7 +1077,7 @@ function toggleDiagnostics() {
               <span>{{ Math.round(topic.accuracy * 100) }}% {{ t.accuracySuffix }}</span>
             </article>
           </div>
-          <p v-else class="explanation">{{ t.noWeakTopics }}</p>
+          <p v-else class="explanation">{{ noWeakTopicsText }}</p>
         </section>
       </aside>
     </section>

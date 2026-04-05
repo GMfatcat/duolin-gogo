@@ -539,6 +539,7 @@ Deliverables:
 - dashboard summaries grouped by topic
 - support for decks such as `docker`, `linux`, `go`, and `python`
 - first slice implemented: a global topic filter now drives next-card selection, review queue composition, and filtered dashboard summaries
+- second slice implemented: the UI now makes mixed-mode versus focused-topic study clearer with topic-aware copy and weak-topic framing
 
 TDD focus:
 

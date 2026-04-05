@@ -198,6 +198,8 @@ describe('App', () => {
 
     expect(wrapper.text()).toContain('docker run')
     expect(wrapper.find('.study-header h2').text()).toContain('docker run')
+    expect(wrapper.text()).toContain('目前專注在 docker 主題。')
+    expect(wrapper.text()).toContain('docker 建議多看幾次')
   })
 
   it('distinguishes import warnings from import errors inside diagnostics popout', async () => {
