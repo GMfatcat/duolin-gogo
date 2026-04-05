@@ -514,7 +514,7 @@ func (a *App) StartLearnBreak() (LearnBreakStatus, error) {
 
 func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 	config := a.mustLoadSettings()
-	cache, err := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	cache, err := cards.LoadCache(filepath.Join(a.dataDir, "cards-cache.gob"))
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
@@ -536,7 +536,7 @@ func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 
 func (a *App) GetDGReaction(trigger string) (DGInteractionStatus, error) {
 	config := a.mustLoadSettings()
-	cache, err := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	cache, err := cards.LoadCache(filepath.Join(a.dataDir, "cards-cache.gob"))
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
@@ -1006,7 +1006,7 @@ func (a *App) UpdateSelectedTopic(topic string) (ActionStatus, error) {
 		return ActionStatus{}, err
 	}
 
-	cache, err := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	cache, err := cards.LoadCache(filepath.Join(a.dataDir, "cards-cache.gob"))
 	if err != nil {
 		return ActionStatus{}, err
 	}
@@ -1046,11 +1046,7 @@ func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime
 }
 
 func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error) {
-	if _, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir); err != nil {
-		return cards.CacheFile{}, progress.ProgressFile{}, "", err
-	}
-
-	cache, err := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	cache, _, err := cards.EnsureKnowledgeCache(a.knowledgeDir, a.dataDir)
 	if err != nil {
 		return cards.CacheFile{}, progress.ProgressFile{}, "", err
 	}
@@ -1064,7 +1060,7 @@ func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error
 }
 
 func (a *App) previewKnowledgeCard(path string, files []string) (AuthoringPreviewData, error) {
-	cache, _ := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	cache, _ := cards.LoadCache(filepath.Join(a.dataDir, "cards-cache.gob"))
 	cacheByPath := make(map[string]cards.Card, len(cache.Cards))
 	for _, card := range cache.Cards {
 		if card.SourcePath == "" {
@@ -1161,20 +1157,6 @@ func authoringTopicFromPath(path string) string {
 		return match[1]
 	}
 	return ""
-}
-
-func loadCache(path string) (cards.CacheFile, error) {
-	bytes, err := os.ReadFile(path)
-	if err != nil {
-		return cards.CacheFile{}, err
-	}
-
-	var cache cards.CacheFile
-	if err := json.Unmarshal(bytes, &cache); err != nil {
-		return cards.CacheFile{}, err
-	}
-
-	return cache, nil
 }
 
 func loadProgress(path string) (progress.ProgressFile, error) {

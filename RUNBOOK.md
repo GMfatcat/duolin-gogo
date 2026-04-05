@@ -262,7 +262,7 @@ It still does not include controls such as:
 
 If the app appears to work but you want to verify state changes, inspect:
 
-- `D:\duolin-gogo\data\cards-cache.json`
+- `D:\duolin-gogo\data\cards-cache.gob`
 - `D:\duolin-gogo\data\progress.json`
 - `D:\duolin-gogo\data\attempts.jsonl`
 - `D:\duolin-gogo\data\import-errors.json`

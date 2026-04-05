@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 )
 
 func TestScanDirectoriesParsesValidBilingualCard(t *testing.T) {
@@ -142,7 +144,7 @@ answer: true
 
 func TestWriteOutputsPersistsCacheAndErrors(t *testing.T) {
 	dir := t.TempDir()
-	cachePath := filepath.Join(dir, "cards-cache.json")
+	cachePath := filepath.Join(dir, "cards-cache.gob")
 	errorPath := filepath.Join(dir, "import-errors.json")
 
 	result := ImportResult{
@@ -173,7 +175,7 @@ func TestWriteOutputsPersistsCacheAndErrors(t *testing.T) {
 		},
 	}
 
-	if err := WriteCache(cachePath, result.Cards); err != nil {
+	if err := WriteCache(cachePath, CacheFile{Cards: result.Cards}); err != nil {
 		t.Fatalf("write cache failed: %v", err)
 	}
 
@@ -181,14 +183,9 @@ func TestWriteOutputsPersistsCacheAndErrors(t *testing.T) {
 		t.Fatalf("write import errors failed: %v", err)
 	}
 
-	cacheBytes, err := os.ReadFile(cachePath)
+	cache, err := LoadCache(cachePath)
 	if err != nil {
-		t.Fatalf("read cache failed: %v", err)
-	}
-
-	var cache CacheFile
-	if err := json.Unmarshal(cacheBytes, &cache); err != nil {
-		t.Fatalf("unmarshal cache failed: %v", err)
+		t.Fatalf("load cache failed: %v", err)
 	}
 
 	if len(cache.Cards) != 1 {
@@ -301,12 +298,146 @@ answer: false
 		t.Fatalf("expected 1 import error, got %d", len(result.Errors))
 	}
 
-	if _, err := os.Stat(filepath.Join(dataDir, "cards-cache.json")); err != nil {
-		t.Fatalf("expected cards-cache.json to exist: %v", err)
+	if _, err := os.Stat(filepath.Join(dataDir, "cards-cache.gob")); err != nil {
+		t.Fatalf("expected cards-cache.gob to exist: %v", err)
 	}
 
 	if _, err := os.Stat(filepath.Join(dataDir, "import-errors.json")); err != nil {
 		t.Fatalf("expected import-errors.json to exist: %v", err)
+	}
+}
+
+func TestEnsureKnowledgeCacheReusesGobWhenKnowledgeUnchanged(t *testing.T) {
+	dir := t.TempDir()
+	knowledgeDir := filepath.Join(dir, "knowledge", "git")
+	dataDir := filepath.Join(dir, "data")
+	if err := os.MkdirAll(knowledgeDir, 0o755); err != nil {
+		t.Fatalf("mkdir failed: %v", err)
+	}
+
+	cardPath := filepath.Join(knowledgeDir, "fetch.md")
+	content := `---
+id: git-fetch-cache
+title_en: Git Fetch
+title_zh: Git Fetch
+type: true-false
+question_en: "Fetch updates remote-tracking refs without merging."
+question_zh: "Fetch 會更新 remote-tracking refs，但不直接 merge。"
+answer: true
+---
+
+## zh-TW
+
+第一行
+第二行
+
+## en
+
+Line one
+Line two
+`
+
+	if err := os.WriteFile(cardPath, []byte(content), 0o644); err != nil {
+		t.Fatalf("write card failed: %v", err)
+	}
+
+	first, rebuilt, err := EnsureKnowledgeCache(filepath.Join(dir, "knowledge"), dataDir)
+	if err != nil {
+		t.Fatalf("ensure cache failed: %v", err)
+	}
+	if !rebuilt {
+		t.Fatal("expected first ensure to rebuild cache")
+	}
+
+	cachePath := filepath.Join(dataDir, "cards-cache.gob")
+	infoBefore, err := os.Stat(cachePath)
+	if err != nil {
+		t.Fatalf("stat cache failed: %v", err)
+	}
+
+	second, rebuilt, err := EnsureKnowledgeCache(filepath.Join(dir, "knowledge"), dataDir)
+	if err != nil {
+		t.Fatalf("ensure cache second run failed: %v", err)
+	}
+	if rebuilt {
+		t.Fatal("expected unchanged knowledge to reuse cache")
+	}
+
+	infoAfter, err := os.Stat(cachePath)
+	if err != nil {
+		t.Fatalf("stat cache after failed: %v", err)
+	}
+
+	if first.KnowledgeFingerprint == "" || second.KnowledgeFingerprint == "" {
+		t.Fatal("expected knowledge fingerprint to be populated")
+	}
+	if first.KnowledgeFingerprint != second.KnowledgeFingerprint {
+		t.Fatal("expected identical fingerprints for unchanged knowledge")
+	}
+	if !infoBefore.ModTime().Equal(infoAfter.ModTime()) {
+		t.Fatal("expected cache file mtime to stay the same when knowledge is unchanged")
+	}
+}
+
+func TestEnsureKnowledgeCacheRebuildsAfterKnowledgeChange(t *testing.T) {
+	dir := t.TempDir()
+	knowledgeDir := filepath.Join(dir, "knowledge", "git")
+	dataDir := filepath.Join(dir, "data")
+	if err := os.MkdirAll(knowledgeDir, 0o755); err != nil {
+		t.Fatalf("mkdir failed: %v", err)
+	}
+
+	cardPath := filepath.Join(knowledgeDir, "fetch.md")
+	content := `---
+id: git-fetch-cache-rebuild
+title_en: Git Fetch
+title_zh: Git Fetch
+type: true-false
+question_en: "Fetch updates remote refs."
+question_zh: "Fetch 會更新 remote refs。"
+answer: true
+---
+
+## zh-TW
+
+原始內容
+
+## en
+
+Original content
+`
+
+	if err := os.WriteFile(cardPath, []byte(content), 0o644); err != nil {
+		t.Fatalf("write card failed: %v", err)
+	}
+
+	first, rebuilt, err := EnsureKnowledgeCache(filepath.Join(dir, "knowledge"), dataDir)
+	if err != nil {
+		t.Fatalf("ensure cache failed: %v", err)
+	}
+	if !rebuilt {
+		t.Fatal("expected first ensure to rebuild cache")
+	}
+
+	time.Sleep(20 * time.Millisecond)
+	updated := strings.Replace(content, "Original content", "Updated content", 1)
+	if err := os.WriteFile(cardPath, []byte(updated), 0o644); err != nil {
+		t.Fatalf("rewrite card failed: %v", err)
+	}
+
+	second, rebuilt, err := EnsureKnowledgeCache(filepath.Join(dir, "knowledge"), dataDir)
+	if err != nil {
+		t.Fatalf("ensure cache second run failed: %v", err)
+	}
+	if !rebuilt {
+		t.Fatal("expected changed knowledge to rebuild cache")
+	}
+
+	if first.KnowledgeFingerprint == second.KnowledgeFingerprint {
+		t.Fatal("expected fingerprint to change after markdown edit")
+	}
+	if len(second.Cards) != 1 || !strings.Contains(second.Cards[0].BodyMarkdownEN, "Updated content") {
+		t.Fatalf("expected rebuilt cache to include updated content, got %#v", second.Cards)
 	}
 }
 

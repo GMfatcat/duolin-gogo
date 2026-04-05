@@ -7,7 +7,7 @@ Recommended MVP stack:
 - Desktop shell: `Wails`
 - Core runtime: `Go`
 - Frontend: `Vue 3`
-- Storage: `JSON + JSONL`
+- Storage: `JSON + JSONL`, plus a Go-native `gob` cache for parsed cards
 - Content source: local `Markdown`
 - Notification style: Windows toast notification
 
@@ -129,7 +129,7 @@ That maps well to `JSON` and `JSONL`.
 Recommended local files:
 
 - `data/settings.json`
-- `data/cards-cache.json`
+- `data/cards-cache.gob`
 - `data/progress.json`
 - `data/attempts.jsonl`
 
@@ -149,7 +149,7 @@ Move to SQLite later if one or more become true:
 - you want richer analytics or filtering
 - you need stronger consistency guarantees
 
-For MVP, `JSON + JSONL` is the right simplicity/performance tradeoff.
+For MVP, `JSON + JSONL` plus a lightweight `gob` cache is the right simplicity/performance tradeoff.
 
 ## 10. Proposed File Responsibilities
 
@@ -179,9 +179,9 @@ Stores user preferences:
 - review batch size
 - preferred language
 
-### `cards-cache.json`
+### `cards-cache.gob`
 
-Stores parsed card data derived from Markdown:
+Stores parsed card data derived from Markdown in a Go-native binary cache:
 
 - card id
 - source path
@@ -190,6 +190,7 @@ Stores parsed card data derived from Markdown:
 - content hash or modified time
 
 This lets the app avoid reparsing every file on every action.
+The cache can be reused whenever the knowledge-tree fingerprint is unchanged.
 
 ### `progress.json`
 
@@ -359,7 +360,7 @@ duolin-gogo/
   knowledge/
   data/
     settings.json
-    cards-cache.json
+    cards-cache.gob
     progress.json
     attempts.jsonl
   MVP_SPEC.md
@@ -625,7 +626,7 @@ The best-fit technical direction for this product is:
 - `Vue 3` for a very small UI layer
 - `Markdown` as the editable content source
 - bilingual Markdown card content in the same file
-- `JSON + JSONL` for MVP persistence
+- `JSON + JSONL` for user-facing runtime state, plus `gob` for parsed card cache
 - Windows toast notifications for study prompts
 
 This direction keeps the app:

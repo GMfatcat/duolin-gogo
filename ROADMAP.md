@@ -86,7 +86,7 @@ Deliverables:
 - bilingual body section parser for `zh-TW` and `en`
 - schema validation
 - import error reporting to `data/import-errors.json`
-- valid card cache written to `data/cards-cache.json`
+- valid card cache written to `data/cards-cache.gob`
 
 TDD focus:
 
@@ -423,6 +423,7 @@ Current status:
 - first slice implemented: the reusable prompt from `AI_CARD_PROMPT.md` now loads inside the Library surface and can be copied directly from the app
 - latest slice implemented: the authoring workspace is now split into `Library` and `AI`, and authoring preview has a built-in search flow so larger decks can be browsed without relying on one long file dropdown
 - latest refinement: note-to-card assist moved back into `Library`, the `AI` workspace now centers on prompt plus draft review, and draft saves can target sanitized custom topic folders for newly created decks
+- latest infrastructure slice: parsed knowledge cards now persist to `data/cards-cache.gob`, and startup can reuse that gob cache whenever the knowledge fingerprint is unchanged
 
 ### Next Phase A1: Card Preview
 

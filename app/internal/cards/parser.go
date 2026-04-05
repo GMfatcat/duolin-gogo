@@ -1,6 +1,8 @@
 package cards
 
 import (
+	"crypto/sha256"
+	"encoding/gob"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -68,9 +70,17 @@ type PreviewResult struct {
 }
 
 type CacheFile struct {
-	Version     int    `json:"version"`
-	GeneratedAt string `json:"generated_at"`
-	Cards       []Card `json:"cards"`
+	Version             int            `json:"version"`
+	GeneratedAt         string         `json:"generated_at"`
+	KnowledgeFingerprint string        `json:"knowledge_fingerprint,omitempty"`
+	SourceFiles         []CacheSource  `json:"source_files,omitempty"`
+	Cards               []Card         `json:"cards"`
+}
+
+type CacheSource struct {
+	Path            string `json:"path"`
+	ModifiedUnixNano int64 `json:"modified_unix_nano"`
+	Size            int64  `json:"size"`
 }
 
 type ImportErrorsFile struct {
@@ -157,14 +167,18 @@ func ScanDirectories(paths []string) (ImportResult, error) {
 	return result, nil
 }
 
-func WriteCache(path string, cards []Card) error {
-	cache := CacheFile{
-		Version:     1,
-		GeneratedAt: time.Now().Format(time.RFC3339),
-		Cards:       cards,
+func WriteCache(path string, cache CacheFile) error {
+	cache.Version = 2
+	if cache.GeneratedAt == "" {
+		cache.GeneratedAt = time.Now().Format(time.RFC3339)
 	}
 
-	return writeJSON(path, cache)
+	switch strings.ToLower(filepath.Ext(path)) {
+	case ".gob":
+		return writeGOB(path, cache)
+	default:
+		return writeJSON(path, cache)
+	}
 }
 
 func WriteImportErrors(path string, errs []ImportError) error {
@@ -187,7 +201,18 @@ func RefreshKnowledge(knowledgeDir, dataDir string) (ImportResult, error) {
 		return ImportResult{}, err
 	}
 
-	if err := WriteCache(filepath.Join(dataDir, "cards-cache.json"), result.Cards); err != nil {
+	sources, err := SnapshotKnowledgeFiles([]string{knowledgeDir})
+	if err != nil {
+		return ImportResult{}, err
+	}
+
+	cache := CacheFile{
+		KnowledgeFingerprint: fingerprintKnowledgeFiles(sources),
+		SourceFiles:          sources,
+		Cards:                result.Cards,
+	}
+
+	if err := WriteCache(filepath.Join(dataDir, "cards-cache.gob"), cache); err != nil {
 		return ImportResult{}, err
 	}
 
@@ -196,6 +221,33 @@ func RefreshKnowledge(knowledgeDir, dataDir string) (ImportResult, error) {
 	}
 
 	return result, nil
+}
+
+func EnsureKnowledgeCache(knowledgeDir, dataDir string) (CacheFile, bool, error) {
+	sources, err := SnapshotKnowledgeFiles([]string{knowledgeDir})
+	if err != nil {
+		return CacheFile{}, false, err
+	}
+
+	cachePath := filepath.Join(dataDir, "cards-cache.gob")
+	fingerprint := fingerprintKnowledgeFiles(sources)
+	if cache, err := LoadCache(cachePath); err == nil {
+		if cache.Version >= 2 && cache.KnowledgeFingerprint == fingerprint {
+			return cache, false, nil
+		}
+	}
+
+	result, err := RefreshKnowledge(knowledgeDir, dataDir)
+	if err != nil {
+		return CacheFile{}, false, err
+	}
+
+	cache, err := LoadCache(cachePath)
+	if err != nil {
+		return CacheFile{}, false, err
+	}
+	cache.Cards = result.Cards
+	return cache, true, nil
 }
 
 func ListMarkdownFiles(paths []string) ([]string, error) {
@@ -376,10 +428,16 @@ func buildCard(path string, fm frontmatter, body string) (Card, []ImportError, *
 		modifiedAt = info.ModTime().Format(time.RFC3339)
 	}
 
+	sourceHash := ""
+	if bodyHash, err := os.ReadFile(path); err == nil {
+		sourceHash = fmt.Sprintf("sha256:%x", sha256.Sum256(bodyHash))
+	}
+
 	return Card{
 		ID:               strings.TrimSpace(fm.ID),
 		SourcePath:       path,
 		SourceModifiedAt: modifiedAt,
+		SourceHash:       sourceHash,
 		Enabled:          enabled,
 		Title:            localizeText(fm.TitleEN, fm.Title, fm.TitleZH),
 		TitleZH:          localizeText(fm.TitleZH, fm.Title, fm.TitleEN),
@@ -603,4 +661,76 @@ func writeJSON(path string, v any) error {
 	}
 
 	return os.WriteFile(path, append(bytes, '\n'), 0o644)
+}
+
+func writeGOB(path string, v any) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return gob.NewEncoder(file).Encode(v)
+}
+
+func LoadCache(path string) (CacheFile, error) {
+	switch strings.ToLower(filepath.Ext(path)) {
+	case ".gob":
+		file, err := os.Open(path)
+		if err != nil {
+			return CacheFile{}, err
+		}
+		defer file.Close()
+
+		var cache CacheFile
+		if err := gob.NewDecoder(file).Decode(&cache); err != nil {
+			return CacheFile{}, err
+		}
+		return cache, nil
+	default:
+		bytes, err := os.ReadFile(path)
+		if err != nil {
+			return CacheFile{}, err
+		}
+
+		var cache CacheFile
+		if err := json.Unmarshal(bytes, &cache); err != nil {
+			return CacheFile{}, err
+		}
+
+		return cache, nil
+	}
+}
+
+func SnapshotKnowledgeFiles(paths []string) ([]CacheSource, error) {
+	files, err := ListMarkdownFiles(paths)
+	if err != nil {
+		return nil, err
+	}
+
+	sources := make([]CacheSource, 0, len(files))
+	for _, path := range files {
+		info, err := os.Stat(path)
+		if err != nil {
+			return nil, err
+		}
+		sources = append(sources, CacheSource{
+			Path:             filepath.Clean(path),
+			ModifiedUnixNano: info.ModTime().UnixNano(),
+			Size:             info.Size(),
+		})
+	}
+	return sources, nil
+}
+
+func fingerprintKnowledgeFiles(sources []CacheSource) string {
+	h := sha256.New()
+	for _, source := range sources {
+		fmt.Fprintf(h, "%s|%d|%d\n", source.Path, source.ModifiedUnixNano, source.Size)
+	}
+	return fmt.Sprintf("sha256:%x", h.Sum(nil))
 }

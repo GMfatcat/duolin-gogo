@@ -41,7 +41,7 @@ knowledge/
 
 data/
   settings.json
-  cards-cache.json
+  cards-cache.gob
   progress.json
   attempts.jsonl
   import-errors.json
@@ -621,18 +621,32 @@ Suggested schema:
 - `prefer_manual`: use localized hand-authored clickbait first, then generated fallback
 - `prefer_generated`: use the offline hook generator first, then hand-authored fallback
 
-## 6. `data/cards-cache.json` Schema
+## 6. `data/cards-cache.gob` Schema
 
 Purpose:
 
 - store parsed card snapshots so runtime does not need to fully reparse everything on every action
+- persist a Go-native binary cache that can be reused when the knowledge tree fingerprint is unchanged
 
-Suggested schema:
+Implementation note:
+
+- the on-disk file is encoded with Go `gob`
+- the structure below is shown in JSON-like form only for readability
+
+Suggested logical schema:
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "generated_at": "2026-04-04T18:30:00+08:00",
+  "knowledge_fingerprint": "sha256:example",
+  "source_files": [
+    {
+      "path": "D:\\duolin-gogo\\knowledge\\git\\rebase.md",
+      "modified_unix_nano": 1775297700000000000,
+      "size": 1432
+    }
+  ],
   "cards": [
     {
       "id": "git-rebase-vs-merge",
@@ -665,7 +679,9 @@ Suggested schema:
 
 ### Notes
 
-- `source_hash` can be file-content hash or omitted in first implementation
+- `knowledge_fingerprint` should be derived from source file metadata, such as path + modified time + size
+- `source_files` are used to decide whether the gob cache can be reused safely on startup or rescan
+- `source_hash` can store a per-file content hash for debugging and future migrations
 - bilingual plaintext fields are optional but useful for previews, search, or notifications
 - cache should only include valid cards
 

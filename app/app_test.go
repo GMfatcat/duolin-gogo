@@ -797,7 +797,7 @@ enabled: true
 		t.Fatal("expected current card after rescan")
 	}
 
-	cache, err := loadCache(filepath.Join(app.dataDir, "cards-cache.json"))
+	cache, err := cards.LoadCache(filepath.Join(app.dataDir, "cards-cache.gob"))
 	if err != nil {
 		t.Fatalf("load cache failed: %v", err)
 	}
@@ -810,7 +810,7 @@ enabled: true
 func TestValidateKnowledgeUpdatesDiagnosticsWithoutRefreshingCache(t *testing.T) {
 	app := newTestApp(t)
 
-	cacheBefore, err := loadCache(filepath.Join(app.dataDir, "cards-cache.json"))
+	cacheBefore, err := cards.LoadCache(filepath.Join(app.dataDir, "cards-cache.gob"))
 	if err != nil {
 		t.Fatalf("load cache before validate failed: %v", err)
 	}
@@ -845,7 +845,7 @@ answer: true
 		t.Fatalf("unexpected diagnostic code: %s", status.ImportErrors[0].Code)
 	}
 
-	cacheAfter, err := loadCache(filepath.Join(app.dataDir, "cards-cache.json"))
+	cacheAfter, err := cards.LoadCache(filepath.Join(app.dataDir, "cards-cache.gob"))
 	if err != nil {
 		t.Fatalf("load cache after validate failed: %v", err)
 	}
