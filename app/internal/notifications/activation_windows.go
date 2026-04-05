@@ -14,6 +14,7 @@ func RegisterActivationHandler(onCard func(cardID string)) {
 
 func ConfigureApp() error {
 	return toast.SetAppData(toast.AppData{
-		AppID: AppID,
+		AppID:    AppID,
+		IconPath: defaultIconPath(),
 	})
 }

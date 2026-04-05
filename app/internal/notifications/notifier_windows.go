@@ -11,6 +11,7 @@ func (WindowsSender) Send(message Message) error {
 		AppID:               AppID,
 		Title:               message.Title,
 		Body:                message.Body,
+		Icon:                defaultIconPath(),
 		ActivationArguments: message.ActivationArgument,
 		ActivationType:      toast.Foreground,
 	}

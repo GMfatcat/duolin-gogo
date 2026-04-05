@@ -26,19 +26,14 @@ func BuildStudyMessage(card cards.Card) Message {
 
 func BuildStudyMessageForLanguage(card cards.Card, language string, style string, titleMode string) Message {
 	manualTitle := card.ClickbaitEN
-	manualBody := card.QuestionTextEN
 	if language == "zh-TW" {
 		manualTitle = card.ClickbaitZH
-		manualBody = card.QuestionTextZH
 	}
 
-	generatedTitle, generatedBody := hooks.Generate(card, language, style)
-	title, body := resolveContent(manualTitle, generatedTitle, manualBody, generatedBody, titleMode)
+	generatedTitle, _ := hooks.Generate(card, language, style)
+	title, body := resolveContent(manualTitle, generatedTitle, titleMode)
 	if title == "" {
 		title = fallbackTitle(card, language)
-	}
-	if body == "" {
-		body = fallbackBody(language)
 	}
 
 	return Message{
@@ -48,12 +43,12 @@ func BuildStudyMessageForLanguage(card cards.Card, language string, style string
 	}
 }
 
-func resolveContent(manualTitle string, generatedTitle string, manualBody string, generatedBody string, titleMode string) (string, string) {
+func resolveContent(manualTitle string, generatedTitle string, titleMode string) (string, string) {
 	switch normalizeTitleMode(titleMode) {
 	case "prefer_generated":
-		return firstNonEmpty(generatedTitle, manualTitle), firstNonEmpty(generatedBody, manualBody)
+		return firstNonEmpty(generatedTitle, manualTitle), ""
 	default:
-		return firstNonEmpty(manualTitle, generatedTitle), firstNonEmpty(manualBody, generatedBody)
+		return firstNonEmpty(manualTitle, generatedTitle), ""
 	}
 }
 
@@ -71,13 +66,6 @@ func fallbackTitle(card cards.Card, language string) string {
 		return firstNonEmpty(card.TitleZH, card.Title, card.TitleEN)
 	}
 	return firstNonEmpty(card.TitleEN, card.Title, card.TitleZH)
-}
-
-func fallbackBody(language string) string {
-	if language == "zh-TW" {
-		return "一張新的學習卡已經準備好了。"
-	}
-	return "A quick study card is ready."
 }
 
 func firstNonEmpty(values ...string) string {
