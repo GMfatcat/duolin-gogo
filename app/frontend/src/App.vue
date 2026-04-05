@@ -1572,7 +1572,7 @@ function toggleAssistantHint() {
               <article v-for="item in topicProgressItems" :key="`insight-${item.topic}`" class="topic-progress-item">
                 <div>
                   <strong>{{ item.topic }}</strong>
-                  <span>{{ item.seenCount }} {{ selectedLanguage === 'en' ? 'answers' : '甈∩?蝑?' }}</span>
+                  <span>{{ item.seenCount }} {{ selectedLanguage === 'en' ? 'answers' : '次作答' }}</span>
                 </div>
                 <span>{{ Math.round(item.accuracy * 100) }}% {{ t.accuracySuffix }}</span>
               </article>
