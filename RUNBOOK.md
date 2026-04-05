@@ -106,6 +106,7 @@ Expected current UI behavior:
 - answer options can be selected
 - `Submit answer` shows correctness feedback
 - studied-today / correct-rate values update
+- sidebar now includes a per-topic progress overview alongside weak-topic cues
 
 Current MVP note:
 

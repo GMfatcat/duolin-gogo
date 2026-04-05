@@ -1,7 +1,9 @@
 package dashboard
 
 import (
+	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 
 	"duolin-gogo/internal/cards"
@@ -16,10 +18,19 @@ type WeakTopic struct {
 }
 
 type Summary struct {
-	StudiedToday int         `json:"studiedToday"`
-	CorrectRate  float64     `json:"correctRate"`
-	NextReviewAt string      `json:"nextReviewAt"`
-	WeakTopics   []WeakTopic `json:"weakTopics"`
+	StudiedToday  int             `json:"studiedToday"`
+	CorrectRate   float64         `json:"correctRate"`
+	NextReviewAt  string          `json:"nextReviewAt"`
+	WeakTopics    []WeakTopic     `json:"weakTopics"`
+	TopicProgress []TopicProgress `json:"topicProgress"`
+}
+
+type TopicProgress struct {
+	Topic       string  `json:"topic"`
+	SeenCount   int     `json:"seenCount"`
+	CorrectCount int    `json:"correctCount"`
+	WrongCount  int     `json:"wrongCount"`
+	Accuracy    float64 `json:"accuracy"`
 }
 
 func BuildSummary(allCards []cards.Card, state progress.ProgressFile, now time.Time) Summary {
@@ -30,10 +41,11 @@ func BuildSummary(allCards []cards.Card, state progress.ProgressFile, now time.T
 	}
 
 	return Summary{
-		StudiedToday: day.Answered,
-		CorrectRate:  correctRate,
-		NextReviewAt: nextReviewTime(allCards, state.Cards, now),
-		WeakTopics:   weakTopics(allCards, state.Cards),
+		StudiedToday:  day.Answered,
+		CorrectRate:   correctRate,
+		NextReviewAt:  nextReviewTime(allCards, state.Cards, now),
+		WeakTopics:    weakTopics(allCards, state.Cards),
+		TopicProgress: topicProgress(allCards, state.Cards),
 	}
 }
 
@@ -133,4 +145,85 @@ func weakTopics(allCards []cards.Card, states map[string]progress.CardProgress) 
 	}
 
 	return topics
+}
+
+func topicProgress(allCards []cards.Card, states map[string]progress.CardProgress) []TopicProgress {
+	type aggregate struct {
+		seen    int
+		correct int
+		wrong   int
+	}
+
+	topicScores := map[string]aggregate{}
+	for _, card := range allCards {
+		state, ok := states[card.ID]
+		if !ok || state.SeenCount == 0 {
+			continue
+		}
+
+		topic := topicForCard(card)
+		if topic == "" {
+			continue
+		}
+
+		agg := topicScores[topic]
+		agg.seen += state.SeenCount
+		agg.correct += state.CorrectCount
+		agg.wrong += state.WrongCount
+		topicScores[topic] = agg
+	}
+
+	items := make([]TopicProgress, 0, len(topicScores))
+	for topic, agg := range topicScores {
+		accuracy := 0.0
+		if agg.seen > 0 {
+			accuracy = float64(agg.correct) / float64(agg.seen)
+		}
+		items = append(items, TopicProgress{
+			Topic:        topic,
+			SeenCount:    agg.seen,
+			CorrectCount: agg.correct,
+			WrongCount:   agg.wrong,
+			Accuracy:     accuracy,
+		})
+	}
+
+	slices.SortFunc(items, func(a, b TopicProgress) int {
+		if a.Accuracy == b.Accuracy {
+			if a.SeenCount == b.SeenCount {
+				if a.Topic < b.Topic {
+					return -1
+				}
+				return 1
+			}
+			if a.SeenCount > b.SeenCount {
+				return -1
+			}
+			return 1
+		}
+		if a.Accuracy < b.Accuracy {
+			return -1
+		}
+		return 1
+	})
+
+	return items
+}
+
+func topicForCard(card cards.Card) string {
+	if card.SourcePath != "" {
+		parent := strings.ToLower(strings.TrimSpace(filepath.Base(filepath.Dir(card.SourcePath))))
+		if parent != "" && parent != "." {
+			return parent
+		}
+	}
+
+	for _, tag := range card.Tags {
+		tag = strings.ToLower(strings.TrimSpace(tag))
+		if tag != "" && tag != "all" {
+			return tag
+		}
+	}
+
+	return ""
 }

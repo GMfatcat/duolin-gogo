@@ -286,7 +286,8 @@ const availableTopics = computed(() => dashboard.value?.availableTopics ?? ['all
 const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
 const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
-const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [] })
+const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [], topicProgress: [] })
+const topicProgressItems = computed(() => summary.value?.topicProgress ?? [])
 const importErrors = computed(() => dashboard.value?.importErrors ?? [])
 const notificationSettings = computed(() =>
   dashboard.value?.notificationSettings ?? { style: 'playful', titleMode: 'prefer_manual' },
@@ -388,6 +389,22 @@ const noWeakTopicsText = computed(() => {
     ? `No weak ${selectedTopic.value} concepts yet. Keep studying to generate insights.`
     : `目前還沒有特別弱的 ${selectedTopic.value} 主題，繼續學習就會慢慢有輪廓。`
 })
+const topicOverviewLabelText = computed(() =>
+  selectedLanguage.value === 'en' ? 'Topic progress' : '主題進度',
+)
+const topicOverviewTitleText = computed(() => {
+  if (selectedTopic.value === 'all') {
+    return selectedLanguage.value === 'en' ? 'Deck overview' : '各主題概況'
+  }
+  return selectedLanguage.value === 'en'
+    ? `${selectedTopic.value} deck overview`
+    : `${selectedTopic.value} 主題概況`
+})
+const noTopicProgressText = computed(() =>
+  selectedLanguage.value === 'en'
+    ? 'Not enough answer history yet to show per-topic progress.'
+    : '目前還沒有足夠的作答資料來顯示主題進度。',
+)
 const reviewCompleteBodyText = computed(() => {
   if (selectedTopic.value === 'all') {
     return t.value.reviewCompleteBody
@@ -1060,6 +1077,27 @@ function toggleDiagnostics() {
             <span class="label">{{ t.nextReview }}</span>
             <strong>{{ nextReviewText }}</strong>
           </article>
+        </section>
+
+        <section class="study-card sidebar-panel">
+          <div class="study-header">
+            <div>
+              <p class="label">{{ topicOverviewLabelText }}</p>
+              <h2>{{ topicOverviewTitleText }}</h2>
+            </div>
+            <span class="phase-pill topic-pill">{{ topicDisplayLabel }}</span>
+          </div>
+
+          <div v-if="topicProgressItems.length" class="topic-progress-list">
+            <article v-for="item in topicProgressItems" :key="item.topic" class="topic-progress-item">
+              <div>
+                <strong>{{ item.topic }}</strong>
+                <span>{{ item.seenCount }} {{ selectedLanguage === 'en' ? 'answers' : '次作答' }}</span>
+              </div>
+              <span>{{ Math.round(item.accuracy * 100) }}% {{ t.accuracySuffix }}</span>
+            </article>
+          </div>
+          <p v-else class="explanation">{{ noTopicProgressText }}</p>
         </section>
 
         <section class="study-card sidebar-panel">

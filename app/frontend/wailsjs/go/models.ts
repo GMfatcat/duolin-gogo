@@ -1,5 +1,25 @@
 export namespace dashboard {
 	
+	export class TopicProgress {
+	    topic: string;
+	    seenCount: number;
+	    correctCount: number;
+	    wrongCount: number;
+	    accuracy: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new TopicProgress(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.topic = source["topic"];
+	        this.seenCount = source["seenCount"];
+	        this.correctCount = source["correctCount"];
+	        this.wrongCount = source["wrongCount"];
+	        this.accuracy = source["accuracy"];
+	    }
+	}
 	export class WeakTopic {
 	    tag: string;
 	    wrongCount: number;
@@ -23,6 +43,7 @@ export namespace dashboard {
 	    correctRate: number;
 	    nextReviewAt: string;
 	    weakTopics: WeakTopic[];
+	    topicProgress: TopicProgress[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Summary(source);
@@ -34,6 +55,7 @@ export namespace dashboard {
 	        this.correctRate = source["correctRate"];
 	        this.nextReviewAt = source["nextReviewAt"];
 	        this.weakTopics = this.convertValues(source["weakTopics"], WeakTopic);
+	        this.topicProgress = this.convertValues(source["topicProgress"], TopicProgress);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -54,6 +76,7 @@ export namespace dashboard {
 		    return a;
 		}
 	}
+	
 
 }
 

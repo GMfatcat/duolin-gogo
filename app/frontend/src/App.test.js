@@ -200,6 +200,19 @@ describe('App', () => {
     expect(wrapper.find('.study-header h2').text()).toContain('docker run')
     expect(wrapper.text()).toContain('目前專注在 docker 主題。')
     expect(wrapper.text()).toContain('docker 建議多看幾次')
+    expect(wrapper.text()).toContain('docker 主題概況')
+    expect(wrapper.text()).toContain('3 次作答')
+  })
+
+  it('shows per-topic progress in mixed mode', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('各主題概況')
+    expect(wrapper.text()).toContain('docker')
+    expect(wrapper.text()).toContain('git')
+    expect(wrapper.text()).toContain('10 次作答')
   })
 
   it('distinguishes import warnings from import errors inside diagnostics popout', async () => {

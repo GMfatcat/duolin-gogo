@@ -143,6 +143,32 @@ body {
   background: rgba(11, 20, 28, 0.74);
 }
 
+.topic-progress-list {
+  display: grid;
+  gap: 10px;
+}
+
+.topic-progress-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 15px;
+  background: rgba(28, 51, 69, 0.54);
+}
+
+.topic-progress-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.topic-progress-item span {
+  color: #d4dde5;
+  font-size: 0.9rem;
+}
+
 .study-header {
   display: flex;
   align-items: flex-start;

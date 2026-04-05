@@ -79,3 +79,37 @@ func TestBuildSummaryReturnsWeakTopicsOrderedByErrorRate(t *testing.T) {
 		t.Fatalf("expected branching to be weakest tag, got %s", summary.WeakTopics[0].Tag)
 	}
 }
+
+func TestBuildSummaryReturnsTopicProgress(t *testing.T) {
+	now := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	summary := BuildSummary([]cards.Card{
+		{ID: "git-rebase-vs-merge", Tags: []string{"git", "branching"}, SourcePath: "D:/duolin-gogo/knowledge/git/rebase.md"},
+		{ID: "docker-run-start-container", Tags: []string{"docker", "container"}, SourcePath: "D:/duolin-gogo/knowledge/docker/run.md"},
+	}, progress.ProgressFile{
+		Cards: map[string]progress.CardProgress{
+			"git-rebase-vs-merge": {
+				SeenCount:    4,
+				CorrectCount: 3,
+				WrongCount:   1,
+			},
+			"docker-run-start-container": {
+				SeenCount:    2,
+				CorrectCount: 1,
+				WrongCount:   1,
+			},
+		},
+	}, now)
+
+	if len(summary.TopicProgress) != 2 {
+		t.Fatalf("expected 2 topic progress items, got %d", len(summary.TopicProgress))
+	}
+
+	if summary.TopicProgress[0].Topic != "docker" {
+		t.Fatalf("expected docker to sort before git by lower accuracy, got %s", summary.TopicProgress[0].Topic)
+	}
+
+	if summary.TopicProgress[1].Topic != "git" {
+		t.Fatalf("expected git topic, got %s", summary.TopicProgress[1].Topic)
+	}
+}

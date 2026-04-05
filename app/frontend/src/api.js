@@ -154,6 +154,21 @@ const topicWeakTopics = {
   python: [{ tag: 'python', wrongCount: 1, seenCount: 5, accuracy: 0.8 }],
 }
 
+const topicProgressByMode = {
+  all: [
+    { topic: 'docker', seenCount: 3, correctCount: 2, wrongCount: 1, accuracy: 0.67 },
+    { topic: 'go', seenCount: 5, correctCount: 3, wrongCount: 2, accuracy: 0.6 },
+    { topic: 'git', seenCount: 10, correctCount: 8, wrongCount: 2, accuracy: 0.8 },
+    { topic: 'linux', seenCount: 4, correctCount: 3, wrongCount: 1, accuracy: 0.75 },
+    { topic: 'python', seenCount: 5, correctCount: 4, wrongCount: 1, accuracy: 0.8 },
+  ],
+  git: [{ topic: 'git', seenCount: 10, correctCount: 8, wrongCount: 2, accuracy: 0.8 }],
+  docker: [{ topic: 'docker', seenCount: 3, correctCount: 2, wrongCount: 1, accuracy: 0.67 }],
+  linux: [{ topic: 'linux', seenCount: 4, correctCount: 3, wrongCount: 1, accuracy: 0.75 }],
+  go: [{ topic: 'go', seenCount: 5, correctCount: 3, wrongCount: 2, accuracy: 0.6 }],
+  python: [{ topic: 'python', seenCount: 5, correctCount: 4, wrongCount: 1, accuracy: 0.8 }],
+}
+
 function cloneCard(topic) {
   return structuredClone(fallbackCardsByTopic[topic] || fallbackCardsByTopic.git)
 }
@@ -165,6 +180,7 @@ function applyFallbackTopic(topic) {
   fallbackDashboard.summary = {
     ...fallbackDashboard.summary,
     weakTopics: structuredClone(topicWeakTopics[resolvedTopic] || topicWeakTopics.all),
+    topicProgress: structuredClone(topicProgressByMode[resolvedTopic] || topicProgressByMode.all),
   }
 }
 
@@ -184,6 +200,7 @@ const fallbackDashboard = {
   summary: {
     nextReviewAt: '2026-04-05T21:00:00+08:00',
     weakTopics: structuredClone(topicWeakTopics.all),
+    topicProgress: structuredClone(topicProgressByMode.all),
   },
   notificationSettings: {
     style: 'playful',
@@ -233,6 +250,7 @@ export function __resetFallbackState() {
   fallbackDashboard.summary = {
     nextReviewAt: '2026-04-05T21:00:00+08:00',
     weakTopics: structuredClone(topicWeakTopics.all),
+    topicProgress: structuredClone(topicProgressByMode.all),
   }
   fallbackDashboard.notificationSettings = {
     style: 'playful',
