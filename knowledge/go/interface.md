@@ -1,32 +1,32 @@
 ---
 id: go-interface-behavior-contract
-title_zh: interface 行為契約
+title_zh: Go interface
 title_en: Go Interface
 type: true-false
 body_format: bilingual-section
-tags: [go, type-system, interface]
+tags: [go, interface, type]
 difficulty: 2
-question_zh: "在 Go 裡，interface 主要是描述一組方法行為。"
-question_en: "In Go, an interface mainly describes a set of method behaviors."
+question_zh: "Go interface 主要描述的是一組行為需求，而不是一份資料欄位清單。"
+question_en: "A Go interface mainly describes a required set of behaviors, not a list of data fields."
 answer: true
-clickbait_zh: "你以為 interface 是在列欄位？在 Go 裡它更像是在定義『你會做什麼』。"
-clickbait_en: "Think an interface is about listing fields? In Go it is much more about what a value can do."
-review_hint_zh: "interface 在 Go 裡描述的是方法集合。"
-review_hint_en: "An interface in Go describes a method set."
+clickbait_zh: "你以為 interface 在定義資料長相？其實它更像在定義『會做什麼』。"
+clickbait_en: "If you think an interface describes shape, you are missing the more important part: behavior."
+review_hint_zh: "interface 重點在 method set。"
+review_hint_en: "An interface is defined by its method set."
 confusion_with: [go-struct-field-grouping]
-metaphor_seed: [角色, 契約, 能力清單]
-hook_style_tags: [comparison, misunderstood]
+metaphor_seed: [行為契約, 會做什麼, 規格]
+hook_style_tags: [misunderstood, comparison]
 enabled: true
 ---
 
 ## zh-TW
 
-在 Go 裡，interface 用來描述一組方法，也就是某個值「會做什麼」。
-只要某個型別實作了這些方法，它就能滿足該 interface，不需要顯式宣告。
-這讓 Go 的抽象比較偏向行為，而不是繼承樹。
+在 Go 裡，interface 主要不是拿來描述資料欄位，而是描述某個值需要提供哪些方法。
+只要一個型別的方法集合符合這份需求，它就能滿足該 interface。
+所以 interface 更像行為契約，而不是資料結構模板。
 
 ## en
 
-In Go, an interface describes a set of methods, meaning what a value can do.
-If a type implements those methods, it satisfies the interface automatically without an explicit declaration.
-That makes Go's abstraction model more behavior-oriented than inheritance-oriented.
+In Go, an interface is mainly about which methods a value provides, not about what fields it stores.
+If a type has the required method set, it satisfies the interface.
+That is why an interface acts more like a behavior contract than a data template.

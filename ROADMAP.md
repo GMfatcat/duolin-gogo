@@ -672,6 +672,7 @@ Deliverables:
 - ninth slice implemented: Learn-phase concept copy now reveals line by line with a lightweight staggered animation and replay control, so short knowledge notes feel more guided without slowing the whole card flow
 - tenth slice implemented: reveal timing is now user-configurable through Settings with simple fast/normal/slow options, so guided intros can match different reading preferences
 - eleventh slice implemented: a third wave of practical deck cards now covers Docker networking/storage cleanup, Linux file inspection and movement, Go error/package/receiver concepts, and Python classes/comprehensions/context managers/imports
+- twelfth slice implemented: a fourth wave of practical deck cards now covers Docker compose inspection and env/port workflows, Linux pipes/redirection/counting/xargs, Go interface/context/error-wrapping edge cases, and Python iterator/init/module-boundary workflows
 - next UI refinement: promote grouped-topic guidance into a top assistant-style hint, collapse diagnostics by default, and replace parallel language/mode controls with dropdown selectors
 - next interaction refinement: evolve the top assistant hint into a lightweight `DG` mascot surface with contextual copy and subtle animation states
 
