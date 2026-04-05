@@ -352,15 +352,7 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 	if review.ShouldStartReview(config, a.lastReviewRunAt, now) {
 		queue := review.BuildQueue(selection.FilterCardsByTopic(cache.Cards, selectedTopic), state.Cards, now, config.ReviewSchedule.BatchSize)
 		if len(queue) > 0 {
-			message := notifications.BuildStudyMessageForLanguage(queue[0], preferredLanguage, config.Notifications.Style, config.Notifications.TitleMode)
-			if preferredLanguage == "zh-TW" {
-				message.Title = "複習時間到了"
-				message.Body = "該回來複習最近學過的 Git 概念了。"
-			} else {
-				message.Title = "Review time"
-				message.Body = "Time to review your recent Git concepts."
-			}
-			if err := a.notificationSender.Send(message); err != nil {
+			if err := a.notificationSender.Send(buildReviewNotificationMessage(preferredLanguage, selectedTopic)); err != nil {
 				return false, err
 			}
 			a.lastReviewRunAt = &now
@@ -381,7 +373,6 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 	a.schedulerState.LastNotificationAt = &now
 	return true, nil
 }
-
 func (a *App) SnoozeNotifications() (ActionStatus, error) {
 	config, err := settings.Load(filepath.Join(a.dataDir, "settings.json"))
 	if err != nil {
@@ -426,9 +417,12 @@ func (a *App) SendTestNotification() (ActionStatus, error) {
 		return ActionStatus{}, err
 	}
 
-	return ActionStatus{Message: "Test notification sent."}, nil
-}
+	if selectedTopic == "all" {
+		return ActionStatus{Message: "Test notification sent."}, nil
+	}
 
+	return ActionStatus{Message: fmt.Sprintf("Test notification sent for %s.", topicScopeLabel(preferredLanguage, selectedTopic))}, nil
+}
 func (a *App) RescanKnowledge() (ActionStatus, error) {
 	result, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir)
 	if err != nil {
@@ -809,6 +803,86 @@ func normalizeSelectedTopic(topic string, allCards []cards.Card) string {
 	}
 
 	return "all"
+}
+
+func topicScopeLabel(language string, topic string) string {
+	switch normalizeTopicKey(topic) {
+	case "all":
+		if language == "zh-TW" {
+			return "混合模式"
+		}
+		return "Mixed mode"
+	case "backend-tools":
+		if language == "zh-TW" {
+			return "後端工具"
+		}
+		return "Backend tools"
+	case "languages":
+		if language == "zh-TW" {
+			return "程式語言"
+		}
+		return "Languages"
+	case "git":
+		return "Git"
+	case "docker":
+		return "Docker"
+	case "linux":
+		return "Linux"
+	case "go":
+		return "Go"
+	case "python":
+		return "Python"
+	default:
+		return topic
+	}
+}
+
+func buildReviewNotificationMessage(language string, topic string) notifications.Message {
+	return notifications.Message{
+		Title: reviewNotificationTitle(language),
+		Body:  reviewNotificationBody(language, topic),
+	}
+}
+
+func reviewNotificationTitle(language string) string {
+	if language == "zh-TW" {
+		return "複習時間到了"
+	}
+	return "Review time"
+}
+
+func reviewNotificationBody(language string, topic string) string {
+	switch normalizeTopicKey(topic) {
+	case "backend-tools":
+		if language == "zh-TW" {
+			return "回頭看一下最近學過的後端工具觀念。"
+		}
+		return "Time to review your recent backend tools concepts."
+	case "languages":
+		if language == "zh-TW" {
+			return "回頭看一下最近學過的程式語言觀念。"
+		}
+		return "Time to review your recent language concepts."
+	case "all":
+		if language == "zh-TW" {
+			return "回頭看一下最近學過的主題。"
+		}
+		return "Time to review the concepts you studied recently."
+	default:
+		scopeLabel := topicScopeLabel(language, topic)
+		if language == "zh-TW" {
+			return fmt.Sprintf("回頭看一下最近學過的 %s 觀念。", scopeLabel)
+		}
+		return fmt.Sprintf("Time to review your recent %s concepts.", scopeLabel)
+	}
+}
+
+func normalizeTopicKey(topic string) string {
+	normalized := strings.ToLower(strings.TrimSpace(topic))
+	if normalized == "" {
+		return "all"
+	}
+	return normalized
 }
 
 func normalizeTopic(topic string) string {

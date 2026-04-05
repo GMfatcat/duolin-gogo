@@ -91,6 +91,7 @@ Next targets:
 - fifth slice implemented: the sidebar now includes per-topic progress cards for mixed-mode and focused deck overview
 - sixth slice implemented: mixed mode now adds extra weight to weaker topics so broad study can revisit weaker decks more often
 - seventh slice implemented: quick topic pin presets now jump between `all`, `backend-tools`, `languages`, and `git`
+- eighth slice implemented: review notifications and test-notification feedback now use the current multi-topic scope instead of assuming Git
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting
   - keep notifications active while the app window is hidden

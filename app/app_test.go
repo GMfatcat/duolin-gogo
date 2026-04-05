@@ -393,6 +393,143 @@ func TestSendTestNotificationUsesSelectedCard(t *testing.T) {
 	}
 }
 
+func TestSendTestNotificationReportsPresetScope(t *testing.T) {
+	app := newTestApp(t)
+	sender := &stubSender{}
+	app.notificationSender = sender
+
+	goCard := `---
+id: go-goroutine-concurrency
+title_zh: goroutine 併發單位
+title_en: Goroutine
+type: true-false
+tags: [go, concurrency]
+question_zh: "goroutine 是 Go 裡很輕量的併發執行單位。"
+question_en: "A goroutine is a lightweight concurrent execution unit in Go."
+clickbait_zh: "Go 很快，不一定是因為你真的會用 goroutine。"
+clickbait_en: "Go feels fast, but only if you really understand goroutines."
+review_hint_zh: "goroutine 是 Go 的輕量併發單位。"
+review_hint_en: "A goroutine is Go's lightweight concurrency primitive."
+answer: true
+enabled: true
+---
+
+## zh-TW
+
+goroutine 是 Go 用來啟動併發工作的輕量執行單位。
+
+## en
+
+A goroutine is Go's lightweight unit for concurrent execution.
+`
+	if err := os.MkdirAll(filepath.Join(app.knowledgeDir, "go"), 0o755); err != nil {
+		t.Fatalf("mkdir go failed: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(app.knowledgeDir, "go", "goroutine.md"), []byte(goCard), 0o644); err != nil {
+		t.Fatalf("write go card failed: %v", err)
+	}
+	if _, err := app.RescanKnowledge(); err != nil {
+		t.Fatalf("rescan knowledge failed: %v", err)
+	}
+	if _, err := app.UpdateSelectedTopic("languages"); err != nil {
+		t.Fatalf("update selected topic failed: %v", err)
+	}
+	if _, err := app.UpdatePreferredLanguage("en"); err != nil {
+		t.Fatalf("update preferred language failed: %v", err)
+	}
+
+	status, err := app.SendTestNotification()
+	if err != nil {
+		t.Fatalf("send test notification failed: %v", err)
+	}
+
+	if status.Message != "Test notification sent for Languages." {
+		t.Fatalf("unexpected status: %s", status.Message)
+	}
+	if sender.message.Title == "" {
+		t.Fatal("expected notification title")
+	}
+}
+
+func TestCheckAndSendNotificationUsesTopicAwareReviewCopy(t *testing.T) {
+	app := newTestApp(t)
+	sender := &stubSender{}
+	app.notificationSender = sender
+	now := time.Date(2026, 4, 5, 21, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+	app.nowFunc = func() time.Time { return now }
+
+	dockerCard := `---
+id: docker-run-start-container
+title_zh: docker run 建立容器
+title_en: Docker Run
+type: true-false
+tags: [docker, container]
+question_zh: "docker run 會建立並啟動容器。"
+question_en: "docker run creates and starts a container."
+clickbait_zh: "很多人第一個 Docker 指令就沒有真的搞懂。"
+clickbait_en: "A lot of people never really understand their first Docker command."
+review_hint_zh: "run = 建立並啟動容器。"
+review_hint_en: "run creates and starts a container."
+answer: true
+enabled: true
+---
+
+## zh-TW
+
+docker run 會根據 image 建立新的 container 並立即啟動。
+
+## en
+
+docker run creates a container from an image and starts it right away.
+`
+	if err := os.MkdirAll(filepath.Join(app.knowledgeDir, "docker"), 0o755); err != nil {
+		t.Fatalf("mkdir docker failed: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(app.knowledgeDir, "docker", "run.md"), []byte(dockerCard), 0o644); err != nil {
+		t.Fatalf("write docker card failed: %v", err)
+	}
+	if _, err := app.RescanKnowledge(); err != nil {
+		t.Fatalf("rescan knowledge failed: %v", err)
+	}
+	if _, err := app.UpdateSelectedTopic("backend-tools"); err != nil {
+		t.Fatalf("update selected topic failed: %v", err)
+	}
+	if _, err := app.UpdatePreferredLanguage("en"); err != nil {
+		t.Fatalf("update preferred language failed: %v", err)
+	}
+
+	shownAt := now.Add(-49 * time.Hour)
+	answeredAt := now.Add(-48 * time.Hour)
+	if _, _, err := progress.RecordAndPersist(
+		filepath.Join(app.dataDir, "progress.json"),
+		filepath.Join(app.dataDir, "attempts.jsonl"),
+		progress.RecordAttemptInput{
+			CardID:         "docker-run-start-container",
+			SessionType:    "learn",
+			SelectedAnswer: "true",
+			IsCorrect:      true,
+			ShownAt:        shownAt,
+			AnsweredAt:     answeredAt,
+		},
+	); err != nil {
+		t.Fatalf("record attempt failed: %v", err)
+	}
+
+	sent, err := app.CheckAndSendNotification()
+	if err != nil {
+		t.Fatalf("check and send notification failed: %v", err)
+	}
+	if !sent {
+		t.Fatal("expected review notification to be sent")
+	}
+
+	if sender.message.Title != "Review time" {
+		t.Fatalf("unexpected review title: %s", sender.message.Title)
+	}
+	if sender.message.Body != "Time to review your recent backend tools concepts." {
+		t.Fatalf("unexpected review body: %s", sender.message.Body)
+	}
+}
 func TestSendTestNotificationReportsWhenNoCardsExist(t *testing.T) {
 	app := newTestApp(t)
 	sender := &stubSender{}

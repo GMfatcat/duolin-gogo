@@ -108,6 +108,7 @@ Expected current UI behavior:
 - `Submit answer` shows correctness feedback
 - studied-today / correct-rate values update
 - sidebar now includes a per-topic progress overview alongside weak-topic cues
+- review notifications now adapt to the active topic scope, including grouped presets like `backend-tools` and `languages`
 
 Current MVP note:
 
@@ -137,6 +138,7 @@ Current useful controls:
 - `zh-TW` / `en` language toggle
 - topic-aware messaging now reflects whether you are in mixed mode or focused on one deck
 - mixed mode now biases toward weaker topics instead of treating all decks equally
+- test notifications now report the current topic scope when you are not in `all` mode
 - separate top-right `Settings`, `Library`, and `Diagnostics` buttons
 - answer submission
 

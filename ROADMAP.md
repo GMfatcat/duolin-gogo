@@ -543,6 +543,7 @@ Deliverables:
 - third slice implemented: the sidebar now shows per-topic progress so mixed-mode study has a visible deck-level overview
 - fourth slice implemented: mixed mode now boosts weaker topics so `all` mode is less likely to over-serve already-strong decks
 - fifth slice implemented: topic pin presets now provide one-click filters for `all`, `backend-tools`, `languages`, and `git`
+- sixth slice implemented: review notifications and test-notification feedback now respect multi-topic scopes such as `backend-tools` and `languages`
 
 TDD focus:
 
