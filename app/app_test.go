@@ -1083,6 +1083,79 @@ git fetch only updates tracking refs and does not merge directly.`
 	}
 }
 
+func TestSaveDraftReturnsBatchImportReportForMixedBatch(t *testing.T) {
+	app := newTestApp(t)
+
+	raw := `---
+id: git-batch-save-one
+title_en: Batch Save One
+title_zh: 批次存檔一
+type: true-false
+question_en: "git fetch merges."
+question_zh: "git fetch 會 merge。"
+clickbait_en: "First batch card"
+clickbait_zh: "第一張"
+review_hint_en: "fetch does not merge."
+review_hint_zh: "fetch 不會 merge。"
+answer: false
+---
+
+## zh-TW
+
+第一張可存。
+
+## en
+
+First draft can be saved.
+
+===
+
+---
+id: git-batch-save-two
+title: Broken Batch
+type: true-false
+question: "Broken?"
+answer: true
+---
+
+## zh-TW
+
+Only one language section.`
+
+	status, err := app.SaveDraft(raw, "git")
+	if err != nil {
+		t.Fatalf("save draft batch failed: %v", err)
+	}
+
+	if !status.Successful {
+		t.Fatal("expected batch save to succeed when at least one draft is valid")
+	}
+	if status.Report == nil {
+		t.Fatal("expected batch import report")
+	}
+	if status.Report.SavedCount != 1 {
+		t.Fatalf("expected 1 saved draft, got %d", status.Report.SavedCount)
+	}
+	if status.Report.SkippedCount != 1 {
+		t.Fatalf("expected 1 skipped draft, got %d", status.Report.SkippedCount)
+	}
+	if len(status.Report.Items) != 2 {
+		t.Fatalf("expected 2 report items, got %d", len(status.Report.Items))
+	}
+	if status.Report.Items[0].Status != "saved" {
+		t.Fatalf("expected first item saved, got %s", status.Report.Items[0].Status)
+	}
+	if status.Report.Items[1].Status != "skipped" {
+		t.Fatalf("expected second item skipped, got %s", status.Report.Items[1].Status)
+	}
+	if status.Message != "Saved 1 drafts. Skipped 1 drafts." {
+		t.Fatalf("unexpected batch save message: %s", status.Message)
+	}
+	if _, err := os.Stat(filepath.Join(app.knowledgeDir, "git", "git-batch-save-one.md")); err != nil {
+		t.Fatalf("expected saved batch draft file: %v", err)
+	}
+}
+
 func TestLoadAuthoringPromptReturnsPromptContent(t *testing.T) {
 	app := newTestApp(t)
 

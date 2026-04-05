@@ -89,10 +89,28 @@ type DraftReviewItem struct {
 }
 
 type SaveDraftStatus struct {
-	Message    string `json:"message"`
-	SavedPath  string `json:"savedPath"`
-	Topic      string `json:"topic"`
-	Successful bool   `json:"successful"`
+	Message    string             `json:"message"`
+	SavedPath  string             `json:"savedPath"`
+	Topic      string             `json:"topic"`
+	Successful bool               `json:"successful"`
+	Report     *BatchImportReport `json:"report,omitempty"`
+}
+
+type BatchImportReport struct {
+	SavedCount   int               `json:"savedCount"`
+	SkippedCount int               `json:"skippedCount"`
+	WarningCount int               `json:"warningCount"`
+	ErrorCount   int               `json:"errorCount"`
+	Items        []BatchImportItem `json:"items"`
+}
+
+type BatchImportItem struct {
+	Index        int    `json:"index"`
+	Status       string `json:"status"`
+	CardID       string `json:"cardId"`
+	SavedPath    string `json:"savedPath"`
+	WarningCount int    `json:"warningCount"`
+	ErrorCount   int    `json:"errorCount"`
 }
 
 type AuthoringPromptData struct {
@@ -648,13 +666,9 @@ func (a *App) ReviewDraft(raw string) (DraftReviewData, error) {
 }
 
 func (a *App) SaveDraft(raw string, topic string) (SaveDraftStatus, error) {
-	result, err := cards.PreviewDraft("draft://ai-card.md", raw)
-	if err != nil {
-		return SaveDraftStatus{}, err
-	}
-
-	if result.Card == nil {
-		return SaveDraftStatus{}, fmt.Errorf("draft has blocking diagnostics")
+	drafts := splitDraftBatch(raw)
+	if len(drafts) == 0 {
+		drafts = []string{strings.TrimSpace(raw)}
 	}
 
 	topic = normalizeTopic(topic)
@@ -663,16 +677,67 @@ func (a *App) SaveDraft(raw string, topic string) (SaveDraftStatus, error) {
 		return SaveDraftStatus{}, err
 	}
 
-	targetPath := filepath.Join(targetDir, fmt.Sprintf("%s.md", result.Card.ID))
-	if err := os.WriteFile(targetPath, []byte(raw), 0o644); err != nil {
-		return SaveDraftStatus{}, err
+	report := &BatchImportReport{
+		Items: make([]BatchImportItem, 0, len(drafts)),
+	}
+	firstSavedPath := ""
+
+	for index, draft := range drafts {
+		result, err := cards.PreviewDraft(fmt.Sprintf("draft://ai-card-%d.md", index+1), draft)
+		if err != nil {
+			return SaveDraftStatus{}, err
+		}
+
+		warningCount, errorCount := countImportDiagnostics(result.Errors)
+		item := BatchImportItem{
+			Index:        index + 1,
+			WarningCount: warningCount,
+			ErrorCount:   errorCount,
+		}
+		report.WarningCount += warningCount
+		report.ErrorCount += errorCount
+
+		if result.Card == nil {
+			item.Status = "skipped"
+			report.SkippedCount++
+			report.Items = append(report.Items, item)
+			continue
+		}
+
+		targetPath := filepath.Join(targetDir, fmt.Sprintf("%s.md", result.Card.ID))
+		if err := os.WriteFile(targetPath, []byte(draft), 0o644); err != nil {
+			return SaveDraftStatus{}, err
+		}
+
+		item.Status = "saved"
+		item.CardID = result.Card.ID
+		item.SavedPath = targetPath
+		report.SavedCount++
+		report.Items = append(report.Items, item)
+
+		if firstSavedPath == "" {
+			firstSavedPath = targetPath
+		}
+	}
+
+	if len(drafts) == 1 && report.SavedCount == 0 {
+		return SaveDraftStatus{}, fmt.Errorf("draft has blocking diagnostics")
+	}
+
+	message := "No drafts were saved."
+	successful := report.SavedCount > 0
+	if len(drafts) == 1 && report.SavedCount == 1 {
+		message = fmt.Sprintf("Draft saved to %s.", firstSavedPath)
+	} else if report.SavedCount > 0 {
+		message = fmt.Sprintf("Saved %d drafts. Skipped %d drafts.", report.SavedCount, report.SkippedCount)
 	}
 
 	return SaveDraftStatus{
-		Message:    fmt.Sprintf("Draft saved to %s.", targetPath),
-		SavedPath:  targetPath,
+		Message:    message,
+		SavedPath:  firstSavedPath,
 		Topic:      topic,
-		Successful: true,
+		Successful: successful,
+		Report:     report,
 	}, nil
 }
 
@@ -797,6 +862,17 @@ func suggestionForDiagnostic(code string, field string) diagnosticSuggestion {
 	default:
 		return diagnosticSuggestion{}
 	}
+}
+
+func countImportDiagnostics(items []cards.ImportError) (warnings int, errors int) {
+	for _, item := range items {
+		if item.Severity == "warning" {
+			warnings++
+			continue
+		}
+		errors++
+	}
+	return warnings, errors
 }
 
 func (a *App) UpdateNotificationSettings(style string, titleMode string) (ActionStatus, error) {

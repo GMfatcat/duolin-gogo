@@ -288,6 +288,66 @@ export namespace main {
 	        this.content = source["content"];
 	    }
 	}
+	export class BatchImportItem {
+	    index: number;
+	    status: string;
+	    cardId: string;
+	    savedPath: string;
+	    warningCount: number;
+	    errorCount: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new BatchImportItem(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.index = source["index"];
+	        this.status = source["status"];
+	        this.cardId = source["cardId"];
+	        this.savedPath = source["savedPath"];
+	        this.warningCount = source["warningCount"];
+	        this.errorCount = source["errorCount"];
+	    }
+	}
+	export class BatchImportReport {
+	    savedCount: number;
+	    skippedCount: number;
+	    warningCount: number;
+	    errorCount: number;
+	    items: BatchImportItem[];
+	
+	    static createFrom(source: any = {}) {
+	        return new BatchImportReport(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.savedCount = source["savedCount"];
+	        this.skippedCount = source["skippedCount"];
+	        this.warningCount = source["warningCount"];
+	        this.errorCount = source["errorCount"];
+	        this.items = this.convertValues(source["items"], BatchImportItem);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class DGInteractionStatus {
 	    title: string;
 	    body: string;
@@ -502,6 +562,7 @@ export namespace main {
 	    savedPath: string;
 	    topic: string;
 	    successful: boolean;
+	    report?: BatchImportReport;
 	
 	    static createFrom(source: any = {}) {
 	        return new SaveDraftStatus(source);
@@ -513,7 +574,26 @@ export namespace main {
 	        this.savedPath = source["savedPath"];
 	        this.topic = source["topic"];
 	        this.successful = source["successful"];
+	        this.report = this.convertValues(source["report"], BatchImportReport);
 	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	
 	

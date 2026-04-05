@@ -611,7 +611,8 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
+- first slice implemented: batch draft saves now return an import report with saved, skipped, warning, and error counts, plus per-draft outcome details
 
 ### Next Phase B: Session And Progress UX
 

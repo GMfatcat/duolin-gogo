@@ -705,7 +705,9 @@ Only one language section.`
     expect(wrapper.text()).toContain('Suggested fix')
     expect(wrapper.text()).toContain('Add both `## zh-TW` and `## en` sections')
     expect(wrapper.findAll('.batch-review-card').length).toBe(2)
-    expect(wrapper.findAll('.toolbar-button.secondary')[wrapper.findAll('.toolbar-button.secondary').length - 1].attributes('disabled')).toBeDefined()
+    const saveButton = wrapper.findAll('.toolbar-button.secondary').find((button) => button.text().includes('Save valid drafts'))
+    expect(saveButton).toBeDefined()
+    expect(saveButton.attributes('disabled')).toBeUndefined()
   })
 
   it('saves a reviewed draft and reports the saved path', async () => {
@@ -773,5 +775,65 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     expect(writeText).toHaveBeenCalled()
     expect(wrapper.text()).toContain('Copied.')
+  })
+
+  it('shows a batch import report after saving valid drafts from a mixed batch', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+    await wrapper.find('.library-button').trigger('click')
+    await flushPromises()
+
+    const batchDraft = `---
+id: git-import-one
+title_zh: 第一張
+title_en: First Import
+type: true-false
+question_zh: "git fetch 會 merge。"
+question_en: "git fetch merges."
+clickbait_zh: "第一張"
+clickbait_en: "First"
+review_hint_zh: "fetch 不會 merge。"
+review_hint_en: "fetch does not merge."
+answer: false
+---
+
+## zh-TW
+
+第一張可存。
+
+## en
+
+First draft can be saved.
+
+===
+
+---
+id: git-import-two
+title: Broken
+type: true-false
+question: "broken?"
+answer: true
+---
+
+## zh-TW
+
+Only one language section.`
+
+    await wrapper.find('.draft-input').setValue(batchDraft)
+    const reviewButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Review draft'))
+    await reviewButton.trigger('click')
+    await flushPromises()
+
+    const saveButton = wrapper.findAll('.toolbar-button.secondary').find((button) => button.text().includes('Save valid drafts'))
+    await saveButton.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Saved 1 drafts. Skipped 1 drafts.')
+    expect(wrapper.text()).toContain('Import report')
+    expect(wrapper.text()).toContain('Saved')
+    expect(wrapper.text()).toContain('Skipped')
+    expect(wrapper.text()).toContain('git-import-one')
   })
 })

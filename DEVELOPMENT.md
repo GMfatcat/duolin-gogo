@@ -82,6 +82,7 @@ Next targets:
   - fourteenth slice implemented: common authoring diagnostics now include direct fix suggestions, so preview, batch review, and diagnostics panels tell authors what to change instead of only reporting the problem
   - next authoring utility slice: surface the reusable AI card prompt inside the Library popout with a direct copy action
   - fifteenth slice implemented: the reusable AI authoring prompt now lives inside the Library surface with a one-click copy action, so users can generate new cards without leaving the app
+  - sixteenth slice implemented: saving reviewed batch drafts now produces an import report with saved/skipped counts and per-draft outcomes, so larger AI-assisted authoring passes are auditable
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

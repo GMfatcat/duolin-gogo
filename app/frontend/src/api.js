@@ -850,37 +850,98 @@ export async function saveDraft({ raw, topic }) {
     return SaveDraft(raw, topic)
   }
 
-  const pickField = (name) => {
-    const match = raw.match(new RegExp(`^${name}:\\s*"?(.+?)"?$`, 'm'))
+  const drafts = raw
+    .replaceAll('\r\n', '\n')
+    .replaceAll('\n<!-- draft-break -->\n', '\n===\n')
+    .split('\n===\n')
+    .map((item) => item.trim())
+    .filter(Boolean)
+
+  const pickField = (source, name) => {
+    const match = source.match(new RegExp(`^${name}:\\s*"?(.+?)"?$`, 'm'))
     return match ? match[1] : ''
   }
 
   const resolvedTopic = topic || 'git'
-  const savedPath = `D:/duolin-gogo/knowledge/${resolvedTopic}/${pickField('id') || 'git-ai-review'}.md`
-  fallbackSavedDrafts.set(savedPath, {
-    ...cloneCard('git'),
-    id: pickField('id') || fallbackCardsByTopic.git.id,
-    title: pickField('title_en') || pickField('title') || fallbackCardsByTopic.git.title,
-    titleZh: pickField('title_zh') || pickField('title') || fallbackCardsByTopic.git.titleZh,
-    titleEn: pickField('title_en') || pickField('title') || fallbackCardsByTopic.git.titleEn,
-    questionText: pickField('question_en') || pickField('question') || fallbackCardsByTopic.git.questionText,
-    questionTextZh: pickField('question_zh') || pickField('question') || fallbackCardsByTopic.git.questionTextZh,
-    questionTextEn: pickField('question_en') || pickField('question') || fallbackCardsByTopic.git.questionTextEn,
-    clickbait: pickField('clickbait_en') || pickField('clickbait') || fallbackCardsByTopic.git.clickbait,
-    clickbaitZh: pickField('clickbait_zh') || pickField('clickbait') || fallbackCardsByTopic.git.clickbaitZh,
-    clickbaitEn: pickField('clickbait_en') || pickField('clickbait') || fallbackCardsByTopic.git.clickbaitEn,
-    reviewHint: pickField('review_hint_en') || pickField('review_hint') || fallbackCardsByTopic.git.reviewHint,
-    reviewHintZh: pickField('review_hint_zh') || pickField('review_hint') || fallbackCardsByTopic.git.reviewHintZh,
-    reviewHintEn: pickField('review_hint_en') || pickField('review_hint') || fallbackCardsByTopic.git.reviewHintEn,
-    explanationZh: raw.split('## zh-TW')[1]?.split('## en')[0]?.trim() || fallbackCardsByTopic.git.explanationZh,
-    explanationEn: raw.split('## en')[1]?.trim() || fallbackCardsByTopic.git.explanationEn,
-  })
+  const report = {
+    savedCount: 0,
+    skippedCount: 0,
+    warningCount: 0,
+    errorCount: 0,
+    items: [],
+  }
+  let firstSavedPath = ''
+
+  for (const [index, draft] of drafts.entries()) {
+    const valid = draft.includes('## zh-TW') && draft.includes('## en')
+    if (!valid) {
+      report.skippedCount += 1
+      report.errorCount += 1
+      report.items.push({
+        index: index + 1,
+        status: 'skipped',
+        cardId: '',
+        savedPath: '',
+        warningCount: 0,
+        errorCount: 1,
+      })
+      continue
+    }
+
+    const savedPath = `D:/duolin-gogo/knowledge/${resolvedTopic}/${pickField(draft, 'id') || 'git-ai-review'}.md`
+    fallbackSavedDrafts.set(savedPath, {
+      ...cloneCard('git'),
+      id: pickField(draft, 'id') || fallbackCardsByTopic.git.id,
+      title: pickField(draft, 'title_en') || pickField(draft, 'title') || fallbackCardsByTopic.git.title,
+      titleZh: pickField(draft, 'title_zh') || pickField(draft, 'title') || fallbackCardsByTopic.git.titleZh,
+      titleEn: pickField(draft, 'title_en') || pickField(draft, 'title') || fallbackCardsByTopic.git.titleEn,
+      questionText: pickField(draft, 'question_en') || pickField(draft, 'question') || fallbackCardsByTopic.git.questionText,
+      questionTextZh: pickField(draft, 'question_zh') || pickField(draft, 'question') || fallbackCardsByTopic.git.questionTextZh,
+      questionTextEn: pickField(draft, 'question_en') || pickField(draft, 'question') || fallbackCardsByTopic.git.questionTextEn,
+      clickbait: pickField(draft, 'clickbait_en') || pickField(draft, 'clickbait') || fallbackCardsByTopic.git.clickbait,
+      clickbaitZh: pickField(draft, 'clickbait_zh') || pickField(draft, 'clickbait') || fallbackCardsByTopic.git.clickbaitZh,
+      clickbaitEn: pickField(draft, 'clickbait_en') || pickField(draft, 'clickbait') || fallbackCardsByTopic.git.clickbaitEn,
+      reviewHint: pickField(draft, 'review_hint_en') || pickField(draft, 'review_hint') || fallbackCardsByTopic.git.reviewHint,
+      reviewHintZh: pickField(draft, 'review_hint_zh') || pickField(draft, 'review_hint') || fallbackCardsByTopic.git.reviewHintZh,
+      reviewHintEn: pickField(draft, 'review_hint_en') || pickField(draft, 'review_hint') || fallbackCardsByTopic.git.reviewHintEn,
+      explanationZh: draft.split('## zh-TW')[1]?.split('## en')[0]?.trim() || fallbackCardsByTopic.git.explanationZh,
+      explanationEn: draft.split('## en')[1]?.trim() || fallbackCardsByTopic.git.explanationEn,
+    })
+
+    if (!firstSavedPath) {
+      firstSavedPath = savedPath
+    }
+
+    report.savedCount += 1
+    report.items.push({
+      index: index + 1,
+      status: 'saved',
+      cardId: pickField(draft, 'id') || fallbackCardsByTopic.git.id,
+      savedPath,
+      warningCount: 0,
+      errorCount: 0,
+    })
+  }
+
+  if (drafts.length === 1 && report.savedCount === 1) {
+    return {
+      message: `Draft saved to ${firstSavedPath}.`,
+      savedPath: firstSavedPath,
+      topic: resolvedTopic,
+      successful: true,
+      report,
+    }
+  }
 
   return {
-    message: `Draft saved to ${savedPath}.`,
-    savedPath,
+    message:
+      report.savedCount > 0
+        ? `Saved ${report.savedCount} drafts. Skipped ${report.skippedCount} drafts.`
+        : 'No drafts were saved.',
+    savedPath: firstSavedPath,
     topic: resolvedTopic,
-    successful: true,
+    successful: report.savedCount > 0,
+    report,
   }
 }
 

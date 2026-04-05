@@ -155,6 +155,12 @@ const translations = {
     draftValid: '可用',
     draftNeedsFix: '需修正',
     saveSingleDraftOnly: '批次審查時請先逐張修完，再單張儲存。',
+    saveValidDrafts: '儲存可用草稿',
+    importReport: '匯入報告',
+    savedDrafts: '已儲存',
+    skippedDrafts: '已跳過',
+    warningDrafts: '警告',
+    errorDrafts: '錯誤',
     aiPrompt: 'AI 產卡 Prompt',
     aiPromptCopy: '複製 Prompt',
     aiPromptHint: '直接把這段 prompt 丟給 LLM，會比較符合目前卡片 schema。',
@@ -281,6 +287,12 @@ const translations = {
     draftValid: 'Ready',
     draftNeedsFix: 'Needs fixes',
     saveSingleDraftOnly: 'Save is available when one reviewed draft is active.',
+    saveValidDrafts: 'Save valid drafts',
+    importReport: 'Import report',
+    savedDrafts: 'Saved',
+    skippedDrafts: 'Skipped',
+    warningDrafts: 'Warnings',
+    errorDrafts: 'Errors',
     aiPrompt: 'AI card prompt',
     aiPromptCopy: 'Copy prompt',
     aiPromptHint: 'Use this prompt with your LLM to stay closer to the current card schema.',
@@ -360,6 +372,7 @@ const draftReview = ref({
   importErrors: [],
   topic: 'git',
 })
+const draftImportReport = ref(null)
 const scheduleForm = ref({
   notificationIntervalMinutes: 10,
   reviewTime: '21:00',
@@ -397,7 +410,10 @@ const previewErrors = computed(() => authoringPreview.value?.importErrors ?? [])
 const draftReviewItems = computed(() => draftReview.value?.items ?? [])
 const draftReviewErrors = computed(() => draftReview.value?.importErrors ?? [])
 const draftReviewCard = computed(() => draftReview.value?.currentCard ?? null)
-const canSaveDraft = computed(() => draftReviewItems.value.length === 1 && !!draftReviewCard.value)
+const canSaveDraft = computed(() => draftReviewItems.value.some((item) => item.valid))
+const saveDraftLabel = computed(() =>
+  draftReviewItems.value.length > 1 ? t.value.saveValidDrafts : t.value.saveDraft,
+)
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
 const reviewProgressText = computed(() => {
   if (!reviewSessionProgress.value.active || reviewSessionProgress.value.total <= 0) return ''
@@ -1108,6 +1124,7 @@ async function handleDraftReview() {
     currentCard: result.currentCard ?? null,
     importErrors: result.importErrors ?? [],
   }
+  draftImportReport.value = null
 }
 
 async function handleSaveDraft() {
@@ -1116,9 +1133,12 @@ async function handleSaveDraft() {
       raw: draftReview.value.raw,
       topic: draftReview.value.topic,
     })
-    await rescanKnowledge()
-    await refreshDashboard()
-    await refreshAuthoringPreview(result.savedPath)
+    draftImportReport.value = result.report ?? null
+    if (result.successful) {
+      await rescanKnowledge()
+      await refreshDashboard()
+      await refreshAuthoringPreview(result.savedPath)
+    }
     actionMessage.value = result.message
   } catch (error) {
     actionMessage.value = `Save draft failed: ${error?.message ?? String(error)}`
@@ -1824,7 +1844,7 @@ async function showPetReaction(trigger) {
                   :disabled="!canSaveDraft"
                   @click="handleSaveDraft"
                 >
-                  {{ t.saveDraft }}
+                  {{ saveDraftLabel }}
                 </button>
               </div>
 
@@ -1875,6 +1895,45 @@ async function showPetReaction(trigger) {
               </div>
               <p v-else class="explanation">{{ t.noDraftYet }}</p>
               <p v-if="draftReviewItems.length > 1" class="field-hint">{{ t.saveSingleDraftOnly }}</p>
+
+              <div v-if="draftImportReport" class="preview-card import-report-card">
+                <p class="label">{{ t.importReport }}</p>
+                <div class="report-grid">
+                  <div class="report-stat">
+                    <strong>{{ draftImportReport.savedCount }}</strong>
+                    <span>{{ t.savedDrafts }}</span>
+                  </div>
+                  <div class="report-stat">
+                    <strong>{{ draftImportReport.skippedCount }}</strong>
+                    <span>{{ t.skippedDrafts }}</span>
+                  </div>
+                  <div class="report-stat">
+                    <strong>{{ draftImportReport.warningCount }}</strong>
+                    <span>{{ t.warningDrafts }}</span>
+                  </div>
+                  <div class="report-stat">
+                    <strong>{{ draftImportReport.errorCount }}</strong>
+                    <span>{{ t.errorDrafts }}</span>
+                  </div>
+                </div>
+                <div class="diagnostics-list compact">
+                  <article
+                    v-for="item in draftImportReport.items"
+                    :key="`draft-import-${item.index}`"
+                    class="diagnostic-item"
+                    :class="item.status === 'saved' ? 'warning' : 'error'"
+                  >
+                    <div class="diagnostic-head">
+                      <strong>{{ t.draftBatchItem }} {{ item.index }}</strong>
+                      <span class="severity-pill" :class="item.status === 'saved' ? 'warning' : 'error'">
+                        {{ item.status }}
+                      </span>
+                    </div>
+                    <p v-if="item.cardId">{{ item.cardId }}</p>
+                    <span v-if="item.savedPath">{{ item.savedPath }}</span>
+                  </article>
+                </div>
+              </div>
             </section>
         </div>
 
