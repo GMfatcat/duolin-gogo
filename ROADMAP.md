@@ -598,4 +598,6 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
+- first slice implemented: settings and authoring are already split into separate gear and book surfaces
+- second slice implemented: diagnostics now live in a dedicated top-right popout so settings and library stay shorter

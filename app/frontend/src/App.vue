@@ -89,6 +89,7 @@ const translations = {
     accuracySuffix: '正答率',
     settingsLabel: '設定',
     libraryLabel: '書庫',
+    diagnosticsLabel: '診斷',
     close: '關閉',
     saveSchedule: '儲存排程',
     openSettings: '開啟設定',
@@ -187,6 +188,7 @@ const translations = {
     accuracySuffix: 'accuracy',
     settingsLabel: 'Settings',
     libraryLabel: 'Library',
+    diagnosticsLabel: 'Diagnostics',
     close: 'Close',
     saveSchedule: 'Save schedule',
     openSettings: 'Open settings',
@@ -231,6 +233,7 @@ const changingLanguage = ref(false)
 const phase = ref('learn')
 const settingsOpen = ref(false)
 const libraryOpen = ref(false)
+const diagnosticsOpen = ref(false)
 const resetWarningOpen = ref(false)
 const reviewCompleted = ref(false)
 const reviewSessionProgress = ref({
@@ -780,6 +783,10 @@ function toggleSettings() {
 function toggleLibrary() {
   libraryOpen.value = !libraryOpen.value
 }
+
+function toggleDiagnostics() {
+  diagnosticsOpen.value = !diagnosticsOpen.value
+}
 </script>
 
 <template>
@@ -829,6 +836,22 @@ function toggleLibrary() {
               stroke-linejoin="round"
               stroke-width="1.8"
             />
+          </svg>
+        </button>
+
+        <button class="diagnostics-button" type="button" :aria-label="t.diagnosticsLabel" @click="toggleDiagnostics">
+          <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M5 19V9M12 19V5M19 19v-8"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+            />
+            <circle cx="5" cy="7" r="2" fill="currentColor" />
+            <circle cx="12" cy="3" r="2" fill="currentColor" />
+            <circle cx="19" cy="9" r="2" fill="currentColor" />
           </svg>
         </button>
 
@@ -1214,6 +1237,17 @@ function toggleLibrary() {
         </div>
 
         <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
+      </section>
+    </div>
+
+    <div v-if="diagnosticsOpen" class="settings-overlay" @click.self="toggleDiagnostics">
+      <section class="settings-popout diagnostics-popout">
+        <div class="study-header">
+          <div>
+            <h2>{{ t.diagnosticsLabel }}</h2>
+          </div>
+          <button class="close-button" type="button" @click="toggleDiagnostics">{{ t.close }}</button>
+        </div>
 
         <details class="diagnostics-disclosure" open>
           <summary>{{ t.diagnosticsTitle }}</summary>

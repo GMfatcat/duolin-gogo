@@ -120,6 +120,7 @@ Current useful controls:
 - `Reset study data` with a confirmation warning before local progress is cleared
 - `Authoring preview` inside the library/book popout for single-card inspection
 - `AI draft review` inside the library/book popout for pasted Markdown inspection
+- diagnostics now live in their own top-right diagnostics surface so neither settings nor library needs to scroll for deck health details
 - `Save draft` from reviewed AI Markdown into `knowledge/<topic>/`
 - saving a draft now auto-refreshes authoring preview onto the new card
 - settings diagnostics now include a deck-level batch report
@@ -130,7 +131,7 @@ Current useful controls:
 - active review batches now show explicit progress cues for completed, total, and remaining cards
 - the review completion state now includes a lightweight session summary with answered count, estimated accuracy, and the weakest current topic
 - `zh-TW` / `en` language toggle
-- separate top-right `Settings` and `Library` buttons
+- separate top-right `Settings`, `Library`, and `Diagnostics` buttons
 - answer submission
 
 ## 8. Test Windows Notifications

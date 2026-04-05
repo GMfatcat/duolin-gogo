@@ -94,5 +94,7 @@ Next targets:
 - Cross-cut UI structure work
   - split runtime settings from authoring tools
   - keep `Settings` focused on schedule, notification, and utility controls
-  - move `Authoring preview`, `AI draft review`, detailed diagnostics, and batch validation into a separate library/authoring popout
+  - move `Authoring preview` and `AI draft review` into a separate library/authoring popout
+  - move detailed diagnostics and batch validation into a dedicated diagnostics popout
   - implemented: the top-right chrome now uses separate gear and book buttons so authoring tools no longer crowd the main settings surface
+  - implemented: diagnostics and batch validation now use their own top-right popout so the library surface stays shorter and cleaner

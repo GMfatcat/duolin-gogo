@@ -186,7 +186,7 @@ describe('App', () => {
     expect(wrapper.text()).toContain('duolin-gogo')
   })
 
-  it('distinguishes import warnings from import errors inside settings diagnostics', async () => {
+  it('distinguishes import warnings from import errors inside diagnostics popout', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
@@ -212,7 +212,7 @@ describe('App', () => {
     }
     await wrapper.vm.$nextTick()
 
-    await wrapper.find('.library-button').trigger('click')
+    await wrapper.find('.diagnostics-button').trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('題庫報告')
@@ -251,7 +251,7 @@ describe('App', () => {
     }
     await wrapper.vm.$nextTick()
 
-    await wrapper.find('.library-button').trigger('click')
+    await wrapper.find('.diagnostics-button').trigger('click')
     await flushPromises()
 
     const selects = wrapper.findAll('.diagnostic-filter')
@@ -269,7 +269,7 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
-    await wrapper.find('.library-button').trigger('click')
+    await wrapper.find('.diagnostics-button').trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('rebase.md')
@@ -285,6 +285,7 @@ describe('App', () => {
     await flushPromises()
 
     expect(wrapper.find('.preview-select').exists()).toBe(true)
+    expect(wrapper.find('.diagnostics-disclosure').exists()).toBe(false)
     expect(wrapper.find('.preview-card').text()).toContain('Cherry-pick')
 
     await wrapper.find('.preview-select').setValue('D:/duolin-gogo/knowledge/git/rebase.md')

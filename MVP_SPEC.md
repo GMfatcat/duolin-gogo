@@ -200,13 +200,14 @@ Question types deferred until later:
   - right side for answer-related stats and weak-topic context only
 - Utility controls and diagnostics should move out of the main sidebar and into a settings popout triggered from the top-right app chrome
 - Authoring workflows should not live in the same popout as end-user settings
-- The top-right chrome should provide two separate utility entry points:
+- The top-right chrome should provide separate utility entry points:
   - a settings trigger for runtime settings and operational actions
-  - a library/authoring trigger for card preview, AI draft review, and detailed deck diagnostics
+  - a library/authoring trigger for card preview and AI draft review
+  - a diagnostics trigger for detailed deck health, batch validation, and recently changed cards
 - Settings popout should also contain scheduling controls such as review time, notification interval, and active hours
 - Settings popout should prefer a wider horizontal layout so the main controls fit without vertical scrolling in normal desktop use
 - Settings popout should prefer concise health summaries instead of full authoring diagnostics detail
-- Detailed diagnostics, authoring preview, AI draft review, and batch validation should live in the dedicated authoring/library popout
+- Detailed diagnostics and batch validation should live in a dedicated diagnostics popout instead of stretching the authoring surface
 - During the `Learn` phase, the explanation is visible and the question is hidden
 - During the `Answer` phase, the question and answer choices are visible and the explanation is hidden
 - User can submit an answer

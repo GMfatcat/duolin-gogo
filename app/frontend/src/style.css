@@ -222,6 +222,7 @@ body {
 .next-button,
 .toolbar-button,
 .library-button,
+.diagnostics-button,
 .settings-button,
 .close-button {
   border: 0;
@@ -247,7 +248,8 @@ body {
 }
 
 .settings-button,
-.library-button {
+.library-button,
+.diagnostics-button {
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -386,6 +388,10 @@ body {
 
 .library-popout {
   width: min(1120px, calc(100vw - 32px));
+}
+
+.diagnostics-popout {
+  width: min(980px, calc(100vw - 32px));
 }
 
 .confirm-popout {
