@@ -117,10 +117,12 @@ describe('App', () => {
 
     const numberInput = wrapper.find('input[type="number"]')
     const timeInputs = wrapper.findAll('input[type="time"]')
+    const selects = wrapper.findAll('.schedule-grid select')
     const checkbox = wrapper.find('input[type="checkbox"]')
 
     await numberInput.setValue('30')
     await timeInputs[0].setValue('20:30')
+    await selects[0].setValue('fast')
     await checkbox.setValue(false)
     await wrapper.find('.save-button').trigger('click')
     await flushPromises()
@@ -148,7 +150,9 @@ describe('App', () => {
     await flushPromises()
 
     const numberInput = wrapper.find('input[type="number"]')
+    const revealSelect = wrapper.findAll('.schedule-grid select')[0]
     expect(numberInput.element.value).toBe('20')
+    expect(revealSelect.element.value).toBe('normal')
   })
 
   it('validates knowledge without reloading the current study card', async () => {

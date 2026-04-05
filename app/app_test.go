@@ -173,6 +173,9 @@ func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 	if dashboard.ScheduleSettings.NotificationIntervalMinutes != 20 {
 		t.Fatalf("expected default notification interval 20, got %d", dashboard.ScheduleSettings.NotificationIntervalMinutes)
 	}
+	if dashboard.ScheduleSettings.RevealSpeed != "normal" {
+		t.Fatalf("expected default reveal speed normal, got %s", dashboard.ScheduleSettings.RevealSpeed)
+	}
 
 	if len(dashboard.Summary.WeakTopics) == 0 {
 		t.Fatal("expected weak topics summary")
@@ -1259,7 +1262,7 @@ func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
 	app.schedulerState.LastNotificationAt = &previous
 	app.schedulerState.SnoozedUntil = &snoozedUntil
 
-	status, err := app.UpdateScheduleSettings(30, "20:30", true, "08:30", "23:30")
+	status, err := app.UpdateScheduleSettings(30, "20:30", true, "08:30", "23:30", "fast")
 	if err != nil {
 		t.Fatalf("update schedule settings failed: %v", err)
 	}
@@ -1287,6 +1290,9 @@ func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
 	}
 	if dashboard.ScheduleSettings.ActiveHoursEnd != "23:30" {
 		t.Fatalf("expected active hours end 23:30, got %s", dashboard.ScheduleSettings.ActiveHoursEnd)
+	}
+	if dashboard.ScheduleSettings.RevealSpeed != "fast" {
+		t.Fatalf("expected reveal speed fast, got %s", dashboard.ScheduleSettings.RevealSpeed)
 	}
 
 	if app.schedulerState.LastNotificationAt == nil {

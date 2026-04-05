@@ -374,6 +374,7 @@ export namespace main {
 	    activeHoursEnabled: boolean;
 	    activeHoursStart: string;
 	    activeHoursEnd: string;
+	    revealSpeed: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new ScheduleSettings(source);
@@ -386,6 +387,7 @@ export namespace main {
 	        this.activeHoursEnabled = source["activeHoursEnabled"];
 	        this.activeHoursStart = source["activeHoursStart"];
 	        this.activeHoursEnd = source["activeHoursEnd"];
+	        this.revealSpeed = source["revealSpeed"];
 	    }
 	}
 	export class NotificationSettings {

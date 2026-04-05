@@ -33,6 +33,7 @@ type File struct {
 		MaxNewCardsPerDay          int `json:"max_new_cards_per_day"`
 		SnoozeMinutes              int `json:"snooze_minutes"`
 		CooldownAfterAnswerMinutes int `json:"cooldown_after_answer_minutes"`
+		RevealSpeed                string `json:"reveal_speed"`
 	} `json:"study_rules"`
 }
 

@@ -61,6 +61,7 @@ type ScheduleSettings struct {
 	ActiveHoursEnabled          bool   `json:"activeHoursEnabled"`
 	ActiveHoursStart            string `json:"activeHoursStart"`
 	ActiveHoursEnd              string `json:"activeHoursEnd"`
+	RevealSpeed                 string `json:"revealSpeed"`
 }
 
 type AuthoringPreviewFile struct {
@@ -316,6 +317,7 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 			ActiveHoursEnabled:          config.ActiveHours.Enabled,
 			ActiveHoursStart:            normalizeClockTime(config.ActiveHours.Start, "09:00"),
 			ActiveHoursEnd:              normalizeClockTime(config.ActiveHours.End, "22:00"),
+			RevealSpeed:                 normalizeRevealSpeed(config.StudyRules.RevealSpeed),
 		},
 		CurrentCard: currentCard,
 		ReviewQueue: reviewQueue,
@@ -1013,7 +1015,7 @@ func (a *App) UpdateSelectedTopic(topic string) (ActionStatus, error) {
 	return ActionStatus{Message: "Topic filter updated."}, nil
 }
 
-func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime string, activeHoursEnabled bool, activeHoursStart string, activeHoursEnd string) (ActionStatus, error) {
+func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime string, activeHoursEnabled bool, activeHoursStart string, activeHoursEnd string, revealSpeed string) (ActionStatus, error) {
 	path := filepath.Join(a.dataDir, "settings.json")
 	file, err := settings.Load(path)
 	if err != nil {
@@ -1025,6 +1027,7 @@ func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime
 	file.ActiveHours.Enabled = activeHoursEnabled
 	file.ActiveHours.Start = normalizeClockTime(activeHoursStart, "09:00")
 	file.ActiveHours.End = normalizeClockTime(activeHoursEnd, "22:00")
+	file.StudyRules.RevealSpeed = normalizeRevealSpeed(revealSpeed)
 
 	if err := writeSettingsFile(path, file); err != nil {
 		return ActionStatus{}, err
@@ -1369,6 +1372,15 @@ func normalizeClockTime(value string, fallback string) string {
 	}
 
 	return value
+}
+
+func normalizeRevealSpeed(value string) string {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "fast", "slow":
+		return strings.ToLower(strings.TrimSpace(value))
+	default:
+		return "normal"
+	}
 }
 
 func writeSettingsFile(path string, file settings.File) error {

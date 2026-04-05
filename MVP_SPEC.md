@@ -449,6 +449,7 @@ Suggested review scheduling:
 - the reusable AI authoring prompt should also be available inside the app, so the Library surface can act as a full authoring workspace instead of relying only on external markdown files
 - Markdown-to-card assist should help turn plain notes into a card-shaped scaffold, then hand that scaffold to the same draft-review flow used for pasted AI drafts
 - the Learn phase should support a lightweight line-by-line reveal for short concept intros, plus a replay control, so brief knowledge cards feel guided without forcing a long read gate
+- the reveal cadence should remain lightweight and user-adjustable through simple presets such as fast, normal, and slow instead of exposing raw milliseconds
 
 ## 12. Local Storage Strategy
 

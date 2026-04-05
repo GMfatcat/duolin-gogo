@@ -261,6 +261,7 @@ const fallbackDashboard = {
     activeHoursEnabled: true,
     activeHoursStart: '09:00',
     activeHoursEnd: '22:00',
+    revealSpeed: 'normal',
   },
   importErrors: [],
   currentCard: cloneCard('git'),
@@ -498,6 +499,7 @@ export function __resetFallbackState() {
     activeHoursEnabled: true,
     activeHoursStart: '09:00',
     activeHoursEnd: '22:00',
+    revealSpeed: 'normal',
   }
   fallbackDashboard.importErrors = []
   fallbackDashboard.reviewQueue = []
@@ -1033,6 +1035,7 @@ export async function updateScheduleSettings({
   activeHoursEnabled,
   activeHoursStart,
   activeHoursEnd,
+  revealSpeed,
 }) {
   if (hasBackend()) {
     return UpdateScheduleSettings(
@@ -1041,6 +1044,7 @@ export async function updateScheduleSettings({
       activeHoursEnabled,
       activeHoursStart,
       activeHoursEnd,
+      revealSpeed,
     )
   }
 
@@ -1050,6 +1054,7 @@ export async function updateScheduleSettings({
     activeHoursEnabled,
     activeHoursStart,
     activeHoursEnd,
+    revealSpeed,
   }
   return { message: 'Schedule settings updated.' }
 }

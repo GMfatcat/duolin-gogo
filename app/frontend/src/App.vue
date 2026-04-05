@@ -96,6 +96,10 @@ const translations = {
     activeHoursEnabled: '限制在這段時間內推送',
     activeHoursStart: '開始時間',
     activeHoursEnd: '結束時間',
+    revealSpeed: '導讀速度',
+    revealSpeedFast: '快',
+    revealSpeedNormal: '普通',
+    revealSpeedSlow: '慢',
     diagnosticsTitle: '匯入診斷',
     noDiagnostics: '目前沒有匯入問題。',
     importHealthOk: '匯入正常',
@@ -233,6 +237,10 @@ const translations = {
     activeHoursEnabled: 'Only notify during this time range',
     activeHoursStart: 'Start time',
     activeHoursEnd: 'End time',
+    revealSpeed: 'Reveal speed',
+    revealSpeedFast: 'Fast',
+    revealSpeedNormal: 'Normal',
+    revealSpeedSlow: 'Slow',
     diagnosticsTitle: 'Import diagnostics',
     noDiagnostics: 'No import issues detected.',
     importHealthOk: 'import OK',
@@ -393,6 +401,7 @@ const scheduleForm = ref({
   activeHoursEnabled: true,
   activeHoursStart: '09:00',
   activeHoursEnd: '22:00',
+  revealSpeed: 'normal',
 })
 let unsubscribe = null
 
@@ -416,6 +425,7 @@ const scheduleSettings = computed(() =>
     activeHoursEnabled: true,
     activeHoursStart: '09:00',
     activeHoursEnd: '22:00',
+    revealSpeed: 'normal',
   },
 )
 const previewCard = computed(() => authoringPreview.value?.currentCard ?? null)
@@ -669,6 +679,16 @@ const activeHoursSummary = computed(() => {
   }
   return `${scheduleForm.value.activeHoursStart} - ${scheduleForm.value.activeHoursEnd}`
 })
+const revealDelayMs = computed(() => {
+  switch (scheduleForm.value.revealSpeed) {
+    case 'fast':
+      return 500
+    case 'slow':
+      return 1300
+    default:
+      return 900
+  }
+})
 const diagnosticsBySource = computed(() => {
   const grouped = new Map()
   for (const item of importErrors.value) {
@@ -849,6 +869,7 @@ async function refreshDashboard() {
     activeHoursEnabled: scheduleSettings.value.activeHoursEnabled,
     activeHoursStart: scheduleSettings.value.activeHoursStart,
     activeHoursEnd: scheduleSettings.value.activeHoursEnd,
+    revealSpeed: scheduleSettings.value.revealSpeed || 'normal',
   }
   resetStudyFlow()
   loading.value = false
@@ -894,7 +915,7 @@ function startExplanationReveal() {
   explanationLines.value.slice(1).forEach((_, index) => {
     const timer = setTimeout(() => {
       explanationRevealCount.value = Math.min(explanationLines.value.length, index + 2)
-    }, 900 * (index + 1))
+    }, revealDelayMs.value * (index + 1))
     explanationRevealTimers.value.push(timer)
   })
 }
@@ -1236,6 +1257,7 @@ async function handleScheduleSave() {
       activeHoursEnabled: scheduleForm.value.activeHoursEnabled,
       activeHoursStart: scheduleForm.value.activeHoursStart,
       activeHoursEnd: scheduleForm.value.activeHoursEnd,
+      revealSpeed: scheduleForm.value.revealSpeed,
     }
     const result = await updateScheduleSettings(nextSettings)
     dashboard.value = {
@@ -1811,6 +1833,15 @@ async function showPetReaction(trigger) {
               <label class="settings-field">
                 <span>{{ t.activeHoursEnd }}</span>
                 <input v-model="scheduleForm.activeHoursEnd" type="time" :disabled="!scheduleForm.activeHoursEnabled">
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.revealSpeed }}</span>
+                <select v-model="scheduleForm.revealSpeed">
+                  <option value="fast">{{ t.revealSpeedFast }}</option>
+                  <option value="normal">{{ t.revealSpeedNormal }}</option>
+                  <option value="slow">{{ t.revealSpeedSlow }}</option>
+                </select>
               </label>
             </div>
 
