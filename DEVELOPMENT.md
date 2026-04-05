@@ -86,6 +86,7 @@ Next targets:
   - seventeenth slice implemented: Markdown-to-card assist now turns plain notes into a card-shaped scaffold and feeds that scaffold into the existing draft review flow inside Library
   - eighteenth slice implemented: authoring UI is now split between `Library` and a dedicated `AI` popout, so authoring preview stays focused on card browsing while AI prompt, draft review, and note-to-card assist live in their own workspace
   - nineteenth slice implemented: authoring preview now includes a plain search box backed by tokenized regex matching across filename, path, card id, localized titles, and topic, so growing knowledge decks no longer depend on long dropdown scrolling
+  - twentieth slice implemented: note-to-card assist now lives in `Library`, the `AI` surface now stays focused on prompt plus draft review, and draft review can target both existing topics and sanitized custom topic-folder names for newly created decks
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

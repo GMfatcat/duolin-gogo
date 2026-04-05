@@ -1087,6 +1087,45 @@ git fetch only updates tracking refs and does not merge directly.`
 	}
 }
 
+func TestSaveDraftSanitizesCustomTopicFolder(t *testing.T) {
+	app := newTestApp(t)
+
+	raw := `---
+id: custom-topic-card
+title_zh: 自訂主題
+title_en: Custom Topic
+type: true-false
+question_zh: "這是一張自訂主題卡片。"
+question_en: "This is a custom topic card."
+clickbait_zh: "新的主題資料夾會被整理成什麼名字？"
+clickbait_en: "How will the custom topic folder be normalized?"
+review_hint_zh: "主題名稱應該安全又穩定。"
+review_hint_en: "Topic names should be safe and stable."
+answer: true
+---
+
+## zh-TW
+
+這是一張自訂主題卡片。
+
+## en
+
+This is a custom topic card.`
+
+	status, err := app.SaveDraft(raw, "Backend Tools / Kubernetes")
+	if err != nil {
+		t.Fatalf("save draft failed: %v", err)
+	}
+
+	expectedPath := filepath.Join(app.knowledgeDir, "backend-tools-kubernetes", "custom-topic-card.md")
+	if status.SavedPath != expectedPath {
+		t.Fatalf("unexpected sanitized saved path: %s", status.SavedPath)
+	}
+	if _, err := os.Stat(expectedPath); err != nil {
+		t.Fatalf("expected sanitized draft file: %v", err)
+	}
+}
+
 func TestSaveDraftReturnsBatchImportReportForMixedBatch(t *testing.T) {
 	app := newTestApp(t)
 

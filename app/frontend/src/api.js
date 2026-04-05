@@ -206,6 +206,16 @@ function cloneCard(topic) {
   return structuredClone(fallbackCardsByTopic[topic] || fallbackCardsByTopic.git)
 }
 
+function normalizeFallbackTopic(topic) {
+  const normalized = (topic || 'git')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+  return normalized || 'git'
+}
+
 function fallbackPreviewFile(path, card = null) {
   const resolvedCard = card || fallbackSavedDrafts.get(path)
   const normalizedPath = path.replace(/\\/g, '/')
@@ -871,6 +881,7 @@ export async function generateDraftScaffold({ sourceNotes, topic }) {
     return GenerateDraftScaffold(sourceNotes, topic)
   }
 
+  topic = normalizeFallbackTopic(topic)
   const firstMeaningfulLine =
     sourceNotes
       .replaceAll('\r\n', '\n')
@@ -937,7 +948,7 @@ export async function saveDraft({ raw, topic }) {
     return match ? match[1] : ''
   }
 
-  const resolvedTopic = topic || 'git'
+  const resolvedTopic = normalizeFallbackTopic(topic)
   const report = {
     savedCount: 0,
     skippedCount: 0,

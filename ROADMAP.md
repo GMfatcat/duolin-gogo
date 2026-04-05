@@ -422,6 +422,7 @@ Current status:
 - in_progress
 - first slice implemented: the reusable prompt from `AI_CARD_PROMPT.md` now loads inside the Library surface and can be copied directly from the app
 - latest slice implemented: the authoring workspace is now split into `Library` and `AI`, and authoring preview has a built-in search flow so larger decks can be browsed without relying on one long file dropdown
+- latest refinement: note-to-card assist moved back into `Library`, the `AI` workspace now centers on prompt plus draft review, and draft saves can target sanitized custom topic folders for newly created decks
 
 ### Next Phase A1: Card Preview
 

@@ -147,6 +147,7 @@ const translations = {
     authoringPreview: '作者預覽',
     previewFile: '卡片檔案',
     previewSearch: '搜尋卡片',
+    previewNoResults: '目前沒有符合搜尋條件的卡片。',
     previewDiagnostics: '這張卡的診斷',
     noPreviewDiagnostics: '這張卡目前沒有額外診斷。',
     fixSuggestion: '建議修法',
@@ -157,6 +158,10 @@ const translations = {
     noDraftYet: '貼上草稿後，就可以在這裡看到 normalized preview 與診斷。',
     saveDraft: '儲存草稿',
     draftTopic: '主題資料夾',
+    draftTopicExisting: '選現有主題',
+    draftTopicCustom: '新增主題',
+    draftTopicCustomHint: '輸入新的資料夾名稱，例如 `kubernetes`。',
+    customTopicOption: '新增主題…',
     draftDividerHint: '用 `===` 分隔多張草稿。',
     draftBatchItem: '草稿',
     draftValid: '可用',
@@ -290,6 +295,7 @@ const translations = {
     authoringPreview: 'Authoring preview',
     previewFile: 'Card file',
     previewSearch: 'Search cards',
+    previewNoResults: 'No cards match the current search.',
     previewDiagnostics: 'Diagnostics for this card',
     noPreviewDiagnostics: 'No diagnostics for this card.',
     fixSuggestion: 'Suggested fix',
@@ -300,6 +306,10 @@ const translations = {
     noDraftYet: 'Paste a draft to inspect the normalized preview and diagnostics here.',
     saveDraft: 'Save draft',
     draftTopic: 'Topic folder',
+    draftTopicExisting: 'Choose an existing topic',
+    draftTopicCustom: 'Add a new topic',
+    draftTopicCustomHint: 'Enter a new folder name, for example `kubernetes`.',
+    customTopicOption: 'Add new topic…',
     draftDividerHint: 'Separate multiple drafts with `===`.',
     draftBatchItem: 'Draft',
     draftValid: 'Ready',
@@ -393,6 +403,8 @@ const authoringPreview = ref({
 const authoringPrompt = ref('')
 const previewSearch = ref('')
 const scaffoldSource = ref('')
+const draftTopicChoice = ref('git')
+const draftCustomTopic = ref('')
 const draftReview = ref({
   raw: '',
   items: [],
@@ -450,6 +462,23 @@ const filteredPreviewFiles = computed(() => {
     tokens.every((pattern) => pattern.test(file.searchText || `${file.name}\n${file.path}`)),
   )
 })
+const contentTopics = computed(() => {
+  const fromDashboard = availableTopics.value.filter(
+    (topic) => !['all', 'backend-tools', 'languages'].includes(topic),
+  )
+  const fromPreview = previewFiles.value
+    .map((file) => file.topic)
+    .filter((topic) => topic && !['all', 'backend-tools', 'languages'].includes(topic))
+
+  return Array.from(new Set([...fromDashboard, ...fromPreview])).sort()
+})
+const selectedDraftTopic = computed(() => {
+  if (draftTopicChoice.value === '__custom__') {
+    return sanitizeTopicInput(draftCustomTopic.value) || 'git'
+  }
+  return draftTopicChoice.value || 'git'
+})
+const filteredPreviewHasResults = computed(() => filteredPreviewFiles.value.length > 0)
 const previewErrors = computed(() => authoringPreview.value?.importErrors ?? [])
 const draftReviewItems = computed(() => draftReview.value?.items ?? [])
 const draftReviewErrors = computed(() => draftReview.value?.importErrors ?? [])
@@ -465,6 +494,14 @@ function previewFileLabel(file) {
     return `${file.name} · ${file.cardId}`
   }
   return file?.name || ''
+}
+
+function sanitizeTopicInput(value) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 const reviewProgressText = computed(() => {
   if (!reviewSessionProgress.value.active || reviewSessionProgress.value.total <= 0) return ''
@@ -842,6 +879,31 @@ watch([explanationLines, phase], () => {
   }
   clearExplanationRevealTimers()
   explanationRevealCount.value = explanationLines.value.length
+}, { immediate: true })
+
+watch(filteredPreviewFiles, async (files) => {
+  if (!files.length) {
+    return
+  }
+  const selected = authoringPreview.value?.selectedPath
+  if (!files.some((file) => file.path === selected)) {
+    await handlePreviewSelection(files[0].path)
+  }
+})
+
+watch(contentTopics, (topics) => {
+  if (!topics.length) {
+    draftTopicChoice.value = 'git'
+    return
+  }
+
+  if (draftTopicChoice.value === '__custom__') {
+    return
+  }
+
+  if (!topics.includes(draftTopicChoice.value)) {
+    draftTopicChoice.value = topics[0]
+  }
 }, { immediate: true })
 
 async function refreshDashboard() {
@@ -1240,7 +1302,7 @@ async function handleSaveDraft() {
   try {
     const result = await saveDraft({
       raw: draftReview.value.raw,
-      topic: draftReview.value.topic,
+      topic: selectedDraftTopic.value,
     })
     draftImportReport.value = result.report ?? null
     if (result.successful) {
@@ -1392,7 +1454,7 @@ async function handleGenerateDraftScaffold() {
   try {
     const result = await generateDraftScaffold({
       sourceNotes: scaffoldSource.value,
-      topic: draftReview.value.topic,
+      topic: selectedDraftTopic.value,
     })
     draftReview.value = {
       ...draftReview.value,
@@ -1400,6 +1462,8 @@ async function handleGenerateDraftScaffold() {
     }
     actionMessage.value = selectedLanguage.value === 'en' ? 'Draft scaffold generated.' : '草稿骨架已產生。'
     await handleDraftReview()
+    libraryOpen.value = false
+    aiOpen.value = true
   } catch (error) {
     actionMessage.value = `Scaffold failed: ${error?.message ?? String(error)}`
   }
@@ -1428,7 +1492,7 @@ async function showPetReaction(trigger) {
   <main class="shell">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">THE CLICK-BATE MASTER</p>
+        <p class="eyebrow">THE CLICK-BAIT MASTER</p>
         <h1>duolin-gogo</h1>
         <p class="summary">{{ t.summary }}</p>
         <p class="topic-context">{{ topicDescription }}</p>
@@ -1496,7 +1560,7 @@ async function showPetReaction(trigger) {
         <button class="library-button ai-button" type="button" :aria-label="t.aiLabel" @click="toggleAI">
           <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path
-              d="M12 3l1.7 4.1L18 8.8l-4.3 1.8L12 15l-1.7-4.4L6 8.8l4.3-1.7L12 3Z"
+              d="M8 7.5A2.5 2.5 0 1 1 13 7.5v1.2h1.6A2.4 2.4 0 0 1 17 11.1v2.8A2.4 2.4 0 0 1 14.6 16.3H9.4A2.4 2.4 0 0 1 7 13.9v-2.8a2.4 2.4 0 0 1 2.4-2.4H11V7.5M9.8 18.5h4.4M12 16.3v2.2"
               fill="none"
               stroke="currentColor"
               stroke-linecap="round"
@@ -1933,20 +1997,23 @@ async function showPetReaction(trigger) {
               >
             </label>
 
-            <label class="settings-field">
-              <span>{{ t.previewFile }}</span>
-              <select
-                class="preview-select"
-                :value="authoringPreview.selectedPath"
-                @change="handlePreviewSelection($event.target.value)"
-              >
-                <option v-for="file in filteredPreviewFiles" :key="file.path" :value="file.path">
-                  {{ previewFileLabel(file) }}
-                </option>
-              </select>
-            </label>
+              <label class="settings-field">
+                <span>{{ t.previewFile }}</span>
+                <select
+                  class="preview-select"
+                  :disabled="!filteredPreviewHasResults"
+                  :value="authoringPreview.selectedPath"
+                  @change="handlePreviewSelection($event.target.value)"
+                >
+                  <option v-for="file in filteredPreviewFiles" :key="file.path" :value="file.path">
+                    {{ previewFileLabel(file) }}
+                  </option>
+                </select>
+              </label>
 
-            <div v-if="previewCard" class="preview-card">
+              <p v-if="!filteredPreviewHasResults" class="explanation compact">{{ t.previewNoResults }}</p>
+
+            <div v-if="previewCard && filteredPreviewHasResults" class="preview-card">
               <p class="label">{{ previewCard.id }}</p>
               <strong>{{ selectedLanguage === 'en' ? previewCard.titleEn : previewCard.titleZh }}</strong>
               <p class="callout compact">{{ selectedLanguage === 'en' ? previewCard.clickbaitEn : previewCard.clickbaitZh }}</p>
@@ -1956,7 +2023,7 @@ async function showPetReaction(trigger) {
 
             <div class="preview-diagnostics">
               <span class="label">{{ t.previewDiagnostics }}</span>
-              <div v-if="previewErrors.length" class="diagnostics-list compact">
+              <div v-if="previewErrors.length && filteredPreviewHasResults" class="diagnostics-list compact">
                 <article
                   v-for="item in previewErrors"
                   :key="`preview-${item.source_path}-${item.code}-${item.field || ''}`"
@@ -1976,6 +2043,30 @@ async function showPetReaction(trigger) {
                   </article>
               </div>
               <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
+            </div>
+          </section>
+
+          <section class="study-card inset-card preview-panel">
+            <div class="study-header">
+              <div>
+                <h2>{{ t.markdownAssist }}</h2>
+              </div>
+            </div>
+
+            <p class="explanation compact">{{ t.markdownAssistHint }}</p>
+            <label class="settings-field">
+              <span>{{ t.markdownAssistInput }}</span>
+              <textarea
+                v-model="scaffoldSource"
+                class="draft-input"
+                rows="8"
+                spellcheck="false"
+              />
+            </label>
+            <div class="draft-actions">
+              <button class="phase-button" type="button" @click="handleGenerateDraftScaffold">
+                {{ t.markdownAssistGenerate }}
+              </button>
             </div>
           </section>
         </div>
@@ -2013,30 +2104,6 @@ async function showPetReaction(trigger) {
             <section class="study-card inset-card preview-panel">
               <div class="study-header">
                 <div>
-                  <h2>{{ t.markdownAssist }}</h2>
-                </div>
-              </div>
-
-              <p class="explanation compact">{{ t.markdownAssistHint }}</p>
-              <label class="settings-field">
-                <span>{{ t.markdownAssistInput }}</span>
-                <textarea
-                  v-model="scaffoldSource"
-                  class="draft-input"
-                  rows="8"
-                  spellcheck="false"
-                />
-              </label>
-              <div class="draft-actions">
-                <button class="phase-button" type="button" @click="handleGenerateDraftScaffold">
-                  {{ t.markdownAssistGenerate }}
-                </button>
-              </div>
-            </section>
-
-            <section class="study-card inset-card preview-panel">
-              <div class="study-header">
-                <div>
                   <h2>{{ t.aiDraftReview }}</h2>
                 </div>
               </div>
@@ -2054,9 +2121,21 @@ async function showPetReaction(trigger) {
 
             <label class="settings-field">
               <span>{{ t.draftTopic }}</span>
-              <select v-model="draftReview.topic" class="draft-topic-select">
-                <option value="git">git</option>
+              <select v-model="draftTopicChoice" class="draft-topic-select">
+                <option v-for="topic in contentTopics" :key="topic" :value="topic">{{ topic }}</option>
+                <option value="__custom__">{{ t.customTopicOption }}</option>
               </select>
+            </label>
+
+            <label v-if="draftTopicChoice === '__custom__'" class="settings-field">
+              <span>{{ t.draftTopicCustom }}</span>
+              <input
+                v-model="draftCustomTopic"
+                class="draft-topic-input"
+                type="text"
+                placeholder="kubernetes"
+              >
+              <small class="field-hint">{{ t.draftTopicCustomHint }}</small>
             </label>
 
               <div class="draft-actions">

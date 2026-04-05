@@ -691,6 +691,22 @@ describe('App', () => {
     expect(cherryOptions[0].text()).toContain('git-cherry-pick-purpose')
   })
 
+  it('shows an empty-state hint when library search has no matching cards', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+    await wrapper.find('.library-button').trigger('click')
+    await flushPromises()
+
+    const searchInput = wrapper.find('.preview-search')
+    await searchInput.setValue('definitely-no-card')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('No cards match the current search.')
+    expect(wrapper.find('.preview-select').attributes('disabled')).toBeDefined()
+  })
+
   it('reviews pasted AI draft markdown and shows normalized preview', async () => {
     const wrapper = mount(App)
 
@@ -933,7 +949,7 @@ Only one language section.`
 
     await flushPromises()
     await switchToEnglish(wrapper)
-    await wrapper.find('.ai-button').trigger('click')
+    await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
     const assistPanel = findPreviewPanel(wrapper, 'Markdown-to-card assist')
@@ -947,5 +963,59 @@ Only one language section.`
     expect(wrapper.text()).toContain('git fetch')
     expect(wrapper.text()).toContain('TODO: turn this note into a true-or-false concept check.')
     expect(wrapper.text()).toContain('Fetch updates remote-tracking refs without merging.')
+  })
+
+  it('lets users choose an existing topic or type a new one for AI draft saves', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+    await wrapper.find('.ai-button').trigger('click')
+    await flushPromises()
+
+    const topicSelect = wrapper.find('.draft-topic-select')
+    expect(topicSelect.text()).toContain('docker')
+    expect(topicSelect.text()).toContain('python')
+
+    await topicSelect.setValue('__custom__')
+    await flushPromises()
+
+    const customTopicInput = wrapper.find('.draft-topic-input')
+    expect(customTopicInput.exists()).toBe(true)
+    await customTopicInput.setValue('Kubernetes Notes')
+    await flushPromises()
+
+    const draft = `---
+id: kubernetes-ai-review
+title_zh: Kubernetes 筆記
+title_en: Kubernetes Draft
+type: true-false
+question_zh: "kubectl get pods 會列出 pod。"
+question_en: "kubectl get pods lists pods."
+clickbait_zh: "新的主題會進哪個資料夾？"
+clickbait_en: "Which folder should this new topic land in?"
+review_hint_zh: "這是一張測試自訂主題的草稿。"
+review_hint_en: "This draft checks custom topic saving."
+answer: true
+---
+
+## zh-TW
+
+kubectl get pods 會列出目前 namespace 的 pod。
+
+## en
+
+kubectl get pods lists pods in the current namespace.`
+
+    const reviewPanel = findPreviewPanel(wrapper, 'AI draft review')
+    await reviewPanel.find('.draft-input').setValue(draft)
+    const reviewButton = findButtonByText(reviewPanel, '.phase-button', 'Review draft')
+    await reviewButton.trigger('click')
+    await flushPromises()
+    const saveButton = findButtonByText(reviewPanel, '.toolbar-button.secondary', 'Save draft')
+    await saveButton.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('knowledge/kubernetes-notes/kubernetes-ai-review.md')
   })
 })

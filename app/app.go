@@ -1325,7 +1325,11 @@ func normalizeTopicKey(topic string) string {
 }
 
 func normalizeTopic(topic string) string {
-	topic = filepath.Base(topic)
+	topic = strings.ReplaceAll(topic, "\\", " ")
+	topic = strings.ReplaceAll(topic, "/", " ")
+	topic = strings.TrimSpace(strings.ToLower(topic))
+	topic = regexp.MustCompile(`[^a-z0-9._-]+`).ReplaceAllString(topic, "-")
+	topic = strings.Trim(topic, "-")
 	if topic == "." || topic == "" {
 		return "git"
 	}
