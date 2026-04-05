@@ -689,6 +689,54 @@ body {
   white-space: pre-line;
 }
 
+.phase-tools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.replay-button {
+  border: 1px solid var(--dg-teal-border);
+  background: rgba(15, 143, 156, 0.12);
+  color: var(--text-soft);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.replay-button:hover {
+  transform: translateY(-1px);
+  background: rgba(15, 143, 156, 0.18);
+  color: var(--text-main);
+}
+
+.explanation-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 7.5rem;
+}
+
+.reveal-line {
+  animation: revealLine 360ms ease both;
+}
+
+@keyframes revealLine {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .question-block {
   display: flex;
   flex-direction: column;

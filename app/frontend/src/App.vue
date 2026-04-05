@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
 import dgCollapsedBadge from './assets/dg/collapsed-badge.svg'
 import dgIdle from './assets/dg/idle.svg'
@@ -169,6 +169,7 @@ const translations = {
     markdownAssistInput: '貼上原始筆記',
     markdownAssistGenerate: '生成草稿骨架',
     markdownAssistHint: '先把一般筆記轉成卡片骨架，再接著用下方的草稿審查修整。',
+    replayReveal: '重播導讀',
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
@@ -305,6 +306,7 @@ const translations = {
     markdownAssistInput: 'Paste source notes',
     markdownAssistGenerate: 'Generate scaffold',
     markdownAssistHint: 'Turn plain notes into a card-shaped draft first, then refine it through the review flow below.',
+    replayReveal: 'Replay reveal',
   },
 }
 
@@ -363,6 +365,8 @@ const learnSessionSummary = ref({
   weakTopic: '',
 })
 const petReactionTimer = ref(null)
+const explanationRevealCount = ref(0)
+const explanationRevealTimers = ref([])
 const diagnosticsFilter = ref({
   severity: 'all',
   topic: 'all',
@@ -462,6 +466,16 @@ const clickbaitText = computed(() =>
 const explanation = computed(() =>
   card.value ? (selectedLanguage.value === 'en' ? card.value.explanationEn : card.value.explanationZh) : '',
 )
+const explanationLines = computed(() =>
+  explanation.value
+    .split(/\r?\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean),
+)
+const revealedExplanationLines = computed(() => {
+  if (phase.value !== 'learn') return explanationLines.value
+  return explanationLines.value.slice(0, explanationRevealCount.value)
+})
 const reviewHintText = computed(() =>
   card.value ? (selectedLanguage.value === 'en' ? card.value.reviewHintEn : card.value.reviewHintZh) : '',
 )
@@ -762,6 +776,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  clearExplanationRevealTimers()
   if (learnResumeTimer.value) {
     clearTimeout(learnResumeTimer.value)
     learnResumeTimer.value = null
@@ -772,6 +787,15 @@ onUnmounted(() => {
   }
   unsubscribe = null
 })
+
+watch([explanationLines, phase], () => {
+  if (phase.value === 'learn') {
+    startExplanationReveal()
+    return
+  }
+  clearExplanationRevealTimers()
+  explanationRevealCount.value = explanationLines.value.length
+}, { immediate: true })
 
 async function refreshDashboard() {
   const nextDashboard = await loadDashboard()
@@ -846,6 +870,33 @@ function resetStudyFlow() {
   feedback.value = null
   selectedAnswer.value = ''
   petReaction.value = null
+}
+
+function clearExplanationRevealTimers() {
+  for (const timer of explanationRevealTimers.value) {
+    clearTimeout(timer)
+  }
+  explanationRevealTimers.value = []
+}
+
+function startExplanationReveal() {
+  clearExplanationRevealTimers()
+  if (phase.value !== 'learn') {
+    explanationRevealCount.value = explanationLines.value.length
+    return
+  }
+  if (!explanationLines.value.length) {
+    explanationRevealCount.value = 0
+    return
+  }
+
+  explanationRevealCount.value = 1
+  explanationLines.value.slice(1).forEach((_, index) => {
+    const timer = setTimeout(() => {
+      explanationRevealCount.value = Math.min(explanationLines.value.length, index + 2)
+    }, 900 * (index + 1))
+    explanationRevealTimers.value.push(timer)
+  })
 }
 
 function diagnosticSuggestion(item) {
@@ -1547,7 +1598,20 @@ async function showPetReaction(trigger) {
           <p class="callout">{{ clickbaitText }}</p>
 
           <div v-if="phase === 'learn'" class="phase-panel">
-            <p class="explanation">{{ explanation }}</p>
+            <div class="phase-tools">
+              <button class="replay-button" type="button" @click="startExplanationReveal">
+                {{ t.replayReveal }}
+              </button>
+            </div>
+            <div class="explanation-reveal">
+              <p
+                v-for="(line, index) in revealedExplanationLines"
+                :key="`explanation-line-${index}`"
+                class="explanation reveal-line"
+              >
+                {{ line }}
+              </p>
+            </div>
             <button class="phase-button" type="button" @click="learnRestartCue = false; phase = 'answer'">{{ t.answerPhase }}</button>
           </div>
 

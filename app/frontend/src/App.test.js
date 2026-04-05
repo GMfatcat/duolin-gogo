@@ -55,6 +55,50 @@ describe('App', () => {
     expect(wrapper.text()).toContain('copies selected commit changes onto your current branch')
   })
 
+  it('reveals learn-phase explanation lines progressively and can replay them', async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = mount(App)
+
+      await flushPromises()
+      await switchToEnglish(wrapper)
+
+      wrapper.vm.dashboard = {
+        ...wrapper.vm.dashboard,
+        currentCard: {
+          ...wrapper.vm.dashboard.currentCard,
+          explanationEn: 'Line one.\nLine two.\nLine three.',
+          explanationZh: '第一行\n第二行\n第三行',
+        },
+      }
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.text()).toContain('Line one.')
+      expect(wrapper.text()).not.toContain('Line two.')
+      expect(wrapper.text()).not.toContain('Line three.')
+
+      await vi.advanceTimersByTimeAsync(900)
+      await flushPromises()
+      expect(wrapper.text()).toContain('Line two.')
+      expect(wrapper.text()).not.toContain('Line three.')
+
+      await vi.advanceTimersByTimeAsync(900)
+      await flushPromises()
+      expect(wrapper.text()).toContain('Line three.')
+
+      await wrapper.find('.replay-button').trigger('click')
+      await flushPromises()
+      expect(wrapper.text()).toContain('Line one.')
+      expect(wrapper.text()).not.toContain('Line two.')
+
+      await vi.advanceTimersByTimeAsync(1800)
+      await flushPromises()
+      expect(wrapper.text()).toContain('Line three.')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('shows settings popout with runtime controls only', async () => {
     const wrapper = mount(App)
 
