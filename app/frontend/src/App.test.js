@@ -408,7 +408,12 @@ describe('App', () => {
 
     const bubble = wrapper.find('.assistant-hint')
     expect(bubble.classes()).toContain('celebration')
-    expect(bubble.text()).toContain('Nice hit')
+    expect(
+      bubble.text().includes('Nice hit') ||
+        bubble.text().includes('Good catch') ||
+        bubble.text().includes('That was clean') ||
+        bubble.text().includes('Yes, that is the feeling.'),
+    ).toBe(true)
   })
 
   it('switches the dg bubble after a wrong answer', async () => {
@@ -425,7 +430,12 @@ describe('App', () => {
 
     const bubble = wrapper.find('.assistant-hint')
     expect(bubble.classes()).toContain('warning')
-    expect(bubble.text()).toContain('difference')
+    expect(
+      bubble.text().includes('difference') ||
+        bubble.text().includes('almost-right') ||
+        bubble.text().includes('Do not worry') ||
+        bubble.text().includes('Keep the difference'),
+    ).toBe(true)
   })
 
   it('uses a dedicated dg reaction during a learn break', async () => {
@@ -465,7 +475,12 @@ describe('App', () => {
     await wrapper.find('.next-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.find('.assistant-hint').text()).toContain('Take a short beat')
+    expect(
+      wrapper.find('.assistant-hint').text().includes('Take a short beat') ||
+        wrapper.find('.assistant-hint').text().includes('Pause here') ||
+        wrapper.find('.assistant-hint').text().includes('That batch landed well') ||
+        wrapper.find('.assistant-hint').text().includes('A short pause is right'),
+    ).toBe(true)
   })
 
   it('keeps diagnostics collapsed by default and shows severity grouping', async () => {

@@ -1,4 +1,4 @@
-import {
+﻿import {
   GetStudyCard,
   GetDGReaction,
   InteractWithDG,
@@ -26,92 +26,92 @@ const fallbackCardsByTopic = {
   git: {
     id: 'git-cherry-pick-purpose',
     title: 'Cherry-pick Purpose',
-    titleZh: 'Cherry-pick 指令用途',
+    titleZh: 'Cherry-pick 用途',
     titleEn: 'Cherry-pick Purpose',
     questionType: 'true-false',
     questionText: '`git cherry-pick` applies a chosen commit to the current branch.',
-    questionTextZh: '`git cherry-pick` 會把選定的 commit 套用到目前分支。',
+    questionTextZh: '`git cherry-pick` 會把指定的 commit 套用到目前分支。',
     questionTextEn: '`git cherry-pick` applies a chosen commit to the current branch.',
     choices: [
       { value: 'true', labelZh: '是', labelEn: 'True' },
       { value: 'false', labelZh: '否', labelEn: 'False' },
     ],
     clickbait: 'One Git command can steal just one commit. Know which?',
-    clickbaitZh: '有個 Git 指令可以只挑走單一 commit，你知道是哪個嗎？',
+    clickbaitZh: '有個 Git 指令只會拿走一個 commit，你知道是哪個嗎？',
     clickbaitEn: 'One Git command can steal just one commit. Know which?',
     reviewHint: 'Cherry-pick copies selected commit changes onto your current branch.',
-    reviewHintZh: 'Cherry-pick 會把選定 commit 的變更套用到目前分支。',
+    reviewHintZh: 'Cherry-pick 會把選定 commit 的變更複製到目前分支。',
     reviewHintEn: 'Cherry-pick copies selected commit changes onto your current branch.',
-    explanationZh: '`git cherry-pick` 會把選定 commit 的變更帶到目前分支。',
+    explanationZh: '`git cherry-pick` 可以把選定的 commit 套用到目前分支。',
     explanationEn: '`git cherry-pick` lets you apply a chosen commit onto the current branch.',
     shownAt: baseShownAt,
   },
   docker: {
     id: 'docker-run-start-container',
     title: 'Docker Run',
-    titleZh: 'docker run 啟動容器',
+    titleZh: 'Docker Run',
     titleEn: 'Docker Run',
     questionType: 'single-choice',
     questionText: 'What does `docker run` mainly do?',
-    questionTextZh: '`docker run` 最主要在做什麼？',
+    questionTextZh: '`docker run` 主要在做什麼？',
     questionTextEn: 'What does `docker run` mainly do?',
     choices: [
-      { value: '0', labelZh: '列出目前所有正在執行的容器', labelEn: 'List all currently running containers' },
-      { value: '1', labelZh: '從 image 建立並啟動一個容器', labelEn: 'Create and start a container from an image' },
-      { value: '2', labelZh: '進入一個已存在的容器 shell', labelEn: 'Open a shell inside an existing container' },
+      { value: '0', labelZh: '列出目前執行中的容器', labelEn: 'List all currently running containers' },
+      { value: '1', labelZh: '從 image 建立並啟動容器', labelEn: 'Create and start a container from an image' },
+      { value: '2', labelZh: '進入既有容器的 shell', labelEn: 'Open a shell inside an existing container' },
     ],
     clickbait: 'Think `build` is the first Docker command that matters? Many people get stuck on `run` first.',
-    clickbaitZh: '你以為 Docker 第一個重要指令是 build？很多人其實先卡在 run。',
+    clickbaitZh: '你以為先學 Docker build 就夠了？很多人其實先卡在 run。',
     clickbaitEn: 'Think `build` is the first Docker command that matters? Many people get stuck on `run` first.',
     reviewHint: '`run` creates and starts a container from an image.',
-    reviewHintZh: '`run` = 用 image 建立並啟動容器。',
+    reviewHintZh: '`run` = 從 image 建立並啟動容器。',
     reviewHintEn: '`run` creates and starts a container from an image.',
-    explanationZh: '`docker run` 會根據指定的 image 建立一個新的 container，然後立刻啟動它。',
+    explanationZh: '`docker run` 會從指定 image 建立新的 container，並立即啟動它。',
     explanationEn: '`docker run` creates a new container from the given image and starts it immediately.',
     shownAt: baseShownAt,
   },
   linux: {
     id: 'linux-pwd-current-directory',
     title: 'PWD',
-    titleZh: 'pwd 目前位置',
+    titleZh: 'PWD',
     titleEn: 'PWD',
     questionType: 'true-false',
     questionText: '`pwd` shows the path of your current working directory.',
-    questionTextZh: '`pwd` 會顯示你目前所在的工作目錄路徑。',
+    questionTextZh: '`pwd` 會顯示你目前工作目錄的路徑。',
     questionTextEn: '`pwd` shows the path of your current working directory.',
     choices: [
       { value: 'true', labelZh: '是', labelEn: 'True' },
       { value: 'false', labelZh: '否', labelEn: 'False' },
     ],
     clickbait: 'Think the command is broken? Sometimes you are simply not where you think you are.',
-    clickbaitZh: '你以為指令壞了？很多時候只是你根本不在自己以為的位置。',
+    clickbaitZh: '你以為指令壞了？有時只是你根本不在自己以為的位置。',
     clickbaitEn: 'Think the command is broken? Sometimes you are simply not where you think you are.',
     reviewHint: '`pwd` means print working directory.',
     reviewHintZh: '`pwd` = print working directory。',
     reviewHintEn: '`pwd` means print working directory.',
-    explanationZh: '`pwd` 代表 print working directory，會印出你目前所在資料夾的完整路徑。',
+    explanationZh: '`pwd` 是 print working directory 的縮寫，會印出目前目錄的完整路徑。',
     explanationEn: '`pwd` stands for print working directory and prints the full path of your current directory.',
     shownAt: baseShownAt,
   },
   go: {
     id: 'go-goroutine-concurrency',
     title: 'Goroutine',
-    titleZh: 'goroutine 並行執行',
+    titleZh: 'Goroutine',
     titleEn: 'Goroutine',
     questionType: 'single-choice',
     questionText: 'What is the main purpose of a goroutine in Go?',
-    questionTextZh: '在 Go 裡，goroutine 最主要是用來做什麼？',
+    questionTextZh: '在 Go 裡，goroutine 的主要用途是什麼？',
     questionTextEn: 'What is the main purpose of a goroutine in Go?',
     choices: [
       { value: '0', labelZh: '定義新的 struct 型別', labelEn: 'Define a new struct type' },
-      { value: '1', labelZh: '讓函式以並行方式執行', labelEn: 'Run a function concurrently' },
-      { value: '2', labelZh: '把套件編譯成執行檔', labelEn: 'Compile a package into an executable' },
+      { value: '1', labelZh: '讓函式並行執行', labelEn: 'Run a function concurrently' },
+      { value: '2', labelZh: '把 package 編譯成可執行檔', labelEn: 'Compile a package into an executable' },
     ],
     clickbait: 'Think Go feels fast only because the language is fast? Often it is about whether you use goroutines well.',
-    clickbaitZh: '你以為 Go 變快只是因為它夠快？很多時候是因為你敢不敢開 goroutine。',
+    clickbaitZh: '你以為 Go 快只是因為語言快？很多時候差在你會不會用 goroutine。',
     clickbaitEn: 'Think Go feels fast only because the language is fast? Often it is about whether you use goroutines well.',
     reviewHint: 'A goroutine is a lightweight concurrent execution unit.',
-    reviewHintZh: 'goroutine = 輕量並行執行單位。',
+    reviewHintZh: 'goroutine = 輕量的並行執行單位。',
     reviewHintEn: 'A goroutine is a lightweight concurrent execution unit.',
     explanationZh: 'goroutine 是 Go 裡非常輕量的並行執行單位。',
     explanationEn: 'A goroutine is a very lightweight unit of concurrent execution in Go.',
@@ -120,28 +120,27 @@ const fallbackCardsByTopic = {
   python: {
     id: 'python-venv-isolation',
     title: 'Python Venv',
-    titleZh: 'venv 虛擬環境',
+    titleZh: 'Python Venv',
     titleEn: 'Python Venv',
     questionType: 'true-false',
     questionText: '`venv` is commonly used to create isolated Python package environments.',
-    questionTextZh: '`venv` 常用來建立彼此隔離的 Python 套件環境。',
+    questionTextZh: '`venv` 常用來建立隔離的 Python 套件環境。',
     questionTextEn: '`venv` is commonly used to create isolated Python package environments.',
     choices: [
       { value: 'true', labelZh: '是', labelEn: 'True' },
       { value: 'false', labelZh: '否', labelEn: 'False' },
     ],
     clickbait: 'Think the package setup is broken? Sometimes the real issue is that multiple projects share the same environment.',
-    clickbaitZh: '你以為套件壞掉，其實可能只是你把不同專案的環境全混在一起了。',
+    clickbaitZh: '你以為套件壞了？真正的問題常常是多個專案共用同一個環境。',
     clickbaitEn: 'Think the package setup is broken? Sometimes the real issue is that multiple projects share the same environment.',
     reviewHint: '`venv` isolates Python environments between projects.',
-    reviewHintZh: '`venv` = 隔離不同專案的 Python 環境。',
+    reviewHintZh: '`venv` 會隔離不同專案的 Python 環境。',
     reviewHintEn: '`venv` isolates Python environments between projects.',
-    explanationZh: '`venv` 常用來替不同 Python 專案建立彼此隔離的套件環境。',
+    explanationZh: '`venv` 常用來為不同 Python 專案建立彼此隔離的套件環境。',
     explanationEn: '`venv` is commonly used to create isolated package environments for different Python projects.',
     shownAt: baseShownAt,
   },
 }
-
 const topicWeakTopics = {
   all: [
     { tag: 'branching', wrongCount: 3, seenCount: 6, accuracy: 0.5 },
@@ -292,6 +291,109 @@ const fallbackPetState = {
   lastInteractionAt: '',
 }
 
+function fallbackPetIndex(trigger, size) {
+  if (!size) {
+    return 0
+  }
+  const minuteSeed = Math.floor(new Date(baseShownAt).getTime() / 60000)
+  return (minuteSeed + fallbackPetState.bondXp + trigger.length) % size
+}
+
+function pickFallbackPetReaction(trigger, pool) {
+  return pool[fallbackPetIndex(trigger, pool.length)]
+}
+
+function fallbackClickPool(language, stage) {
+  if (language === 'zh-TW') {
+    if (stage >= 2) {
+      return [
+        { title: 'DG', body: '你回來了，我開始抓到你的節奏了。', variant: 'celebration', stage },
+        { title: 'DG', body: '這輪我跟得上，你只管繼續。', variant: 'celebration', stage },
+      ]
+    }
+    if (stage >= 1) {
+      return [
+        { title: 'DG', body: '好，這一輪我們一起走完。', variant: 'focus', stage },
+        { title: 'DG', body: '我準備好了，你先開題。', variant: 'focus', stage },
+      ]
+    }
+    return [
+      { title: 'DG', body: '我在這裡，慢慢來就好。', variant: 'neutral', stage },
+      { title: 'DG', body: '多點我幾次，我會更快進入狀態。', variant: 'neutral', stage },
+    ]
+  }
+
+  if (stage >= 2) {
+    return [
+      { title: 'DG', body: 'You are back. I am starting to learn your rhythm.', variant: 'celebration', stage },
+      { title: 'DG', body: 'I am in sync now. You can keep the pace up.', variant: 'celebration', stage },
+    ]
+  }
+  if (stage >= 1) {
+    return [
+      { title: 'DG', body: 'Alright, let us work through this batch together.', variant: 'focus', stage },
+      { title: 'DG', body: 'I am ready. You take the first step.', variant: 'focus', stage },
+    ]
+  }
+  return [
+    { title: 'DG', body: 'I am here. Keep tapping in and I will warm up.', variant: 'neutral', stage },
+    { title: 'DG', body: 'Tap back in a little more and I will wake up faster.', variant: 'neutral', stage },
+  ]
+}
+
+function fallbackTriggerPool(trigger, language, stage) {
+  const zh = language === 'zh-TW'
+  const pools = {
+    correct: zh
+      ? [
+          { title: 'DG', body: stage >= 1 ? '這題很乾淨，感覺開始黏住了。' : '漂亮，這一題先收下來。', variant: 'celebration', stage },
+          { title: 'DG', body: stage >= 1 ? '對，就是這種手感，先記住。' : '很好，把這個感覺帶到下一題。', variant: 'celebration', stage },
+        ]
+      : [
+          { title: 'DG', body: stage >= 1 ? 'That was clean. I can tell this is starting to stick.' : 'Nice hit. Hold on to that feeling for the next one.', variant: 'celebration', stage },
+          { title: 'DG', body: stage >= 1 ? 'Yes, that is the feeling. Keep it for the next card.' : 'Good catch. Bring that same energy into the next card.', variant: 'celebration', stage },
+        ],
+    wrong: zh
+      ? [
+          { title: 'DG', body: stage >= 1 ? '沒關係，這種差一點最值得記。' : '先抓住差異，下一輪就會好很多。', variant: 'warning', stage },
+          { title: 'DG', body: stage >= 1 ? '先記住差異，下次會更穩。' : '這題先別怕，等下再看一次。', variant: 'warning', stage },
+        ]
+      : [
+          { title: 'DG', body: stage >= 1 ? 'That is okay. These almost-right misses are worth keeping.' : 'Just hold on to the difference. The next pass will feel steadier.', variant: 'warning', stage },
+          { title: 'DG', body: stage >= 1 ? 'Keep the difference in view. The next pass will feel steadier.' : 'Do not worry about this one yet. We can loop back cleanly.', variant: 'warning', stage },
+        ],
+    learn_break: zh
+      ? [
+          { title: 'DG', body: stage >= 1 ? '這輪收得不錯，先讓腦袋留點空間。' : '先休息一下，下一輪不急。', variant: 'focus', stage },
+          { title: 'DG', body: stage >= 1 ? '停一下剛剛好，讓記憶沉一沉。' : '這裡先停一下，等等再回來。', variant: 'focus', stage },
+        ]
+      : [
+          { title: 'DG', body: stage >= 1 ? 'That batch landed well. Give your brain a little room now.' : 'Take a short beat. The next batch can wait.', variant: 'focus', stage },
+          { title: 'DG', body: stage >= 1 ? 'A short pause is right. Let the last few cards settle.' : 'Pause here for a moment. The next round is fine waiting.', variant: 'focus', stage },
+        ],
+    review_complete: zh
+      ? [
+          { title: 'DG', body: stage >= 1 ? '這輪複習收得很漂亮，節奏在成形了。' : '這輪複習完成了，先讓它停一下。', variant: 'celebration', stage },
+          { title: 'DG', body: stage >= 1 ? '很好，讓這一輪在腦中沉下去。' : '複習做完了，現在先喘一口氣。', variant: 'celebration', stage },
+        ]
+      : [
+          { title: 'DG', body: stage >= 1 ? 'That review batch closed out nicely. I can feel the loop settling in.' : 'That review batch is done. Take a moment and let it settle.', variant: 'celebration', stage },
+          { title: 'DG', body: stage >= 1 ? 'Nice finish. Let that review loop settle in a bit.' : 'Review complete. Take a breath before you move on.', variant: 'celebration', stage },
+        ],
+    return: zh
+      ? [
+          { title: 'DG', body: stage >= 1 ? '你回來了，我們從這裡接著走。' : '下一輪已經準備好了。', variant: 'focus', stage },
+          { title: 'DG', body: stage >= 1 ? '剛剛那條線還在，現在可以繼續。' : '好，現在可以重新開始。', variant: 'focus', stage },
+        ]
+      : [
+          { title: 'DG', body: stage >= 1 ? 'You are back. We can pick up the thread from here.' : 'Alright, the next round is ready.', variant: 'focus', stage },
+          { title: 'DG', body: stage >= 1 ? 'That thread is still here. We can keep going now.' : 'Okay, we can start fresh from here.', variant: 'focus', stage },
+        ],
+  }
+
+  return pools[trigger] || fallbackClickPool(language, stage)
+}
+
 const hasBackend = () => typeof window !== 'undefined' && typeof window.go !== 'undefined'
 
 export function __resetFallbackState() {
@@ -366,8 +468,8 @@ export async function submitAnswer({ cardId, sessionType, selectedAnswer, shownA
     feedback:
       preferredLanguage === 'zh-TW'
         ? isCorrect
-          ? '蝑?鈭?'
-          : '???榆銝暺?'
+          ? '????哨???'
+          : '?謕??????綜窖??'
         : isCorrect
           ? 'Correct.'
           : 'Not quite.',
@@ -471,10 +573,7 @@ export async function interactWithDG() {
     if (now.getTime() - last.getTime() < 15000) {
       return {
         title: 'DG',
-        body:
-          fallbackDashboard.preferredLanguage === 'zh-TW'
-            ? '我有在聽，再一下就回你。'
-            : 'I heard you. Give me a beat.',
+        body: fallbackDashboard.preferredLanguage === 'zh-TW' ? '我有聽到，先讓我喘一口氣。' : 'I heard you. Give me a beat.',
         variant: 'focus',
         stage: fallbackPetState.stage,
       }
@@ -484,54 +583,7 @@ export async function interactWithDG() {
   fallbackPetState.bondXp += 1
   fallbackPetState.stage = fallbackPetState.bondXp >= 16 ? 2 : fallbackPetState.bondXp >= 6 ? 1 : 0
   fallbackPetState.lastInteractionAt = now.toISOString()
-
-  if (fallbackDashboard.preferredLanguage === 'zh-TW') {
-    if (fallbackPetState.stage >= 2) {
-      return {
-        title: 'DG',
-        body: '你又回來了，我開始抓到你的節奏了。',
-        variant: 'celebration',
-        stage: fallbackPetState.stage,
-      }
-    }
-    if (fallbackPetState.stage >= 1) {
-      return {
-        title: 'DG',
-        body: '好，我陪你把這輪慢慢走完。',
-        variant: 'focus',
-        stage: fallbackPetState.stage,
-      }
-    }
-    return {
-      title: 'DG',
-      body: '我在這裡，點我我會慢慢變熟。',
-      variant: 'neutral',
-      stage: fallbackPetState.stage,
-    }
-  }
-
-  if (fallbackPetState.stage >= 2) {
-    return {
-      title: 'DG',
-      body: 'You are back. I am starting to learn your rhythm.',
-      variant: 'celebration',
-      stage: fallbackPetState.stage,
-    }
-  }
-  if (fallbackPetState.stage >= 1) {
-    return {
-      title: 'DG',
-      body: 'Alright, let us work through this batch together.',
-      variant: 'focus',
-      stage: fallbackPetState.stage,
-    }
-  }
-  return {
-    title: 'DG',
-    body: 'I am here. Keep tapping in and I will warm up.',
-    variant: 'neutral',
-    stage: fallbackPetState.stage,
-  }
+  return pickFallbackPetReaction('clicked', fallbackClickPool(fallbackDashboard.preferredLanguage, fallbackPetState.stage))
 }
 
 export async function getDGReaction(trigger) {
@@ -539,78 +591,7 @@ export async function getDGReaction(trigger) {
     return GetDGReaction(trigger)
   }
 
-  const stage = fallbackPetState.stage
-  const zh = fallbackDashboard.preferredLanguage === 'zh-TW'
-
-  const map = {
-    correct: zh
-      ? {
-          title: 'DG',
-          body: stage >= 1 ? '這題很穩，我有看到你越來越熟。' : '答得不錯，先把這個手感記住。',
-          variant: 'celebration',
-          stage,
-        }
-      : {
-          title: 'DG',
-          body: stage >= 1 ? 'That was clean. I can tell this is starting to stick.' : 'Nice hit. Hold on to that feeling for the next one.',
-          variant: 'celebration',
-          stage,
-        },
-    wrong: zh
-      ? {
-          title: 'DG',
-          body: stage >= 1 ? '沒關係，這種差一點的題最值得撿回來。' : '先記住差異就好，下一次會更穩。',
-          variant: 'warning',
-          stage,
-        }
-      : {
-          title: 'DG',
-          body: stage >= 1 ? 'That is okay. These almost-right misses are worth keeping.' : 'Just hold on to the difference. The next pass will feel steadier.',
-          variant: 'warning',
-          stage,
-        },
-    learn_break: zh
-      ? {
-          title: 'DG',
-          body: stage >= 1 ? '這輪收得很好，先讓腦袋留一點空間。' : '先休一下，等下一輪來就好。',
-          variant: 'focus',
-          stage,
-        }
-      : {
-          title: 'DG',
-          body: stage >= 1 ? 'That batch landed well. Give your brain a little room now.' : 'Take a short beat. The next batch can wait.',
-          variant: 'focus',
-          stage,
-        },
-    review_complete: zh
-      ? {
-          title: 'DG',
-          body: stage >= 1 ? '這輪複習收得很完整，我記得你有把它撿回來。' : '這輪複習做完了，先收一下成果。',
-          variant: 'celebration',
-          stage,
-        }
-      : {
-          title: 'DG',
-          body: stage >= 1 ? 'That review batch closed out nicely. I can feel the loop settling in.' : 'That review batch is done. Take a moment and let it settle.',
-          variant: 'celebration',
-          stage,
-        },
-    return: zh
-      ? {
-          title: 'DG',
-          body: stage >= 1 ? '你回來了，我們可以接著往下推。' : '好，下一輪可以開始了。',
-          variant: 'focus',
-          stage,
-        }
-      : {
-          title: 'DG',
-          body: stage >= 1 ? 'You are back. We can pick up the thread from here.' : 'Alright, the next round is ready.',
-          variant: 'focus',
-          stage,
-        },
-  }
-
-  return map[trigger] || null
+  return pickFallbackPetReaction(trigger, fallbackTriggerPool(trigger, fallbackDashboard.preferredLanguage, fallbackPetState.stage))
 }
 
 export async function loadAuthoringPreview() {
@@ -663,15 +644,15 @@ export async function previewKnowledgeCard(path) {
         titleZh: 'Rebase 與 Merge 的差異',
         titleEn: 'Rebase vs Merge',
         questionText: 'What does git rebase mainly do?',
-        questionTextZh: 'git rebase 最主要在做什麼？',
+        questionTextZh: 'git rebase 主要在做什麼？',
         questionTextEn: 'What does git rebase mainly do?',
         clickbait: 'Do you really know the difference between rebase and merge?',
-        clickbaitZh: '你真的分得清 rebase 和 merge 的差別嗎？',
+        clickbaitZh: '你真的知道 rebase 和 merge 差在哪嗎？',
         clickbaitEn: 'Do you really know the difference between rebase and merge?',
         reviewHint: 'Rebase replays commits on top of another base.',
-        reviewHintZh: 'Rebase = 把 commits 重放到另一條 base 上。',
+        reviewHintZh: 'Rebase = 把 commits 重新套到另一條 base 上。',
         reviewHintEn: 'Rebase replays commits on top of another base.',
-        explanationZh: '`git rebase` 會把你的 commits 重新套到另一個 base 上。',
+        explanationZh: '`git rebase` 會把你的 commits 重新套用到另一條 base 之上。',
         explanationEn: '`git rebase` replays your commits on top of another base.',
       },
     }

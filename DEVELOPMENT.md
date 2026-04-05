@@ -135,3 +135,4 @@ Next targets:
     - wire stage-aware pet reactions into correct, wrong, break, review-complete, and return states
     - preserve cooldown/probability guards so `DG` still feels compact and low-noise
   - second slice implemented: stage-aware reactions now differentiate direct clicks from correct/wrong answers, learn breaks, review completion, and returning after a pause
+  - third slice implemented: those trigger-specific reactions now rotate through multi-line pools at each hidden stage, so DG feels more alive without adding visible progression UI

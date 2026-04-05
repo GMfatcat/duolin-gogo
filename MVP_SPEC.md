@@ -234,6 +234,7 @@ Question types deferred until later:
   - growth should come from real study activity such as answered cards, completed mini batches, completed reviews, streak continuation, and occasional direct clicks on `DG`
   - click interaction should feel playful but should not become a spammy mini-game
   - the first implementation can stay lightweight: store hidden local growth, let card answers feed it, and let direct clicks on `DG` surface stage-based reactions
+  - later implementation slices should rotate through several short lines inside the same trigger and hidden stage, so `DG` feels more alive without exposing visible progression UI
 - Language and study-mode controls should converge toward compact dropdown selectors instead of parallel button groups
 - User can dismiss and return later
 
@@ -417,6 +418,7 @@ Suggested review scheduling:
   - stronger sense of companionship after repeated real study activity
   - the next implementation slice should expand reactions by trigger type, so `DG` can respond differently to direct clicks, correct answers, wrong answers, break states, review completion, and returning after a pause
   - the first expanded pet slice should keep these reactions short and contextual, using study events as the source of personality instead of adding visible progression UI
+  - the next refinement after that should rotate among multiple short reactions inside the same trigger pool, so even one hidden stage does not feel locked to a single sentence
 
 ### 11.4 Review Session Screen
 

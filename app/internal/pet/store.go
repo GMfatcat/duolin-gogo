@@ -98,7 +98,7 @@ func Interact(path string, language string, now time.Time) (InteractionResult, e
 	if lastInteractionWithinCooldown(state, now) {
 		return InteractionResult{
 			State:    state,
-			Reaction: reactionFor(language, TriggerClicked, state.Stage, true),
+			Reaction: reactionFor(language, TriggerClicked, state, now, true),
 		}, nil
 	}
 
@@ -114,7 +114,7 @@ func Interact(path string, language string, now time.Time) (InteractionResult, e
 
 	return InteractionResult{
 		State:    state,
-		Reaction: reactionFor(language, TriggerClicked, state.Stage, false),
+		Reaction: reactionFor(language, TriggerClicked, state, now, false),
 	}, nil
 }
 
@@ -133,7 +133,7 @@ func ReactionForTrigger(path string, trigger string, language string, now time.T
 
 	return InteractionResult{
 		State:    state,
-		Reaction: reactionFor(language, trigger, state.Stage, false),
+		Reaction: reactionFor(language, trigger, state, now, false),
 	}, nil
 }
 
@@ -178,111 +178,198 @@ func lastInteractionWithinCooldown(state State, now time.Time) bool {
 	return now.Sub(lastInteractionAt) < cooldownWindow
 }
 
-func reactionFor(language string, trigger string, stage int, cooldown bool) Reaction {
+func reactionFor(language string, trigger string, state State, now time.Time, cooldown bool) Reaction {
 	if cooldown {
 		if language == "zh-TW" {
-			return Reaction{Key: "cooldown", Variant: "focus", Title: "DG", Body: "我有在聽，再一下就回你。"}
+			return Reaction{Key: "cooldown", Variant: "focus", Title: "DG", Body: "我有聽到，先讓我喘一口氣。"}
 		}
 		return Reaction{Key: "cooldown", Variant: "focus", Title: "DG", Body: "I heard you. Give me a beat."}
 	}
 
 	switch trigger {
 	case TriggerCorrect:
-		return correctReaction(language, stage)
+		return pickReaction(correctReactions(language, state.Stage), state, trigger, now)
 	case TriggerWrong:
-		return wrongReaction(language, stage)
+		return pickReaction(wrongReactions(language, state.Stage), state, trigger, now)
 	case TriggerLearnBreak:
-		return learnBreakReaction(language, stage)
+		return pickReaction(learnBreakReactions(language, state.Stage), state, trigger, now)
 	case TriggerReviewComplete:
-		return reviewCompleteReaction(language, stage)
+		return pickReaction(reviewCompleteReactions(language, state.Stage), state, trigger, now)
 	case TriggerReturn:
-		return returnReaction(language, stage)
+		return pickReaction(returnReactions(language, state.Stage), state, trigger, now)
 	default:
-		return clickReaction(language, stage)
+		return pickReaction(clickReactions(language, state.Stage), state, trigger, now)
 	}
 }
 
-func clickReaction(language string, stage int) Reaction {
+func pickReaction(pool []Reaction, state State, trigger string, now time.Time) Reaction {
+	if len(pool) == 0 {
+		return Reaction{Key: "fallback", Variant: "neutral", Title: "DG", Body: "..."}
+	}
+
+	index := int((now.Unix()/60)+int64(state.BondXP)+int64(len(trigger))) % len(pool)
+	return pool[index]
+}
+
+func clickReactions(language string, stage int) []Reaction {
 	switch {
 	case stage >= 2:
 		if language == "zh-TW" {
-			return Reaction{Key: "stage_two_click", Variant: "celebration", Title: "DG", Body: "你又回來了，我開始抓到你的節奏了。"}
+			return []Reaction{
+				{Key: "stage_two_click_warm", Variant: "celebration", Title: "DG", Body: "你回來了，我開始抓到你的節奏了。"},
+				{Key: "stage_two_click_sync", Variant: "celebration", Title: "DG", Body: "這輪我跟得上，你只管繼續。"},
+			}
 		}
-		return Reaction{Key: "stage_two_click", Variant: "celebration", Title: "DG", Body: "You are back. I am starting to learn your rhythm."}
+		return []Reaction{
+			{Key: "stage_two_click_warm", Variant: "celebration", Title: "DG", Body: "You are back. I am starting to learn your rhythm."},
+			{Key: "stage_two_click_sync", Variant: "celebration", Title: "DG", Body: "I am in sync now. You can keep the pace up."},
+		}
 	case stage >= 1:
 		if language == "zh-TW" {
-			return Reaction{Key: "stage_one_click", Variant: "focus", Title: "DG", Body: "好，我陪你把這輪慢慢走完。"}
+			return []Reaction{
+				{Key: "stage_one_click_focus", Variant: "focus", Title: "DG", Body: "好，這一輪我們一起走完。"},
+				{Key: "stage_one_click_ready", Variant: "focus", Title: "DG", Body: "我準備好了，你先開題。"},
+			}
 		}
-		return Reaction{Key: "stage_one_click", Variant: "focus", Title: "DG", Body: "Alright, let us work through this batch together."}
+		return []Reaction{
+			{Key: "stage_one_click_focus", Variant: "focus", Title: "DG", Body: "Alright, let us work through this batch together."},
+			{Key: "stage_one_click_ready", Variant: "focus", Title: "DG", Body: "I am ready. You take the first step."},
+		}
 	default:
 		if language == "zh-TW" {
-			return Reaction{Key: "stage_zero_click", Variant: "neutral", Title: "DG", Body: "我在這裡，點我我會慢慢變熟。"}
+			return []Reaction{
+				{Key: "stage_zero_click_intro", Variant: "neutral", Title: "DG", Body: "我在這裡，慢慢來就好。"},
+				{Key: "stage_zero_click_warmup", Variant: "neutral", Title: "DG", Body: "多點我幾次，我會更快進入狀態。"},
+			}
 		}
-		return Reaction{Key: "stage_zero_click", Variant: "neutral", Title: "DG", Body: "I am here. Keep tapping in and I will warm up."}
+		return []Reaction{
+			{Key: "stage_zero_click_intro", Variant: "neutral", Title: "DG", Body: "I am here. Keep tapping in and I will warm up."},
+			{Key: "stage_zero_click_warmup", Variant: "neutral", Title: "DG", Body: "Tap back in a little more and I will wake up faster."},
+		}
 	}
 }
 
-func correctReaction(language string, stage int) Reaction {
+func correctReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
-			return Reaction{Key: "correct_stage_one", Variant: "celebration", Title: "DG", Body: "這題很穩，我有看到你越來越熟。"}
+			return []Reaction{
+				{Key: "correct_stage_one_clean", Variant: "celebration", Title: "DG", Body: "這題很乾淨，感覺開始黏住了。"},
+				{Key: "correct_stage_one_locking", Variant: "celebration", Title: "DG", Body: "對，就是這種手感，先記住。"},
+			}
 		}
-		return Reaction{Key: "correct_stage_one", Variant: "celebration", Title: "DG", Body: "That was clean. I can tell this is starting to stick."}
+		return []Reaction{
+			{Key: "correct_stage_one_clean", Variant: "celebration", Title: "DG", Body: "That was clean. I can tell this is starting to stick."},
+			{Key: "correct_stage_one_locking", Variant: "celebration", Title: "DG", Body: "Yes, that is the feeling. Keep it for the next card."},
+		}
 	}
 	if language == "zh-TW" {
-		return Reaction{Key: "correct_stage_zero", Variant: "celebration", Title: "DG", Body: "答得不錯，先把這個手感記住。"}
+		return []Reaction{
+			{Key: "correct_stage_zero_nice", Variant: "celebration", Title: "DG", Body: "漂亮，這一題先收下來。"},
+			{Key: "correct_stage_zero_hold", Variant: "celebration", Title: "DG", Body: "很好，把這個感覺帶到下一題。"},
+		}
 	}
-	return Reaction{Key: "correct_stage_zero", Variant: "celebration", Title: "DG", Body: "Nice hit. Hold on to that feeling for the next one."}
+	return []Reaction{
+		{Key: "correct_stage_zero_nice", Variant: "celebration", Title: "DG", Body: "Nice hit. Hold on to that feeling for the next one."},
+		{Key: "correct_stage_zero_hold", Variant: "celebration", Title: "DG", Body: "Good catch. Bring that same energy into the next card."},
+	}
 }
 
-func wrongReaction(language string, stage int) Reaction {
+func wrongReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
-			return Reaction{Key: "wrong_stage_one", Variant: "warning", Title: "DG", Body: "沒關係，這種差一點的題最值得撿回來。"}
+			return []Reaction{
+				{Key: "wrong_stage_one_almost", Variant: "warning", Title: "DG", Body: "沒關係，這種差一點最值得記。"},
+				{Key: "wrong_stage_one_keep", Variant: "warning", Title: "DG", Body: "先記住差異，下次會更穩。"},
+			}
 		}
-		return Reaction{Key: "wrong_stage_one", Variant: "warning", Title: "DG", Body: "That is okay. These almost-right misses are worth keeping."}
+		return []Reaction{
+			{Key: "wrong_stage_one_almost", Variant: "warning", Title: "DG", Body: "That is okay. These almost-right misses are worth keeping."},
+			{Key: "wrong_stage_one_keep", Variant: "warning", Title: "DG", Body: "Keep the difference in view. The next pass will feel steadier."},
+		}
 	}
 	if language == "zh-TW" {
-		return Reaction{Key: "wrong_stage_zero", Variant: "warning", Title: "DG", Body: "先記住差異就好，下一次會更穩。"}
+		return []Reaction{
+			{Key: "wrong_stage_zero_difference", Variant: "warning", Title: "DG", Body: "先抓住差異，下一輪就會好很多。"},
+			{Key: "wrong_stage_zero_retry", Variant: "warning", Title: "DG", Body: "這題先別怕，等下再看一次。"},
+		}
 	}
-	return Reaction{Key: "wrong_stage_zero", Variant: "warning", Title: "DG", Body: "Just hold on to the difference. The next pass will feel steadier."}
+	return []Reaction{
+		{Key: "wrong_stage_zero_difference", Variant: "warning", Title: "DG", Body: "Just hold on to the difference. The next pass will feel steadier."},
+		{Key: "wrong_stage_zero_retry", Variant: "warning", Title: "DG", Body: "Do not worry about this one yet. We can loop back cleanly."},
+	}
 }
 
-func learnBreakReaction(language string, stage int) Reaction {
+func learnBreakReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
-			return Reaction{Key: "learn_break_stage_one", Variant: "focus", Title: "DG", Body: "這輪收得很好，先讓腦袋留一點空間。"}
+			return []Reaction{
+				{Key: "learn_break_stage_one_land", Variant: "focus", Title: "DG", Body: "這輪收得不錯，先讓腦袋留點空間。"},
+				{Key: "learn_break_stage_one_room", Variant: "focus", Title: "DG", Body: "停一下剛剛好，讓記憶沉一沉。"},
+			}
 		}
-		return Reaction{Key: "learn_break_stage_one", Variant: "focus", Title: "DG", Body: "That batch landed well. Give your brain a little room now."}
+		return []Reaction{
+			{Key: "learn_break_stage_one_land", Variant: "focus", Title: "DG", Body: "That batch landed well. Give your brain a little room now."},
+			{Key: "learn_break_stage_one_room", Variant: "focus", Title: "DG", Body: "A short pause is right. Let the last few cards settle."},
+		}
 	}
 	if language == "zh-TW" {
-		return Reaction{Key: "learn_break_stage_zero", Variant: "focus", Title: "DG", Body: "先休一下，等下一輪來就好。"}
+		return []Reaction{
+			{Key: "learn_break_stage_zero_wait", Variant: "focus", Title: "DG", Body: "先休息一下，下一輪不急。"},
+			{Key: "learn_break_stage_zero_pause", Variant: "focus", Title: "DG", Body: "這裡先停一下，等等再回來。"},
+		}
 	}
-	return Reaction{Key: "learn_break_stage_zero", Variant: "focus", Title: "DG", Body: "Take a short beat. The next batch can wait."}
+	return []Reaction{
+		{Key: "learn_break_stage_zero_wait", Variant: "focus", Title: "DG", Body: "Take a short beat. The next batch can wait."},
+		{Key: "learn_break_stage_zero_pause", Variant: "focus", Title: "DG", Body: "Pause here for a moment. The next round is fine waiting."},
+	}
 }
 
-func reviewCompleteReaction(language string, stage int) Reaction {
+func reviewCompleteReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
-			return Reaction{Key: "review_complete_stage_one", Variant: "celebration", Title: "DG", Body: "這輪複習收得很完整，我記得你有把它撿回來。"}
+			return []Reaction{
+				{Key: "review_complete_stage_one_closed", Variant: "celebration", Title: "DG", Body: "這輪複習收得很漂亮，節奏在成形了。"},
+				{Key: "review_complete_stage_one_settle", Variant: "celebration", Title: "DG", Body: "很好，讓這一輪在腦中沉下去。"},
+			}
 		}
-		return Reaction{Key: "review_complete_stage_one", Variant: "celebration", Title: "DG", Body: "That review batch closed out nicely. I can feel the loop settling in."}
+		return []Reaction{
+			{Key: "review_complete_stage_one_closed", Variant: "celebration", Title: "DG", Body: "That review batch closed out nicely. I can feel the loop settling in."},
+			{Key: "review_complete_stage_one_settle", Variant: "celebration", Title: "DG", Body: "Nice finish. Let that review loop settle in a bit."},
+		}
 	}
 	if language == "zh-TW" {
-		return Reaction{Key: "review_complete_stage_zero", Variant: "celebration", Title: "DG", Body: "這輪複習做完了，先收一下成果。"}
+		return []Reaction{
+			{Key: "review_complete_stage_zero_done", Variant: "celebration", Title: "DG", Body: "這輪複習完成了，先讓它停一下。"},
+			{Key: "review_complete_stage_zero_breathe", Variant: "celebration", Title: "DG", Body: "複習做完了，現在先喘一口氣。"},
+		}
 	}
-	return Reaction{Key: "review_complete_stage_zero", Variant: "celebration", Title: "DG", Body: "That review batch is done. Take a moment and let it settle."}
+	return []Reaction{
+		{Key: "review_complete_stage_zero_done", Variant: "celebration", Title: "DG", Body: "That review batch is done. Take a moment and let it settle."},
+		{Key: "review_complete_stage_zero_breathe", Variant: "celebration", Title: "DG", Body: "Review complete. Take a breath before you move on."},
+	}
 }
 
-func returnReaction(language string, stage int) Reaction {
+func returnReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
-			return Reaction{Key: "return_stage_one", Variant: "focus", Title: "DG", Body: "你回來了，我們可以接著往下推。"}
+			return []Reaction{
+				{Key: "return_stage_one_pickup", Variant: "focus", Title: "DG", Body: "你回來了，我們從這裡接著走。"},
+				{Key: "return_stage_one_thread", Variant: "focus", Title: "DG", Body: "剛剛那條線還在，現在可以繼續。"},
+			}
 		}
-		return Reaction{Key: "return_stage_one", Variant: "focus", Title: "DG", Body: "You are back. We can pick up the thread from here."}
+		return []Reaction{
+			{Key: "return_stage_one_pickup", Variant: "focus", Title: "DG", Body: "You are back. We can pick up the thread from here."},
+			{Key: "return_stage_one_thread", Variant: "focus", Title: "DG", Body: "That thread is still here. We can keep going now."},
+		}
 	}
 	if language == "zh-TW" {
-		return Reaction{Key: "return_stage_zero", Variant: "focus", Title: "DG", Body: "好，下一輪可以開始了。"}
+		return []Reaction{
+			{Key: "return_stage_zero_ready", Variant: "focus", Title: "DG", Body: "下一輪已經準備好了。"},
+			{Key: "return_stage_zero_resume", Variant: "focus", Title: "DG", Body: "好，現在可以重新開始。"},
+		}
 	}
-	return Reaction{Key: "return_stage_zero", Variant: "focus", Title: "DG", Body: "Alright, the next round is ready."}
+	return []Reaction{
+		{Key: "return_stage_zero_ready", Variant: "focus", Title: "DG", Body: "Alright, the next round is ready."},
+		{Key: "return_stage_zero_resume", Variant: "focus", Title: "DG", Body: "Okay, we can start fresh from here."},
+	}
 }

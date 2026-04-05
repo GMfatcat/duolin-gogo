@@ -81,8 +81,8 @@ func TestInteractUnlocksRicherReactionPoolAtHigherStage(t *testing.T) {
 	if result.State.Stage < 2 {
 		t.Fatalf("expected hidden stage at least 2, got %d", result.State.Stage)
 	}
-	if result.Reaction.Key != "stage_two_click" {
-		t.Fatalf("expected stage two click reaction, got %s", result.Reaction.Key)
+	if result.Reaction.Key != "stage_two_click_warm" && result.Reaction.Key != "stage_two_click_sync" {
+		t.Fatalf("expected stage two click pool reaction, got %s", result.Reaction.Key)
 	}
 }
 
@@ -101,7 +101,7 @@ func TestReactionForTriggerUsesContextSpecificPool(t *testing.T) {
 		t.Fatalf("reaction for trigger failed: %v", err)
 	}
 
-	if result.Reaction.Key != "correct_stage_one" {
+	if result.Reaction.Key != "correct_stage_one_clean" && result.Reaction.Key != "correct_stage_one_locking" {
 		t.Fatalf("expected stage-one correct reaction, got %s", result.Reaction.Key)
 	}
 
@@ -110,7 +110,57 @@ func TestReactionForTriggerUsesContextSpecificPool(t *testing.T) {
 		t.Fatalf("review complete reaction failed: %v", err)
 	}
 
-	if result.Reaction.Key != "review_complete_stage_one" {
+	if result.Reaction.Key != "review_complete_stage_one_closed" && result.Reaction.Key != "review_complete_stage_one_settle" {
 		t.Fatalf("expected review-complete reaction, got %s", result.Reaction.Key)
+	}
+}
+
+func TestReactionForTriggerRotatesWithinStagePool(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	for index := 0; index < 4; index++ {
+		if _, err := RecordStudyEvent(path, StudyEventAnsweredCorrect, base.Add(time.Duration(index)*time.Minute)); err != nil {
+			t.Fatalf("seed study event %d failed: %v", index, err)
+		}
+	}
+
+	first, err := ReactionForTrigger(path, TriggerCorrect, "en", base.Add(20*time.Minute))
+	if err != nil {
+		t.Fatalf("first reaction failed: %v", err)
+	}
+
+	second, err := ReactionForTrigger(path, TriggerCorrect, "en", base.Add(21*time.Minute))
+	if err != nil {
+		t.Fatalf("second reaction failed: %v", err)
+	}
+
+	if first.Reaction.Key == second.Reaction.Key {
+		t.Fatalf("expected reaction pool rotation, got same key %s", first.Reaction.Key)
+	}
+}
+
+func TestInteractUsesDifferentClickVariantsAtHigherStage(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	for index := 0; index < 8; index++ {
+		if _, err := RecordStudyEvent(path, StudyEventAnsweredCorrect, base.Add(time.Duration(index)*time.Minute)); err != nil {
+			t.Fatalf("seed study event %d failed: %v", index, err)
+		}
+	}
+
+	first, err := Interact(path, "en", base.Add(20*time.Minute))
+	if err != nil {
+		t.Fatalf("first interaction failed: %v", err)
+	}
+
+	second, err := Interact(path, "en", base.Add(36*time.Minute))
+	if err != nil {
+		t.Fatalf("second interaction failed: %v", err)
+	}
+
+	if first.Reaction.Key == second.Reaction.Key {
+		t.Fatalf("expected click pool rotation, got same key %s", first.Reaction.Key)
 	}
 }
