@@ -44,6 +44,10 @@ const translations = {
     sessionAccuracy: '本輪正答率',
     sessionWeakTopic: '建議回頭看',
     noSessionWeakTopic: '目前沒有特別弱勢的主題',
+    learnBreakTitle: '先休息一下',
+    learnBreakBody: '這一小輪先到這裡，等下一次提醒再回來會更剛好。',
+    learnBreakUnlocksAt: '下一張卡會在這個時間再開放',
+    learnBatchAnswered: '這輪完成',
     learnPhase: '先看觀念',
     answerPhase: '開始作答',
     feedbackPhase: '作答回饋',
@@ -158,6 +162,10 @@ const translations = {
     sessionAccuracy: 'Batch accuracy',
     sessionWeakTopic: 'Topic to revisit',
     noSessionWeakTopic: 'No standout weak topic right now.',
+    learnBreakTitle: 'Take a short break',
+    learnBreakBody: 'This mini study batch is done. Come back on the next notification rhythm.',
+    learnBreakUnlocksAt: 'Next card unlocks at',
+    learnBatchAnswered: 'Batch answered',
     learnPhase: 'Learn',
     answerPhase: 'Start question',
     feedbackPhase: 'Feedback',
@@ -269,10 +277,17 @@ const insightsOpen = ref(false)
 const assistantHintCollapsed = ref(false)
 const resetWarningOpen = ref(false)
 const reviewCompleted = ref(false)
+const learnBreakActive = ref(false)
+const learnResumeTimer = ref(null)
 const reviewSessionProgress = ref({
   active: false,
   total: 0,
   remaining: 0,
+})
+const learnSessionProgress = ref({
+  answered: 0,
+  total: 3,
+  cooldownUntil: '',
 })
 const reviewSessionSnapshot = ref({
   started: false,
@@ -481,6 +496,9 @@ const weakestDeckInsightText = computed(() => {
     ? `Within ${topicName(selectedTopic.value)}, ${topicName(weakestDeck.value.topic)} is currently slipping the most.`
     : `目前群組內最弱的是 ${topicName(weakestDeck.value.topic)}。`
 })
+const learnBreakUntilText = computed(() =>
+  formatDisplayTime(learnSessionProgress.value.cooldownUntil, t.value.notScheduled),
+)
 const assistantHintTone = computed(() => {
   if (reviewCompleted.value) return 'celebration'
   if (phase.value === 'feedback' && feedback.value?.isCorrect) return 'celebration'
@@ -647,6 +665,10 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  if (learnResumeTimer.value) {
+    clearTimeout(learnResumeTimer.value)
+    learnResumeTimer.value = null
+  }
   unsubscribe = null
 })
 
@@ -712,6 +734,19 @@ function resetStudyFlow() {
   selectedAnswer.value = ''
 }
 
+function resetLearnBreakState() {
+  learnBreakActive.value = false
+  learnSessionProgress.value = {
+    answered: 0,
+    total: 3,
+    cooldownUntil: '',
+  }
+  if (learnResumeTimer.value) {
+    clearTimeout(learnResumeTimer.value)
+    learnResumeTimer.value = null
+  }
+}
+
 function formatDisplayTime(value, fallback) {
   if (!value) return fallback
   const parsed = new Date(value)
@@ -751,6 +786,31 @@ async function handleNextCard() {
   const wasReviewMode = reviewMode.value
   const previousQueueLength = reviewQueue.value.length
   const previousReviewTotal = reviewSessionProgress.value.total
+  if (!wasReviewMode) {
+    const nextAnswered = learnSessionProgress.value.answered + 1
+    if (nextAnswered >= learnSessionProgress.value.total) {
+      const intervalMinutes = scheduleSettings.value.notificationIntervalMinutes || 20
+      const cooldownUntil = new Date(Date.now() + intervalMinutes * 60 * 1000)
+      learnSessionProgress.value = {
+        ...learnSessionProgress.value,
+        answered: nextAnswered,
+        cooldownUntil: cooldownUntil.toISOString(),
+      }
+      learnBreakActive.value = true
+      if (learnResumeTimer.value) {
+        clearTimeout(learnResumeTimer.value)
+      }
+      learnResumeTimer.value = setTimeout(async () => {
+        resetLearnBreakState()
+        await refreshDashboard()
+      }, intervalMinutes * 60 * 1000)
+      return
+    }
+    learnSessionProgress.value = {
+      ...learnSessionProgress.value,
+      answered: nextAnswered,
+    }
+  }
   await refreshDashboard()
   if (wasReviewMode && previousQueueLength > 0 && !dashboard.value.reviewMode) {
     const answered = Math.max(0, (dashboard.value.stats?.studiedToday ?? 0) - reviewSessionSnapshot.value.studiedToday)
@@ -1094,6 +1154,30 @@ function toggleAssistantHint() {
         <section v-if="loading" class="study-card emphasis">
           <p class="label">{{ t.loading }}</p>
           <strong>{{ t.preparingCard }}</strong>
+        </section>
+
+        <section v-else-if="learnBreakActive" class="study-card emphasis completion-card">
+          <div class="study-header">
+            <div>
+              <p class="label">{{ t.nextCard }}</p>
+              <h2>{{ t.learnBreakTitle }}</h2>
+            </div>
+            <span class="phase-pill">{{ currentPhaseLabel }}</span>
+          </div>
+
+          <div class="session-summary">
+            <p class="explanation">{{ t.learnBreakBody }}</p>
+            <div class="session-summary-grid">
+              <article class="status-card">
+                <span class="label">{{ t.learnBatchAnswered }}</span>
+                <strong>{{ learnSessionProgress.answered }}</strong>
+              </article>
+              <article class="status-card review-highlight">
+                <span class="label">{{ t.learnBreakUnlocksAt }}</span>
+                <strong>{{ learnBreakUntilText }}</strong>
+              </article>
+            </div>
+          </div>
         </section>
 
         <section v-else-if="reviewCompleted" class="study-card emphasis completion-card">

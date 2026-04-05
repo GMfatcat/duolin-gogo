@@ -168,6 +168,9 @@ func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 	if dashboard.NotificationSettings.Style != "playful" {
 		t.Fatalf("expected default notification style playful, got %s", dashboard.NotificationSettings.Style)
 	}
+	if dashboard.ScheduleSettings.NotificationIntervalMinutes != 20 {
+		t.Fatalf("expected default notification interval 20, got %d", dashboard.ScheduleSettings.NotificationIntervalMinutes)
+	}
 
 	if len(dashboard.Summary.WeakTopics) == 0 {
 		t.Fatal("expected weak topics summary")
@@ -1107,7 +1110,7 @@ English cherry-pick explanation.
 	}
 
 	settings := `{
-  "notification_interval_minutes": 10,
+  "notification_interval_minutes": 20,
   "active_hours": {
     "enabled": true,
     "start": "09:00",

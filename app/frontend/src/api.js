@@ -251,7 +251,7 @@ const fallbackDashboard = {
     titleMode: 'prefer_manual',
   },
   scheduleSettings: {
-    notificationIntervalMinutes: 10,
+    notificationIntervalMinutes: 20,
     reviewTime: '21:00',
     activeHoursEnabled: true,
     activeHoursStart: '09:00',
@@ -302,7 +302,7 @@ export function __resetFallbackState() {
     titleMode: 'prefer_manual',
   }
   fallbackDashboard.scheduleSettings = {
-    notificationIntervalMinutes: 10,
+    notificationIntervalMinutes: 20,
     reviewTime: '21:00',
     activeHoursEnabled: true,
     activeHoursStart: '09:00',

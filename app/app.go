@@ -944,6 +944,9 @@ func topicForCard(card cards.Card) string {
 }
 
 func normalizeNotificationInterval(minutes int) int {
+	if minutes <= 0 {
+		return 20
+	}
 	if minutes < 5 {
 		return 5
 	}

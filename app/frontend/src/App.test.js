@@ -75,6 +75,18 @@ describe('App', () => {
     expect(wrapper.find('.settings-meta').text()).toContain('import OK')
   })
 
+  it('uses 20 minutes as the default notification interval', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+
+    const numberInput = wrapper.find('input[type="number"]')
+    expect(numberInput.element.value).toBe('20')
+  })
+
   it('validates knowledge without reloading the current study card', async () => {
     const wrapper = mount(App)
 
@@ -144,6 +156,32 @@ describe('App', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('Cherry-pick Purpose')
+  })
+
+  it('forces a short learn break after three answered learn cards', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    wrapper.vm.learnSessionProgress = {
+      answered: 2,
+      total: 3,
+      cooldownUntil: '',
+    }
+    wrapper.vm.phase = 'feedback'
+    wrapper.vm.feedback = {
+      isCorrect: true,
+      correctAnswer: 'true',
+    }
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.next-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Take a short break')
+    expect(wrapper.text()).toContain('Next card unlocks at')
+    expect(wrapper.text()).toContain('3')
   })
 
   it('shows review session progress cues while a batch is active', async () => {
