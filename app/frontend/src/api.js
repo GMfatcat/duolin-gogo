@@ -304,7 +304,37 @@ function pickFallbackPetReaction(trigger, pool) {
   return pool[fallbackPetIndex(trigger, pool.length)]
 }
 
-function fallbackClickPool(language, stage) {
+function fallbackClickPool(language, topic, stage) {
+  const normalizedTopic = topic || 'all'
+
+  if (language === 'zh-TW') {
+    if (normalizedTopic === 'docker') {
+      return [
+        { title: 'DG', body: 'Docker 模式開著，我們把這堆容器整理乾淨。', variant: 'focus', pose: 'wave', stage },
+        { title: 'DG', body: '回到 docker 區了，我陪你盯好這些移動零件。', variant: 'focus', pose: 'wave', stage },
+      ]
+    }
+    if (normalizedTopic === 'languages') {
+      return [
+        { title: 'DG', body: '今天這輪偏語言感，我們把細節咬準。', variant: 'focus', pose: 'wave', stage },
+        { title: 'DG', body: '程式語言模式開始了，節奏會比較講究。', variant: 'focus', pose: 'wave', stage },
+      ]
+    }
+  } else {
+    if (normalizedTopic === 'docker') {
+      return [
+        { title: 'DG', body: 'Docker mode is on. Let us keep this stack tidy.', variant: 'focus', pose: 'wave', stage },
+        { title: 'DG', body: 'Back in docker land. I am watching the moving parts with you.', variant: 'focus', pose: 'wave', stage },
+      ]
+    }
+    if (normalizedTopic === 'languages') {
+      return [
+        { title: 'DG', body: 'This round leans language-heavy. Let us tune the details.', variant: 'focus', pose: 'wave', stage },
+        { title: 'DG', body: 'Language mode is on. The rhythm here is more about nuance.', variant: 'focus', pose: 'wave', stage },
+      ]
+    }
+  }
+
   if (language === 'zh-TW') {
     if (stage >= 2) {
       return [
@@ -342,8 +372,32 @@ function fallbackClickPool(language, stage) {
   ]
 }
 
-function fallbackTriggerPool(trigger, language, stage) {
+function fallbackTriggerPool(trigger, language, topic, stage) {
+  const normalizedTopic = topic || 'all'
   const zh = language === 'zh-TW'
+  if (trigger === 'correct' && normalizedTopic === 'languages') {
+    return zh
+      ? [
+          { title: 'DG', body: '漂亮，你的語言直覺正在穩下來。', variant: 'celebration', pose: 'nod', stage },
+          { title: 'DG', body: '這題很順，語言這側開始有感了。', variant: 'celebration', pose: 'nod', stage },
+        ]
+      : [
+          { title: 'DG', body: 'Nice catch. Your language instincts are settling in.', variant: 'celebration', pose: 'nod', stage },
+          { title: 'DG', body: 'That was clean. The language side is starting to click.', variant: 'celebration', pose: 'nod', stage },
+        ]
+  }
+  if (trigger === 'return' && normalizedTopic === 'docker') {
+    return zh
+      ? [
+          { title: 'DG', body: 'Docker 這輪回來了，我們把它穩穩轉起來。', variant: 'focus', pose: 'wave', stage },
+          { title: 'DG', body: '回到 docker，這次把容器掌握乾淨。', variant: 'focus', pose: 'wave', stage },
+        ]
+      : [
+          { title: 'DG', body: 'Docker is back on deck. We can spin this up cleanly.', variant: 'focus', pose: 'wave', stage },
+          { title: 'DG', body: 'Back to docker. Let us keep the containers under control.', variant: 'focus', pose: 'wave', stage },
+        ]
+  }
+
   const pools = {
     correct: zh
       ? [
@@ -392,7 +446,7 @@ function fallbackTriggerPool(trigger, language, stage) {
         ],
   }
 
-  return pools[trigger] || fallbackClickPool(language, stage)
+  return pools[trigger] || fallbackClickPool(language, topic, stage)
 }
 
 function shouldEmitFallbackReaction(trigger, now) {
@@ -611,7 +665,10 @@ export async function interactWithDG() {
   fallbackPetState.stage = fallbackPetState.bondXp >= 16 ? 2 : fallbackPetState.bondXp >= 6 ? 1 : 0
   fallbackPetState.lastInteractionAt = now.toISOString()
   fallbackPetState.lastReactionAt = now.toISOString()
-  return pickFallbackPetReaction('clicked', fallbackClickPool(fallbackDashboard.preferredLanguage, fallbackPetState.stage))
+  return pickFallbackPetReaction(
+    'clicked',
+    fallbackClickPool(fallbackDashboard.preferredLanguage, fallbackDashboard.selectedTopic, fallbackPetState.stage),
+  )
 }
 
 export async function getDGReaction(trigger) {
@@ -625,7 +682,10 @@ export async function getDGReaction(trigger) {
   }
 
   fallbackPetState.lastReactionAt = now.toISOString()
-  return pickFallbackPetReaction(trigger, fallbackTriggerPool(trigger, fallbackDashboard.preferredLanguage, fallbackPetState.stage))
+  return pickFallbackPetReaction(
+    trigger,
+    fallbackTriggerPool(trigger, fallbackDashboard.preferredLanguage, fallbackDashboard.selectedTopic, fallbackPetState.stage),
+  )
 }
 
 export async function loadAuthoringPreview() {

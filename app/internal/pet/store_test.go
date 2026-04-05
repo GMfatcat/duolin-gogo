@@ -43,7 +43,7 @@ func TestInteractUsesCooldownWithoutAddingMoreGrowth(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "pet.json")
 	now := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
 
-	first, err := Interact(path, "zh-TW", now)
+	first, err := Interact(path, "zh-TW", "all", now)
 	if err != nil {
 		t.Fatalf("first interaction failed: %v", err)
 	}
@@ -51,7 +51,7 @@ func TestInteractUsesCooldownWithoutAddingMoreGrowth(t *testing.T) {
 		t.Fatalf("expected first interaction to add xp, got %d", first.State.BondXP)
 	}
 
-	second, err := Interact(path, "zh-TW", now.Add(5*time.Second))
+	second, err := Interact(path, "zh-TW", "all", now.Add(5*time.Second))
 	if err != nil {
 		t.Fatalf("second interaction failed: %v", err)
 	}
@@ -76,7 +76,7 @@ func TestInteractUnlocksRicherReactionPoolAtHigherStage(t *testing.T) {
 		}
 	}
 
-	result, err := Interact(path, "en", base.Add(20*time.Minute))
+	result, err := Interact(path, "en", "all", base.Add(20*time.Minute))
 	if err != nil {
 		t.Fatalf("interaction failed: %v", err)
 	}
@@ -99,7 +99,7 @@ func TestReactionForTriggerUsesContextSpecificPool(t *testing.T) {
 		}
 	}
 
-	result, err := ReactionForTrigger(path, TriggerCorrect, "en", base.Add(20*time.Minute))
+	result, err := ReactionForTrigger(path, TriggerCorrect, "en", "all", base.Add(20*time.Minute))
 	if err != nil {
 		t.Fatalf("reaction for trigger failed: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestReactionForTriggerUsesContextSpecificPool(t *testing.T) {
 		t.Fatalf("expected correct pose nod, got %s", result.Reaction.Pose)
 	}
 
-	result, err = ReactionForTrigger(path, TriggerReviewComplete, "en", base.Add(21*time.Minute))
+	result, err = ReactionForTrigger(path, TriggerReviewComplete, "en", "all", base.Add(21*time.Minute))
 	if err != nil {
 		t.Fatalf("review complete reaction failed: %v", err)
 	}
@@ -132,7 +132,7 @@ func TestReactionForTriggerCanStayQuietForLowNoisePrompts(t *testing.T) {
 	}
 
 	for offset := 0; offset < 6; offset++ {
-		result, err := ReactionForTrigger(path, TriggerCorrect, "en", base.Add(time.Duration(17+offset)*time.Minute))
+		result, err := ReactionForTrigger(path, TriggerCorrect, "en", "all", base.Add(time.Duration(17+offset)*time.Minute))
 		if err != nil {
 			t.Fatalf("reaction for quiet trigger failed: %v", err)
 		}
@@ -152,7 +152,7 @@ func TestReviewCompleteAlwaysEmitsReactionEvenAfterRecentCue(t *testing.T) {
 		t.Fatalf("seed review batch failed: %v", err)
 	}
 
-	first, err := ReactionForTrigger(path, TriggerLearnBreak, "en", base.Add(20*time.Minute))
+	first, err := ReactionForTrigger(path, TriggerLearnBreak, "en", "all", base.Add(20*time.Minute))
 	if err != nil {
 		t.Fatalf("learn break reaction failed: %v", err)
 	}
@@ -160,7 +160,7 @@ func TestReviewCompleteAlwaysEmitsReactionEvenAfterRecentCue(t *testing.T) {
 		t.Fatal("expected learn break reaction body")
 	}
 
-	second, err := ReactionForTrigger(path, TriggerReviewComplete, "en", base.Add(21*time.Minute))
+	second, err := ReactionForTrigger(path, TriggerReviewComplete, "en", "all", base.Add(21*time.Minute))
 	if err != nil {
 		t.Fatalf("review complete reaction failed: %v", err)
 	}
@@ -182,12 +182,12 @@ func TestReactionForTriggerRotatesWithinStagePool(t *testing.T) {
 		}
 	}
 
-	first, err := ReactionForTrigger(path, TriggerCorrect, "en", base.Add(20*time.Minute))
+	first, err := ReactionForTrigger(path, TriggerCorrect, "en", "all", base.Add(20*time.Minute))
 	if err != nil {
 		t.Fatalf("first reaction failed: %v", err)
 	}
 
-	second, err := ReactionForTrigger(path, TriggerCorrect, "en", base.Add(21*time.Minute))
+	second, err := ReactionForTrigger(path, TriggerCorrect, "en", "all", base.Add(21*time.Minute))
 	if err != nil {
 		t.Fatalf("second reaction failed: %v", err)
 	}
@@ -207,17 +207,48 @@ func TestInteractUsesDifferentClickVariantsAtHigherStage(t *testing.T) {
 		}
 	}
 
-	first, err := Interact(path, "en", base.Add(20*time.Minute))
+	first, err := Interact(path, "en", "all", base.Add(20*time.Minute))
 	if err != nil {
 		t.Fatalf("first interaction failed: %v", err)
 	}
 
-	second, err := Interact(path, "en", base.Add(36*time.Minute))
+	second, err := Interact(path, "en", "all", base.Add(36*time.Minute))
 	if err != nil {
 		t.Fatalf("second interaction failed: %v", err)
 	}
 
 	if first.Reaction.Key == second.Reaction.Key {
 		t.Fatalf("expected click pool rotation, got same key %s", first.Reaction.Key)
+	}
+}
+
+func TestReactionForTriggerUsesTopicAwarePool(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	result, err := ReactionForTrigger(path, TriggerReturn, "en", "docker", base.Add(20*time.Minute))
+	if err != nil {
+		t.Fatalf("docker return reaction failed: %v", err)
+	}
+
+	if result.Reaction.Body == "" {
+		t.Fatal("expected docker-themed reaction body")
+	}
+	if result.Reaction.Body != "Docker is back on deck. We can spin this up cleanly." &&
+		result.Reaction.Body != "Back to docker. Let us keep the containers under control." {
+		t.Fatalf("expected docker-themed reaction, got %q", result.Reaction.Body)
+	}
+
+	other, err := ReactionForTrigger(path, TriggerCorrect, "en", "languages", base.Add(21*time.Minute))
+	if err != nil {
+		t.Fatalf("languages correct reaction failed: %v", err)
+	}
+
+	if other.Reaction.Body == "" {
+		t.Fatal("expected language-themed reaction body")
+	}
+	if other.Reaction.Body != "Nice catch. Your language instincts are settling in." &&
+		other.Reaction.Body != "That was clean. The language side is starting to click." {
+		t.Fatalf("expected language-themed reaction, got %q", other.Reaction.Body)
 	}
 }

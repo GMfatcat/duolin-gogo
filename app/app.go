@@ -466,7 +466,14 @@ func (a *App) StartLearnBreak() (LearnBreakStatus, error) {
 }
 
 func (a *App) InteractWithDG() (DGInteractionStatus, error) {
-	result, err := pet.Interact(filepath.Join(a.dataDir, "pet.json"), a.loadPreferredLanguage(), a.nowFunc())
+	config := a.mustLoadSettings()
+	cache, err := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	if err != nil {
+		return DGInteractionStatus{}, err
+	}
+
+	selectedTopic := normalizeSelectedTopic(config.SelectedTopic, cache.Cards)
+	result, err := pet.Interact(filepath.Join(a.dataDir, "pet.json"), a.loadPreferredLanguage(), selectedTopic, a.nowFunc())
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
@@ -481,7 +488,14 @@ func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 }
 
 func (a *App) GetDGReaction(trigger string) (DGInteractionStatus, error) {
-	result, err := pet.ReactionForTrigger(filepath.Join(a.dataDir, "pet.json"), trigger, a.loadPreferredLanguage(), a.nowFunc())
+	config := a.mustLoadSettings()
+	cache, err := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	if err != nil {
+		return DGInteractionStatus{}, err
+	}
+
+	selectedTopic := normalizeSelectedTopic(config.SelectedTopic, cache.Cards)
+	result, err := pet.ReactionForTrigger(filepath.Join(a.dataDir, "pet.json"), trigger, a.loadPreferredLanguage(), selectedTopic, a.nowFunc())
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}

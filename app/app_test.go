@@ -476,6 +476,72 @@ func TestGetDGReactionReturnsContextualReaction(t *testing.T) {
 	t.Fatal("expected at least one correct-trigger pet reaction within the sampled window")
 }
 
+func TestDGReactionsFollowSelectedTopic(t *testing.T) {
+	app := newTestApp(t)
+
+	dockerCard := `---
+id: docker-run-start-container
+title_zh: docker run 的用途
+title_en: Docker Run
+type: true-false
+tags: [docker, container]
+question_zh: "docker run 會建立並啟動容器。"
+question_en: "docker run creates and starts a container."
+clickbait_zh: "很多人第一個 Docker 指令其實沒有真的弄懂。"
+clickbait_en: "A lot of people never really understand their first Docker command."
+review_hint_zh: "run = 建立並啟動容器。"
+review_hint_en: "run creates and starts a container."
+answer: true
+enabled: true
+---
+
+## zh-TW
+
+docker run 會從 image 建立新的 container，並立刻啟動它。
+## en
+
+docker run creates a new container from an image and starts it immediately.
+`
+	if err := os.MkdirAll(filepath.Join(app.knowledgeDir, "docker"), 0o755); err != nil {
+		t.Fatalf("mkdir docker failed: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(app.knowledgeDir, "docker", "run.md"), []byte(dockerCard), 0o644); err != nil {
+		t.Fatalf("write docker card failed: %v", err)
+	}
+	if _, err := app.RescanKnowledge(); err != nil {
+		t.Fatalf("rescan knowledge failed: %v", err)
+	}
+
+	if _, err := app.UpdatePreferredLanguage("en"); err != nil {
+		t.Fatalf("update preferred language failed: %v", err)
+	}
+	if _, err := app.UpdateSelectedTopic("docker"); err != nil {
+		t.Fatalf("update selected topic failed: %v", err)
+	}
+
+	clicked, err := app.InteractWithDG()
+	if err != nil {
+		t.Fatalf("interact with dg failed: %v", err)
+	}
+	if clicked.Body == "" {
+		t.Fatal("expected topic-aware click body")
+	}
+
+	if clicked.Body != "Docker mode is on. Let us keep this stack tidy." &&
+		clicked.Body != "Back in docker land. I am watching the moving parts with you." {
+		t.Fatalf("expected docker-flavored click body, got %q", clicked.Body)
+	}
+
+	returned, err := app.GetDGReaction(pet.TriggerReturn)
+	if err != nil {
+		t.Fatalf("get dg reaction failed: %v", err)
+	}
+	if returned.Body != "Docker is back on deck. We can spin this up cleanly." &&
+		returned.Body != "Back to docker. Let us keep the containers under control." {
+		t.Fatalf("expected docker-flavored return body, got %q", returned.Body)
+	}
+}
+
 func TestSubmitAnswerAdvancesHiddenPetGrowth(t *testing.T) {
 	app := newTestApp(t)
 
