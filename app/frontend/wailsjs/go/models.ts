@@ -403,6 +403,22 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class LearnBreakStatus {
+	    message: string;
+	    unlockAt: string;
+	    durationMinutes: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new LearnBreakStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.message = source["message"];
+	        this.unlockAt = source["unlockAt"];
+	        this.durationMinutes = source["durationMinutes"];
+	    }
+	}
 	
 	export class SaveDraftStatus {
 	    message: string;

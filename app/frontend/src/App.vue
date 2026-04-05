@@ -12,6 +12,7 @@ import {
   saveDraft,
   sendTestNotification,
   snoozeNotifications,
+  startLearnBreak,
   submitAnswer,
   updateNotificationSettings,
   updatePreferredLanguage,
@@ -789,14 +790,16 @@ async function handleNextCard() {
   if (!wasReviewMode) {
     const nextAnswered = learnSessionProgress.value.answered + 1
     if (nextAnswered >= learnSessionProgress.value.total) {
-      const intervalMinutes = scheduleSettings.value.notificationIntervalMinutes || 20
-      const cooldownUntil = new Date(Date.now() + intervalMinutes * 60 * 1000)
+      const breakStatus = await startLearnBreak()
+      const intervalMinutes = breakStatus.durationMinutes || scheduleSettings.value.notificationIntervalMinutes || 20
+      const cooldownUntil = breakStatus.unlockAt ? new Date(breakStatus.unlockAt) : new Date(Date.now() + intervalMinutes * 60 * 1000)
       learnSessionProgress.value = {
         ...learnSessionProgress.value,
         answered: nextAnswered,
         cooldownUntil: cooldownUntil.toISOString(),
       }
       learnBreakActive.value = true
+      actionMessage.value = breakStatus.message
       if (learnResumeTimer.value) {
         clearTimeout(learnResumeTimer.value)
       }

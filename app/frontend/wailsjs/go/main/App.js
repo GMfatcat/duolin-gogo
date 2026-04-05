@@ -54,6 +54,10 @@ export function SnoozeNotifications() {
   return window['go']['main']['App']['SnoozeNotifications']();
 }
 
+export function StartLearnBreak() {
+  return window['go']['main']['App']['StartLearnBreak']();
+}
+
 export function SubmitAnswer(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['SubmitAnswer'](arg1, arg2, arg3, arg4);
 }

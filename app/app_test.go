@@ -377,6 +377,35 @@ func TestCheckAndSendNotificationRespectsIntervalAndSnooze(t *testing.T) {
 	}
 }
 
+func TestStartLearnBreakBlocksNotificationsUntilIntervalPasses(t *testing.T) {
+	app := newTestApp(t)
+	sender := &stubSender{}
+	app.notificationSender = sender
+
+	status, err := app.StartLearnBreak()
+	if err != nil {
+		t.Fatalf("start learn break failed: %v", err)
+	}
+
+	if status.DurationM != 20 {
+		t.Fatalf("expected learn break duration 20, got %d", status.DurationM)
+	}
+	if status.UnlockAt == "" {
+		t.Fatal("expected unlockAt")
+	}
+	if app.schedulerState.SnoozedUntil == nil {
+		t.Fatal("expected scheduler snooze state")
+	}
+
+	sent, err := app.CheckAndSendNotification()
+	if err != nil {
+		t.Fatalf("check and send notification failed: %v", err)
+	}
+	if sent {
+		t.Fatal("expected notification to be blocked during learn break")
+	}
+}
+
 func TestSendTestNotificationUsesSelectedCard(t *testing.T) {
 	app := newTestApp(t)
 	sender := &stubSender{}

@@ -147,6 +147,12 @@ type ValidationStatus struct {
 	ImportErrors []diagnostics.Error `json:"importErrors"`
 }
 
+type LearnBreakStatus struct {
+	Message   string `json:"message"`
+	UnlockAt  string `json:"unlockAt"`
+	DurationM int    `json:"durationMinutes"`
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	knowledgeDir, dataDir := defaultAppPaths(os.Executable, os.Getwd)
@@ -422,6 +428,24 @@ func (a *App) SendTestNotification() (ActionStatus, error) {
 	}
 
 	return ActionStatus{Message: fmt.Sprintf("Test notification sent for %s.", topicScopeLabel(preferredLanguage, selectedTopic))}, nil
+}
+
+func (a *App) StartLearnBreak() (LearnBreakStatus, error) {
+	config, err := settings.Load(filepath.Join(a.dataDir, "settings.json"))
+	if err != nil {
+		return LearnBreakStatus{}, err
+	}
+
+	now := a.nowFunc()
+	durationMinutes := normalizeNotificationInterval(config.NotificationIntervalMinutes)
+	unlockAt := now.Add(time.Duration(durationMinutes) * time.Minute)
+	a.schedulerState.SnoozedUntil = &unlockAt
+
+	return LearnBreakStatus{
+		Message:   fmt.Sprintf("Learn break started until %s.", unlockAt.Format("15:04")),
+		UnlockAt:  unlockAt.Format(time.RFC3339),
+		DurationM: durationMinutes,
+	}, nil
 }
 func (a *App) RescanKnowledge() (ActionStatus, error) {
 	result, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir)

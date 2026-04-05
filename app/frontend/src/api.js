@@ -9,6 +9,7 @@ import {
   SaveDraft,
   SendTestNotification,
   SnoozeNotifications,
+  StartLearnBreak,
   SubmitAnswer,
   UpdateNotificationSettings,
   UpdatePreferredLanguage,
@@ -385,6 +386,20 @@ export async function sendTestNotification() {
   }
 
   return { message: 'Test notification sent.' }
+}
+
+export async function startLearnBreak() {
+  if (hasBackend()) {
+    return StartLearnBreak()
+  }
+
+  const unlockAt = new Date(Date.now() + fallbackDashboard.scheduleSettings.notificationIntervalMinutes * 60 * 1000)
+
+  return {
+    message: `Learn break started until ${unlockAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`,
+    unlockAt: unlockAt.toISOString(),
+    durationMinutes: fallbackDashboard.scheduleSettings.notificationIntervalMinutes,
+  }
 }
 
 export async function snoozeNotifications() {
