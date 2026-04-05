@@ -339,7 +339,7 @@ describe('App', () => {
     }
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.find('.assistant-hint').text()).toContain('DG says keep going')
+    expect(wrapper.find('.assistant-hint').text()).toContain('Lock in the key difference')
 
     await wrapper.find('.mode-select select').setValue('languages')
     await flushPromises()
@@ -379,7 +379,6 @@ describe('App', () => {
 
     const bubble = wrapper.find('.assistant-hint')
     expect(bubble.classes()).toContain('celebration')
-    expect(bubble.text()).toContain('DG says nice work')
     expect(bubble.text()).toContain('That review batch is done.')
   })
 
@@ -390,7 +389,6 @@ describe('App', () => {
     await switchToEnglish(wrapper)
 
     const bubble = wrapper.find('.assistant-hint')
-    expect(bubble.text()).toContain('DG guide')
     expect(bubble.text()).toContain('Take the concept in first')
   })
 

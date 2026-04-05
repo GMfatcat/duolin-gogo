@@ -1,6 +1,13 @@
 ﻿<script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
+import dgCollapsedBadge from './assets/dg/collapsed-badge.svg'
+import dgIdle from './assets/dg/idle.svg'
+import dgNod from './assets/dg/nod.svg'
+import dgRest from './assets/dg/rest.svg'
+import dgSpark from './assets/dg/spark.svg'
+import dgThink from './assets/dg/think.svg'
+import dgWave from './assets/dg/wave.svg'
 import {
   getStudyCard,
   getDGReaction,
@@ -27,15 +34,10 @@ const translations = {
   'zh-TW': {
     summary: '把筆記變成定時提醒、微課與複習節奏。',
     dgLabel: 'DG',
-    dgGuideTitle: 'DG 導讀',
-    dgWeakestTitle: 'DG 提醒',
-    dgReviewTitle: 'DG 恭喜',
     dgReviewBody: '這輪複習完成了，先收一下成果，再看要不要繼續下一張。',
     dgLearnBody: '先把這個觀念讀進去，等一下再開始作答。',
     dgAnswerBody: '準備好的話就選答案，不用急，先找最合理的選項。',
-    dgCorrectTitle: 'DG 說答得好',
     dgCorrectBody: '這題抓得不錯。看一下提示，再進下一張就好。',
-    dgWrongTitle: 'DG 說繼續',
     dgWrongBody: '這題值得再冷靜看一次。先記住關鍵差異，下一次就會更穩。',
     reviewCard: '複習卡',
     nextCard: '下一張卡',
@@ -149,15 +151,10 @@ const translations = {
   en: {
     summary: 'Turn notes into study nudges and review loops.',
     dgLabel: 'DG',
-    dgGuideTitle: 'DG guide',
-    dgWeakestTitle: 'DG hint',
-    dgReviewTitle: 'DG says nice work',
     dgReviewBody: 'That review batch is done. Take a beat, then decide if you want another card.',
     dgLearnBody: 'Take the concept in first, then move into the question when you are ready.',
     dgAnswerBody: 'Pick the most grounded answer. You do not need to rush this one.',
-    dgCorrectTitle: 'DG says you nailed it',
     dgCorrectBody: 'Nice hit. Read the hint once, then roll into the next card.',
-    dgWrongTitle: 'DG says keep going',
     dgWrongBody: 'This one is worth one more calm pass. Lock in the key difference and try again later.',
     reviewCard: 'Review card',
     nextCard: 'Next card',
@@ -543,14 +540,25 @@ const assistantHintPose = computed(() => {
   return 'pose-wave'
 })
 const assistantStageClass = computed(() => `stage-${petReaction.value?.stage ?? 0}`)
-const assistantHintTitle = computed(() => {
-  if (petReaction.value?.title) return petReaction.value.title
-  if (reviewCompleted.value) return t.value.dgReviewTitle
-  if (phase.value === 'feedback' && feedback.value?.isCorrect) return t.value.dgCorrectTitle
-  if (phase.value === 'feedback' && feedback.value && !feedback.value.isCorrect) return t.value.dgWrongTitle
-  if (phase.value === 'learn' || phase.value === 'answer') return t.value.dgGuideTitle
-  if (weakestDeck.value) return t.value.dgWeakestTitle
-  return t.value.dgLabel
+const assistantAvatarSrc = computed(() => {
+  if (assistantHintCollapsed.value) return dgCollapsedBadge
+
+  switch (assistantHintPose.value) {
+    case 'pose-nod':
+      return dgNod
+    case 'pose-think':
+      return dgThink
+    case 'pose-rest':
+      return dgRest
+    case 'pose-spark':
+      return dgSpark
+    case 'pose-wave':
+    case 'pose-focus':
+      return dgWave
+    case 'pose-idle':
+    default:
+      return dgIdle
+  }
 })
 const assistantHintText = computed(() => {
   if (petReaction.value?.body) return petReaction.value.body
@@ -1177,9 +1185,10 @@ async function showPetReaction(trigger) {
           type="button"
           @click="handleAssistantInteraction"
         >
-          <span class="assistant-avatar" :class="[assistantHintTone, assistantHintPose, assistantStageClass]">{{ t.dgLabel }}</span>
+          <span class="assistant-avatar" :class="[assistantHintTone, assistantHintPose, assistantStageClass]">
+            <img class="assistant-avatar-image" :src="assistantAvatarSrc" :alt="t.dgLabel">
+          </span>
           <div class="assistant-copy">
-            <strong>{{ assistantHintTitle }}</strong>
             <p>{{ assistantHintText }}</p>
           </div>
           <span
