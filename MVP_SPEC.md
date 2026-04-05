@@ -233,6 +233,7 @@ Question types deferred until later:
   - growth should instead show up as richer reactions, more varied moods, and slightly more familiar companion behavior over time
   - growth should come from real study activity such as answered cards, completed mini batches, completed reviews, streak continuation, and occasional direct clicks on `DG`
   - click interaction should feel playful but should not become a spammy mini-game
+  - the first implementation can stay lightweight: store hidden local growth, let card answers feed it, and let direct clicks on `DG` surface stage-based reactions
 - Language and study-mode controls should converge toward compact dropdown selectors instead of parallel button groups
 - User can dismiss and return later
 

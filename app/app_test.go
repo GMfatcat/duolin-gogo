@@ -8,6 +8,7 @@ import (
 
 	"duolin-gogo/internal/cards"
 	"duolin-gogo/internal/notifications"
+	"duolin-gogo/internal/pet"
 	"duolin-gogo/internal/progress"
 )
 
@@ -403,6 +404,54 @@ func TestStartLearnBreakBlocksNotificationsUntilIntervalPasses(t *testing.T) {
 	}
 	if sent {
 		t.Fatal("expected notification to be blocked during learn break")
+	}
+}
+
+func TestInteractWithDGReturnsLocalizedReaction(t *testing.T) {
+	app := newTestApp(t)
+
+	if _, err := app.UpdatePreferredLanguage("en"); err != nil {
+		t.Fatalf("update preferred language failed: %v", err)
+	}
+
+	result, err := app.InteractWithDG()
+	if err != nil {
+		t.Fatalf("interact with dg failed: %v", err)
+	}
+
+	if result.Title != "DG" {
+		t.Fatalf("expected DG title, got %s", result.Title)
+	}
+	if result.Body == "" {
+		t.Fatal("expected localized reaction body")
+	}
+	if result.Stage != 0 {
+		t.Fatalf("expected hidden stage 0, got %d", result.Stage)
+	}
+}
+
+func TestSubmitAnswerAdvancesHiddenPetGrowth(t *testing.T) {
+	app := newTestApp(t)
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	for index := 0; index < 3; index++ {
+		shownAt := app.nowFunc().Add(-time.Duration(index+1) * time.Minute).Format(time.RFC3339)
+		if _, err := app.SubmitAnswer(dashboard.CurrentCard.ID, "learn", "true", shownAt); err != nil {
+			t.Fatalf("submit answer %d failed: %v", index, err)
+		}
+	}
+
+	state, err := pet.Load(filepath.Join(app.dataDir, "pet.json"))
+	if err != nil {
+		t.Fatalf("load pet state failed: %v", err)
+	}
+
+	if state.Stage < 1 {
+		t.Fatalf("expected pet stage to advance after study activity, got %d", state.Stage)
 	}
 }
 

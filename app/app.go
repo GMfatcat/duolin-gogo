@@ -15,6 +15,7 @@ import (
 	"duolin-gogo/internal/dashboard"
 	"duolin-gogo/internal/diagnostics"
 	"duolin-gogo/internal/notifications"
+	"duolin-gogo/internal/pet"
 	"duolin-gogo/internal/progress"
 	"duolin-gogo/internal/review"
 	"duolin-gogo/internal/scheduler"
@@ -151,6 +152,13 @@ type LearnBreakStatus struct {
 	Message   string `json:"message"`
 	UnlockAt  string `json:"unlockAt"`
 	DurationM int    `json:"durationMinutes"`
+}
+
+type DGInteractionStatus struct {
+	Title   string `json:"title"`
+	Body    string `json:"body"`
+	Variant string `json:"variant"`
+	Stage   int    `json:"stage"`
 }
 
 // NewApp creates a new App application struct
@@ -322,6 +330,14 @@ func (a *App) SubmitAnswer(cardID string, sessionType string, selectedAnswer str
 		return SubmitAnswerResult{}, err
 	}
 
+	petEvent := pet.StudyEventAnsweredWrong
+	if isCorrect {
+		petEvent = pet.StudyEventAnsweredCorrect
+	}
+	if _, err := pet.RecordStudyEvent(filepath.Join(a.dataDir, "pet.json"), petEvent, now); err != nil {
+		return SubmitAnswerResult{}, err
+	}
+
 	feedback := "Not quite."
 	if isCorrect {
 		feedback = "Correct."
@@ -447,6 +463,21 @@ func (a *App) StartLearnBreak() (LearnBreakStatus, error) {
 		DurationM: durationMinutes,
 	}, nil
 }
+
+func (a *App) InteractWithDG() (DGInteractionStatus, error) {
+	result, err := pet.Interact(filepath.Join(a.dataDir, "pet.json"), a.loadPreferredLanguage(), a.nowFunc())
+	if err != nil {
+		return DGInteractionStatus{}, err
+	}
+
+	return DGInteractionStatus{
+		Title:   result.Reaction.Title,
+		Body:    result.Reaction.Body,
+		Variant: result.Reaction.Variant,
+		Stage:   result.State.Stage,
+	}, nil
+}
+
 func (a *App) RescanKnowledge() (ActionStatus, error) {
 	result, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir)
 	if err != nil {
@@ -489,6 +520,7 @@ func (a *App) ResetStudyData() (ActionStatus, error) {
 	paths := []string{
 		filepath.Join(a.dataDir, "progress.json"),
 		filepath.Join(a.dataDir, "attempts.jsonl"),
+		filepath.Join(a.dataDir, "pet.json"),
 	}
 
 	for _, path := range paths {

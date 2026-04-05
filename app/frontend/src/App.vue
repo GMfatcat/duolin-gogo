@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
 import {
   getStudyCard,
+  interactWithDG,
   loadAuthoringPreview,
   loadDashboard,
   previewKnowledgeCard,
@@ -284,6 +285,7 @@ const libraryOpen = ref(false)
 const diagnosticsOpen = ref(false)
 const insightsOpen = ref(false)
 const assistantHintCollapsed = ref(false)
+const petReaction = ref(null)
 const resetWarningOpen = ref(false)
 const reviewCompleted = ref(false)
 const learnBreakActive = ref(false)
@@ -321,6 +323,7 @@ const learnSessionSummary = ref({
   accuracy: 0,
   weakTopic: '',
 })
+const petReactionTimer = ref(null)
 const diagnosticsFilter = ref({
   severity: 'all',
   topic: 'all',
@@ -521,6 +524,7 @@ const learnBreakUntilText = computed(() =>
   formatDisplayTime(learnSessionProgress.value.cooldownUntil, t.value.notScheduled),
 )
 const assistantHintTone = computed(() => {
+  if (petReaction.value?.variant) return petReaction.value.variant
   if (reviewCompleted.value) return 'celebration'
   if (phase.value === 'feedback' && feedback.value?.isCorrect) return 'celebration'
   if (phase.value === 'feedback' && feedback.value && !feedback.value.isCorrect) return 'warning'
@@ -529,6 +533,7 @@ const assistantHintTone = computed(() => {
   return 'neutral'
 })
 const assistantHintTitle = computed(() => {
+  if (petReaction.value?.title) return petReaction.value.title
   if (reviewCompleted.value) return t.value.dgReviewTitle
   if (phase.value === 'feedback' && feedback.value?.isCorrect) return t.value.dgCorrectTitle
   if (phase.value === 'feedback' && feedback.value && !feedback.value.isCorrect) return t.value.dgWrongTitle
@@ -537,6 +542,7 @@ const assistantHintTitle = computed(() => {
   return t.value.dgLabel
 })
 const assistantHintText = computed(() => {
+  if (petReaction.value?.body) return petReaction.value.body
   if (reviewCompleted.value) return t.value.dgReviewBody
   if (phase.value === 'feedback' && feedback.value?.isCorrect) return t.value.dgCorrectBody
   if (phase.value === 'feedback' && feedback.value && !feedback.value.isCorrect) return t.value.dgWrongBody
@@ -690,6 +696,10 @@ onUnmounted(() => {
     clearTimeout(learnResumeTimer.value)
     learnResumeTimer.value = null
   }
+  if (petReactionTimer.value) {
+    clearTimeout(petReactionTimer.value)
+    petReactionTimer.value = null
+  }
   unsubscribe = null
 })
 
@@ -760,6 +770,7 @@ function resetStudyFlow() {
   phase.value = 'learn'
   feedback.value = null
   selectedAnswer.value = ''
+  petReaction.value = null
 }
 
 function resetLearnBreakState() {
@@ -1093,6 +1104,29 @@ function toggleInsights() {
 function toggleAssistantHint() {
   assistantHintCollapsed.value = !assistantHintCollapsed.value
 }
+
+async function handleAssistantInteraction() {
+  if (assistantHintCollapsed.value) {
+    assistantHintCollapsed.value = false
+    return
+  }
+
+  try {
+    const result = await interactWithDG()
+    petReaction.value = result
+
+    if (petReactionTimer.value) {
+      clearTimeout(petReactionTimer.value)
+    }
+
+    petReactionTimer.value = setTimeout(() => {
+      petReaction.value = null
+      petReactionTimer.value = null
+    }, 4000)
+  } catch (error) {
+    actionMessage.value = `DG interaction failed: ${error?.message ?? String(error)}`
+  }
+}
 </script>
 
 <template>
@@ -1108,13 +1142,19 @@ function toggleAssistantHint() {
           class="assistant-hint"
           :class="[assistantHintTone, { collapsed: assistantHintCollapsed }]"
           type="button"
-          @click="toggleAssistantHint"
+          @click="handleAssistantInteraction"
         >
           <span class="assistant-avatar">{{ t.dgLabel }}</span>
           <div class="assistant-copy">
             <strong>{{ assistantHintTitle }}</strong>
             <p>{{ assistantHintText }}</p>
           </div>
+          <span
+            class="assistant-collapse"
+            @click.stop="toggleAssistantHint"
+          >
+            {{ assistantHintCollapsed ? '+' : '−' }}
+          </span>
         </button>
       </div>
 

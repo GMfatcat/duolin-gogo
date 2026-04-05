@@ -18,6 +18,10 @@ export function GetStudyCard(arg1) {
   return window['go']['main']['App']['GetStudyCard'](arg1);
 }
 
+export function InteractWithDG() {
+  return window['go']['main']['App']['InteractWithDG']();
+}
+
 export function LoadAuthoringPreview() {
   return window['go']['main']['App']['LoadAuthoringPreview']();
 }

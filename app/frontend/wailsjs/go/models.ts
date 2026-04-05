@@ -41,6 +41,7 @@ export namespace dashboard {
 	export class Summary {
 	    studiedToday: number;
 	    correctRate: number;
+	    studyStreak: number;
 	    nextReviewAt: string;
 	    weakTopics: WeakTopic[];
 	    topicProgress: TopicProgress[];
@@ -54,6 +55,7 @@ export namespace dashboard {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.studiedToday = source["studiedToday"];
 	        this.correctRate = source["correctRate"];
+	        this.studyStreak = source["studyStreak"];
 	        this.nextReviewAt = source["nextReviewAt"];
 	        this.weakTopics = this.convertValues(source["weakTopics"], WeakTopic);
 	        this.topicProgress = this.convertValues(source["topicProgress"], TopicProgress);
@@ -270,6 +272,24 @@ export namespace main {
 		}
 	}
 	
+	export class DGInteractionStatus {
+	    title: string;
+	    body: string;
+	    variant: string;
+	    stage: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new DGInteractionStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.title = source["title"];
+	        this.body = source["body"];
+	        this.variant = source["variant"];
+	        this.stage = source["stage"];
+	    }
+	}
 	export class ScheduleSettings {
 	    notificationIntervalMinutes: number;
 	    reviewTime: string;

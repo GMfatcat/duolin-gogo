@@ -350,10 +350,22 @@ describe('App', () => {
 
     expect(wrapper.find('.assistant-hint').text()).toContain('Take the concept in first')
 
-    await wrapper.find('.assistant-hint').trigger('click')
+    await wrapper.find('.assistant-collapse').trigger('click')
     await flushPromises()
 
     expect(wrapper.find('.assistant-hint').classes()).toContain('collapsed')
+  })
+
+  it('lets users click DG for a pet-style reaction', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    await wrapper.find('.assistant-hint').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.assistant-hint').text()).toContain('I am here. Keep tapping in and I will warm up.')
   })
 
   it('switches the dg bubble into a review-complete encouragement state', async () => {

@@ -1,5 +1,6 @@
 import {
   GetStudyCard,
+  InteractWithDG,
   LoadAuthoringPreview,
   LoadDashboard,
   PreviewKnowledgeCard,
@@ -284,6 +285,11 @@ const fallbackAuthoringPreview = {
 }
 
 const fallbackSavedDrafts = new Map()
+const fallbackPetState = {
+  bondXp: 0,
+  stage: 0,
+  lastInteractionAt: '',
+}
 
 const hasBackend = () => typeof window !== 'undefined' && typeof window.go !== 'undefined'
 
@@ -331,6 +337,9 @@ export function __resetFallbackState() {
     },
   ]
   fallbackSavedDrafts.clear()
+  fallbackPetState.bondXp = 0
+  fallbackPetState.stage = 0
+  fallbackPetState.lastInteractionAt = ''
 }
 
 export async function loadDashboard() {
@@ -444,7 +453,84 @@ export async function resetStudyData() {
     weakestDeck: null,
   }
   fallbackDashboard.reviewQueue = []
+  fallbackPetState.bondXp = 0
+  fallbackPetState.stage = 0
+  fallbackPetState.lastInteractionAt = ''
   return { message: 'Study data reset.' }
+}
+
+export async function interactWithDG() {
+  if (hasBackend()) {
+    return InteractWithDG()
+  }
+
+  const now = new Date('2026-04-05T10:00:00+08:00')
+  if (fallbackPetState.lastInteractionAt) {
+    const last = new Date(fallbackPetState.lastInteractionAt)
+    if (now.getTime() - last.getTime() < 15000) {
+      return {
+        title: 'DG',
+        body:
+          fallbackDashboard.preferredLanguage === 'zh-TW'
+            ? '我有在聽，再一下就回你。'
+            : 'I heard you. Give me a beat.',
+        variant: 'focus',
+        stage: fallbackPetState.stage,
+      }
+    }
+  }
+
+  fallbackPetState.bondXp += 1
+  fallbackPetState.stage = fallbackPetState.bondXp >= 16 ? 2 : fallbackPetState.bondXp >= 6 ? 1 : 0
+  fallbackPetState.lastInteractionAt = now.toISOString()
+
+  if (fallbackDashboard.preferredLanguage === 'zh-TW') {
+    if (fallbackPetState.stage >= 2) {
+      return {
+        title: 'DG',
+        body: '你又回來了，我開始抓到你的節奏了。',
+        variant: 'celebration',
+        stage: fallbackPetState.stage,
+      }
+    }
+    if (fallbackPetState.stage >= 1) {
+      return {
+        title: 'DG',
+        body: '好，我陪你把這輪慢慢走完。',
+        variant: 'focus',
+        stage: fallbackPetState.stage,
+      }
+    }
+    return {
+      title: 'DG',
+      body: '我在這裡，點我我會慢慢變熟。',
+      variant: 'neutral',
+      stage: fallbackPetState.stage,
+    }
+  }
+
+  if (fallbackPetState.stage >= 2) {
+    return {
+      title: 'DG',
+      body: 'You are back. I am starting to learn your rhythm.',
+      variant: 'celebration',
+      stage: fallbackPetState.stage,
+    }
+  }
+  if (fallbackPetState.stage >= 1) {
+    return {
+      title: 'DG',
+      body: 'Alright, let us work through this batch together.',
+      variant: 'focus',
+      stage: fallbackPetState.stage,
+    }
+  }
+  return {
+    title: 'DG',
+    body: 'I am here. Keep tapping in and I will warm up.',
+    variant: 'neutral',
+    stage: fallbackPetState.stage,
+  }
 }
 
 export async function loadAuthoringPreview() {

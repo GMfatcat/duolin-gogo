@@ -10,6 +10,8 @@ export function ExitApplication():Promise<void>;
 
 export function GetStudyCard(arg1:string):Promise<main.StudyCard>;
 
+export function InteractWithDG():Promise<main.DGInteractionStatus>;
+
 export function LoadAuthoringPreview():Promise<main.AuthoringPreviewData>;
 
 export function LoadDashboard():Promise<main.DashboardData>;

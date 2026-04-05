@@ -586,6 +586,7 @@ TDD focus:
 Current status:
 
 - planned
+- first slice implemented: `DG` now has hidden local growth state plus click-to-react behavior, without exposing visible pet stats, levels, or progress bars
 - first slice implemented: the top-shell assistant hint now behaves as a compact `DG` mascot bubble with weak-deck and review-complete states, plus subtle entrance and collapse motion
 - second slice implemented: `DG` now changes tone across learn, answer, correct-feedback, and wrong-feedback states so users can feel the study flow without waiting for review mode
 

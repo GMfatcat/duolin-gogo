@@ -129,3 +129,4 @@ Next targets:
   - let growth show up through richer click reactions, more moods, and more familiar tone over time
   - tie hidden progression to real study behavior such as answered cards, mini-batch completion, review completion, and streak continuation
   - keep reaction frequency controlled so the companion supports the study loop instead of becoming a toy layer
+  - first slice implemented: `DG` now persists a hidden local bond state, grows from answered cards, and supports click-to-react behavior with a cooldown and stage-based reaction pool
