@@ -119,6 +119,7 @@ Next targets:
 - twelfth slice implemented: reveal timing now lives in Settings as a fast/normal/slow preference, so users can tune the guided intro cadence without exposing raw animation timings
 - thirteenth slice implemented: multi-topic decks now have a third practical wave, adding Docker networking/storage cleanup, Linux file movement and log-tail basics, Go error/package/receiver ideas, and Python class/comprehension/context-manager/import concepts
 - fourteenth slice implemented: multi-topic decks now have a fourth practical wave, adding Docker compose inspection and env/port workflows, Linux pipe/redirection/counting/xargs patterns, Go interface/context/error-wrapping edge cases, and Python iterator/init/module-boundary workflows
+- fifteenth slice implemented: the content map now expands beyond tools and languages into three new high-value decks for SQL, HTTP, and backend engineering basics, covering query optimization pitfalls, protocol/transport concepts, and testing/async/cache strategy
 - next UI refinement queued: move grouped-topic guidance toward the top as an assistant hint, collapse diagnostics by default, and simplify language/topic controls into dropdowns
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting

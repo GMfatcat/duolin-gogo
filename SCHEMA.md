@@ -20,15 +20,24 @@ knowledge/
   docker/
     run.md
     ps.md
+  http/
+    get.md
+    http2.md
   go/
     goroutine.md
     channel.md
+  backend/
+    unit-test.md
+    cache-aside.md
   linux/
     pwd.md
     ls.md
   python/
     venv.md
     list-vs-tuple.md
+  sql/
+    select.md
+    index.md
   git/
     rebase.md
     cherry-pick.md
