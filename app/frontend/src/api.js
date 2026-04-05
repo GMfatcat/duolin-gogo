@@ -144,6 +144,15 @@ const topicWeakTopics = {
     { tag: 'branching', wrongCount: 3, seenCount: 6, accuracy: 0.5 },
     { tag: 'commits', wrongCount: 1, seenCount: 4, accuracy: 0.75 },
   ],
+  'backend-tools': [
+    { tag: 'docker', wrongCount: 1, seenCount: 3, accuracy: 0.67 },
+    { tag: 'linux', wrongCount: 1, seenCount: 4, accuracy: 0.75 },
+    { tag: 'commits', wrongCount: 1, seenCount: 4, accuracy: 0.75 },
+  ],
+  languages: [
+    { tag: 'go', wrongCount: 2, seenCount: 5, accuracy: 0.6 },
+    { tag: 'python', wrongCount: 1, seenCount: 5, accuracy: 0.8 },
+  ],
   git: [
     { tag: 'branching', wrongCount: 3, seenCount: 6, accuracy: 0.5 },
     { tag: 'commits', wrongCount: 1, seenCount: 4, accuracy: 0.75 },
@@ -162,6 +171,15 @@ const topicProgressByMode = {
     { topic: 'linux', seenCount: 4, correctCount: 3, wrongCount: 1, accuracy: 0.75 },
     { topic: 'python', seenCount: 5, correctCount: 4, wrongCount: 1, accuracy: 0.8 },
   ],
+  'backend-tools': [
+    { topic: 'docker', seenCount: 3, correctCount: 2, wrongCount: 1, accuracy: 0.67 },
+    { topic: 'git', seenCount: 10, correctCount: 8, wrongCount: 2, accuracy: 0.8 },
+    { topic: 'linux', seenCount: 4, correctCount: 3, wrongCount: 1, accuracy: 0.75 },
+  ],
+  languages: [
+    { topic: 'go', seenCount: 5, correctCount: 3, wrongCount: 2, accuracy: 0.6 },
+    { topic: 'python', seenCount: 5, correctCount: 4, wrongCount: 1, accuracy: 0.8 },
+  ],
   git: [{ topic: 'git', seenCount: 10, correctCount: 8, wrongCount: 2, accuracy: 0.8 }],
   docker: [{ topic: 'docker', seenCount: 3, correctCount: 2, wrongCount: 1, accuracy: 0.67 }],
   linux: [{ topic: 'linux', seenCount: 4, correctCount: 3, wrongCount: 1, accuracy: 0.75 }],
@@ -173,10 +191,23 @@ function cloneCard(topic) {
   return structuredClone(fallbackCardsByTopic[topic] || fallbackCardsByTopic.git)
 }
 
+function primaryTopicForMode(topic) {
+  switch (topic) {
+    case 'backend-tools':
+      return 'docker'
+    case 'languages':
+      return 'go'
+    case 'all':
+      return 'git'
+    default:
+      return topic
+  }
+}
+
 function applyFallbackTopic(topic) {
   const resolvedTopic = topic || 'all'
   fallbackDashboard.selectedTopic = resolvedTopic
-  fallbackDashboard.currentCard = cloneCard(resolvedTopic === 'all' ? 'git' : resolvedTopic)
+  fallbackDashboard.currentCard = cloneCard(primaryTopicForMode(resolvedTopic))
   fallbackDashboard.summary = {
     ...fallbackDashboard.summary,
     weakTopics: structuredClone(topicWeakTopics[resolvedTopic] || topicWeakTopics.all),
@@ -192,7 +223,7 @@ const fallbackDashboard = {
   },
   preferredLanguage: 'zh-TW',
   selectedTopic: 'all',
-  availableTopics: ['all', 'docker', 'git', 'go', 'linux', 'python'],
+  availableTopics: ['all', 'backend-tools', 'languages', 'docker', 'git', 'go', 'linux', 'python'],
   stats: {
     studiedToday: 1,
     correctRate: 1,

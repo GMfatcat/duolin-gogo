@@ -541,6 +541,8 @@ Deliverables:
 - first slice implemented: a global topic filter now drives next-card selection, review queue composition, and filtered dashboard summaries
 - second slice implemented: the UI now makes mixed-mode versus focused-topic study clearer with topic-aware copy and weak-topic framing
 - third slice implemented: the sidebar now shows per-topic progress so mixed-mode study has a visible deck-level overview
+- fourth slice implemented: mixed mode now boosts weaker topics so `all` mode is less likely to over-serve already-strong decks
+- fifth slice implemented: topic pin presets now provide one-click filters for `all`, `backend-tools`, `languages`, and `git`
 
 TDD focus:
 

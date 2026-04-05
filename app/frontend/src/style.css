@@ -284,6 +284,26 @@ body {
   outline: none;
 }
 
+.topic-presets {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topic-preset {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 33, 47, 0.12);
+  background: rgba(255, 250, 239, 0.52);
+  color: #385168;
+}
+
+.topic-preset.active {
+  background: #e9c46a;
+  color: #10212f;
+}
+
 .language-toggle button,
 .phase-button,
 .submit-button,
@@ -808,6 +828,10 @@ body {
   .hero-actions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .topic-presets {
+    width: 100%;
   }
 
   .status-grid,

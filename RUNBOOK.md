@@ -103,6 +103,7 @@ Expected current UI behavior:
 - one study card is shown
 - `zh-TW` / `en` buttons switch explanation language
 - `Topic` can switch between mixed mode and one focused deck
+- topic pins can jump directly between `all`, `backend-tools`, `languages`, and `git`
 - answer options can be selected
 - `Submit answer` shows correctness feedback
 - studied-today / correct-rate values update
@@ -115,7 +116,7 @@ Current MVP note:
 
 Current useful controls:
 
-- global `Topic` filter for `all`, `git`, `docker`, `linux`, `go`, and `python`
+- global `Topic` filter for `all`, `backend-tools`, `languages`, `git`, `docker`, `linux`, `go`, and `python`
 - `Send test notification`
 - `Snooze 15 min`
 - `Rescan knowledge`
@@ -135,6 +136,7 @@ Current useful controls:
 - the review completion state now includes a lightweight session summary with answered count, estimated accuracy, and the weakest current topic
 - `zh-TW` / `en` language toggle
 - topic-aware messaging now reflects whether you are in mixed mode or focused on one deck
+- mixed mode now biases toward weaker topics instead of treating all decks equally
 - separate top-right `Settings`, `Library`, and `Diagnostics` buttons
 - answer submission
 

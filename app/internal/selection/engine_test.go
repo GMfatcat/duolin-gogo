@@ -231,6 +231,96 @@ func TestSelectNextCardForTopicFiltersCandidates(t *testing.T) {
 	}
 }
 
+func TestSelectNextCardInMixedModePrefersWeakerTopicWhenScoresAreClose(t *testing.T) {
+	now := fixedNow()
+	olderSeen := now.Add(-48 * time.Hour).Format(time.RFC3339)
+	recentlySeen := now.Add(-3 * time.Minute).Format(time.RFC3339)
+
+	card, ok := SelectNextCardForTopic([]cards.Card{
+		{ID: "git-card", Enabled: true, Tags: []string{"git"}},
+		{ID: "git-second", Enabled: true, Tags: []string{"git"}},
+		{ID: "docker-card", Enabled: true, Tags: []string{"docker"}},
+		{ID: "docker-second", Enabled: true, Tags: []string{"docker"}},
+	}, map[string]progress.CardProgress{
+		"git-card": {
+			SeenCount:    4,
+			CorrectCount: 2,
+			WrongCount:   2,
+			MasteryScore: 1,
+			LastSeenAt:   &olderSeen,
+		},
+		"git-second": {
+			SeenCount:    6,
+			CorrectCount: 6,
+			WrongCount:   0,
+			MasteryScore: 6,
+			LastSeenAt:   &recentlySeen,
+			IsMastered:   true,
+		},
+		"docker-card": {
+			SeenCount:    4,
+			CorrectCount: 2,
+			WrongCount:   2,
+			MasteryScore: 1,
+			LastSeenAt:   &olderSeen,
+		},
+		"docker-second": {
+			SeenCount:    4,
+			CorrectCount: 0,
+			WrongCount:   4,
+			MasteryScore: 0,
+			LastSeenAt:   &recentlySeen,
+		},
+	}, "all", now)
+	if !ok {
+		t.Fatal("expected candidate")
+	}
+
+	if card.ID != "docker-card" {
+		t.Fatalf("expected mixed mode to prefer docker-card due to weaker topic, got %s", card.ID)
+	}
+}
+
+func TestSelectNextCardForFocusedTopicIgnoresCrossTopicWeaknessBoost(t *testing.T) {
+	now := fixedNow()
+	olderSeen := now.Add(-48 * time.Hour).Format(time.RFC3339)
+
+	card, ok := SelectNextCardForTopic([]cards.Card{
+		{ID: "git-stronger-card", Enabled: true, Tags: []string{"git"}},
+		{ID: "git-weaker-card", Enabled: true, Tags: []string{"git"}},
+		{ID: "docker-card", Enabled: true, Tags: []string{"docker"}},
+	}, map[string]progress.CardProgress{
+		"git-stronger-card": {
+			SeenCount:    4,
+			CorrectCount: 1,
+			WrongCount:   3,
+			MasteryScore: 0,
+			LastSeenAt:   &olderSeen,
+		},
+		"git-weaker-card": {
+			SeenCount:    4,
+			CorrectCount: 0,
+			WrongCount:   4,
+			MasteryScore: 0,
+			LastSeenAt:   &olderSeen,
+		},
+		"docker-card": {
+			SeenCount:    4,
+			CorrectCount: 0,
+			WrongCount:   4,
+			MasteryScore: 0,
+			LastSeenAt:   &olderSeen,
+		},
+	}, "git", now)
+	if !ok {
+		t.Fatal("expected candidate")
+	}
+
+	if card.ID != "git-weaker-card" {
+		t.Fatalf("expected git-weaker-card within focused topic, got %s", card.ID)
+	}
+}
+
 func TestFilterCardsByTopicReturnsOnlyMatchingCards(t *testing.T) {
 	filtered := FilterCardsByTopic([]cards.Card{
 		{ID: "git-card", Enabled: true, Tags: []string{"git"}},
@@ -244,6 +334,32 @@ func TestFilterCardsByTopicReturnsOnlyMatchingCards(t *testing.T) {
 
 	if filtered[0].ID != "docker-card" {
 		t.Fatalf("expected docker-card, got %s", filtered[0].ID)
+	}
+}
+
+func TestFilterCardsByTopicSupportsTopicPresetGroups(t *testing.T) {
+	filtered := FilterCardsByTopic([]cards.Card{
+		{ID: "git-card", Enabled: true, Tags: []string{"git"}},
+		{ID: "docker-card", Enabled: true, Tags: []string{"docker"}},
+		{ID: "linux-card", Enabled: true, Tags: []string{"linux"}},
+		{ID: "go-card", Enabled: true, Tags: []string{"go"}},
+		{ID: "python-card", Enabled: true, Tags: []string{"python"}},
+	}, "backend-tools")
+
+	if len(filtered) != 3 {
+		t.Fatalf("expected 3 backend tools cards, got %d", len(filtered))
+	}
+
+	filtered = FilterCardsByTopic([]cards.Card{
+		{ID: "git-card", Enabled: true, Tags: []string{"git"}},
+		{ID: "docker-card", Enabled: true, Tags: []string{"docker"}},
+		{ID: "linux-card", Enabled: true, Tags: []string{"linux"}},
+		{ID: "go-card", Enabled: true, Tags: []string{"go"}},
+		{ID: "python-card", Enabled: true, Tags: []string{"python"}},
+	}, "languages")
+
+	if len(filtered) != 2 {
+		t.Fatalf("expected 2 language cards, got %d", len(filtered))
 	}
 }
 

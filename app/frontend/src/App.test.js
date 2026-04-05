@@ -204,6 +204,29 @@ describe('App', () => {
     expect(wrapper.text()).toContain('3 次作答')
   })
 
+  it('switches to preset topic groups from quick pins', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    const presetButtons = wrapper.findAll('.topic-preset')
+    await presetButtons[1].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('後端工具')
+    expect(wrapper.text()).toContain('Git、Docker 與 Linux')
+    expect(wrapper.text()).toContain('docker')
+    expect(wrapper.text()).toContain('git')
+
+    await presetButtons[2].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('程式語言')
+    expect(wrapper.text()).toContain('Go 與 Python')
+    expect(wrapper.text()).toContain('go')
+    expect(wrapper.text()).toContain('python')
+  })
+
   it('shows per-topic progress in mixed mode', async () => {
     const wrapper = mount(App)
 

@@ -798,6 +798,10 @@ func normalizeSelectedTopic(topic string, allCards []cards.Card) string {
 		return "all"
 	}
 
+	if isTopicPreset(normalized) {
+		return normalized
+	}
+
 	for _, available := range availableTopics(allCards) {
 		if available == normalized {
 			return normalized
@@ -817,7 +821,7 @@ func normalizeTopic(topic string) string {
 
 func availableTopics(allCards []cards.Card) []string {
 	seen := map[string]struct{}{}
-	topics := []string{"all"}
+	topics := []string{"all", "backend-tools", "languages"}
 
 	for _, card := range allCards {
 		topic := topicForCard(card)
@@ -836,6 +840,15 @@ func availableTopics(allCards []cards.Card) []string {
 	}
 
 	return topics
+}
+
+func isTopicPreset(topic string) bool {
+	switch topic {
+	case "backend-tools", "languages":
+		return true
+	default:
+		return false
+	}
 }
 
 func topicForCard(card cards.Card) string {

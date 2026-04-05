@@ -83,12 +83,14 @@ Next targets:
   - fourth slice implemented: review completion now shows a lightweight session summary with answered count, estimated accuracy, and the weakest current topic
 - Phase C: multi-topic expansion
   - prepare the deck model for topics beyond Git
-  - support topic-aware summaries and selection filters
-  - first content expansion slice starts with `docker` and `linux`
-  - second content expansion slice adds foundational `go` and `python` decks
-  - third slice implemented: a global topic filter now constrains selected cards, review queues, and weak-topic summaries
-  - fourth slice implemented: the UI now reflects topic mode more clearly, including focused-topic copy and topic-aware weak-topic headings
-  - fifth slice implemented: the sidebar now includes per-topic progress cards for mixed-mode and focused deck overview
+- support topic-aware summaries and selection filters
+- first content expansion slice starts with `docker` and `linux`
+- second content expansion slice adds foundational `go` and `python` decks
+- third slice implemented: a global topic filter now constrains selected cards, review queues, and weak-topic summaries
+- fourth slice implemented: the UI now reflects topic mode more clearly, including focused-topic copy and topic-aware weak-topic headings
+- fifth slice implemented: the sidebar now includes per-topic progress cards for mixed-mode and focused deck overview
+- sixth slice implemented: mixed mode now adds extra weight to weaker topics so broad study can revisit weaker decks more often
+- seventh slice implemented: quick topic pin presets now jump between `all`, `backend-tools`, `languages`, and `git`
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting
   - keep notifications active while the app window is hidden

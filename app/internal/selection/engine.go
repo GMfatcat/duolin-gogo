@@ -45,6 +45,7 @@ func SelectNextCardForTopic(allCards []cards.Card, states map[string]progress.Ca
 	var best cards.Card
 	bestScore := -1
 	found := false
+	topicBonuses := mixedModeTopicBonuses(allCards, states, topic)
 
 	for _, card := range allCards {
 		if !card.Enabled || !CardMatchesTopic(card, topic) {
@@ -52,6 +53,7 @@ func SelectNextCardForTopic(allCards []cards.Card, states map[string]progress.Ca
 		}
 
 		score := PriorityScore(card, states[card.ID], now)
+		score += topicBonuses[cardTopic(card)]
 		if !found || score > bestScore {
 			best = card
 			bestScore = score
@@ -83,6 +85,11 @@ func CardMatchesTopic(card cards.Card, topic string) bool {
 		return true
 	}
 
+	cardTopic := cardTopic(card)
+	if matchesTopicPreset(cardTopic, normalized) {
+		return true
+	}
+
 	for _, tag := range card.Tags {
 		if strings.EqualFold(strings.TrimSpace(tag), normalized) {
 			return true
@@ -99,12 +106,96 @@ func CardMatchesTopic(card cards.Card, topic string) bool {
 	return false
 }
 
+func matchesTopicPreset(cardTopic string, selected string) bool {
+	if cardTopic == "" {
+		return false
+	}
+
+	switch selected {
+	case "backend-tools":
+		return cardTopic == "git" || cardTopic == "docker" || cardTopic == "linux"
+	case "languages":
+		return cardTopic == "go" || cardTopic == "python"
+	default:
+		return cardTopic == selected
+	}
+}
+
 func normalizeTopic(topic string) string {
 	normalized := strings.ToLower(strings.TrimSpace(topic))
 	if normalized == "" {
 		return "all"
 	}
 	return normalized
+}
+
+func mixedModeTopicBonuses(allCards []cards.Card, states map[string]progress.CardProgress, topic string) map[string]int {
+	if normalizeTopic(topic) != "all" {
+		return map[string]int{}
+	}
+
+	type topicStats struct {
+		seen    int
+		correct int
+	}
+
+	statsByTopic := map[string]topicStats{}
+	for _, card := range allCards {
+		if !card.Enabled {
+			continue
+		}
+
+		cardTopic := cardTopic(card)
+		state := states[card.ID]
+		stats := statsByTopic[cardTopic]
+		stats.seen += state.SeenCount
+		stats.correct += state.CorrectCount
+		statsByTopic[cardTopic] = stats
+	}
+
+	if len(statsByTopic) <= 1 {
+		return map[string]int{}
+	}
+
+	bonuses := make(map[string]int, len(statsByTopic))
+	for topicName, stats := range statsByTopic {
+		if stats.seen == 0 {
+			bonuses[topicName] = 0
+			continue
+		}
+
+		accuracy := float64(stats.correct) / float64(stats.seen)
+		switch {
+		case accuracy < 0.4:
+			bonuses[topicName] = 8
+		case accuracy < 0.6:
+			bonuses[topicName] = 5
+		case accuracy < 0.8:
+			bonuses[topicName] = 2
+		default:
+			bonuses[topicName] = 0
+		}
+	}
+
+	return bonuses
+}
+
+func cardTopic(card cards.Card) string {
+	for _, tag := range card.Tags {
+		normalized := normalizeTopic(tag)
+		if normalized != "" && normalized != "all" {
+			return normalized
+		}
+	}
+
+	if card.SourcePath != "" {
+		parent := strings.ToLower(filepath.Base(filepath.Dir(card.SourcePath)))
+		if parent != "" {
+			return parent
+		}
+	}
+
+	return "general"
 }
 
 func isReviewDue(nextReviewAt *string, now time.Time) bool {

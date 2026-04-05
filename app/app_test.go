@@ -238,6 +238,33 @@ docker run creates and starts a container from an image.
 	}
 }
 
+func TestUpdateSelectedTopicSupportsPresetGroups(t *testing.T) {
+	app := newTestApp(t)
+
+	status, err := app.UpdateSelectedTopic("backend-tools")
+	if err != nil {
+		t.Fatalf("update selected topic failed: %v", err)
+	}
+	if status.Message != "Topic filter updated." {
+		t.Fatalf("unexpected status: %s", status.Message)
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if dashboard.SelectedTopic != "backend-tools" {
+		t.Fatalf("expected selected topic backend-tools, got %s", dashboard.SelectedTopic)
+	}
+	if len(dashboard.AvailableTopics) < 2 {
+		t.Fatalf("expected preset topics in available topics, got %#v", dashboard.AvailableTopics)
+	}
+	if dashboard.AvailableTopics[0] != "all" || dashboard.AvailableTopics[1] != "backend-tools" {
+		t.Fatalf("expected presets near the front, got %#v", dashboard.AvailableTopics)
+	}
+}
+
 func TestSubmitAnswerPersistsFeedback(t *testing.T) {
 	app := newTestApp(t)
 
