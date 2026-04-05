@@ -215,6 +215,38 @@ func TestSelectNextCardStillReturnsRecentCardWhenItIsOnlyOption(t *testing.T) {
 	}
 }
 
+func TestSelectNextCardForTopicFiltersCandidates(t *testing.T) {
+	now := fixedNow()
+
+	card, ok := SelectNextCardForTopic([]cards.Card{
+		{ID: "git-card", Enabled: true, Tags: []string{"git"}},
+		{ID: "docker-card", Enabled: true, Tags: []string{"docker"}},
+	}, map[string]progress.CardProgress{}, "docker", now)
+	if !ok {
+		t.Fatal("expected candidate")
+	}
+
+	if card.ID != "docker-card" {
+		t.Fatalf("expected docker card, got %s", card.ID)
+	}
+}
+
+func TestFilterCardsByTopicReturnsOnlyMatchingCards(t *testing.T) {
+	filtered := FilterCardsByTopic([]cards.Card{
+		{ID: "git-card", Enabled: true, Tags: []string{"git"}},
+		{ID: "python-card", Enabled: true, Tags: []string{"python"}},
+		{ID: "docker-card", Enabled: true, SourcePath: "D:/duolin-gogo/knowledge/docker/run.md"},
+	}, "docker")
+
+	if len(filtered) != 1 {
+		t.Fatalf("expected 1 filtered card, got %d", len(filtered))
+	}
+
+	if filtered[0].ID != "docker-card" {
+		t.Fatalf("expected docker-card, got %s", filtered[0].ID)
+	}
+}
+
 func fixedNow() time.Time {
 	return time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
 }

@@ -8,6 +8,7 @@ import (
 type File struct {
 	Version                     int      `json:"version"`
 	KnowledgeDirectories        []string `json:"knowledge_directories"`
+	SelectedTopic               string   `json:"selected_topic"`
 	NotificationIntervalMinutes int      `json:"notification_interval_minutes"`
 	ActiveHours                 struct {
 		Enabled bool   `json:"enabled"`

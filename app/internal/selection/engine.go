@@ -1,6 +1,9 @@
 package selection
 
 import (
+	"path/filepath"
+	"slices"
+	"strings"
 	"time"
 
 	"duolin-gogo/internal/cards"
@@ -35,12 +38,16 @@ func PriorityScore(card cards.Card, state progress.CardProgress, now time.Time) 
 }
 
 func SelectNextCard(allCards []cards.Card, states map[string]progress.CardProgress, now time.Time) (cards.Card, bool) {
+	return SelectNextCardForTopic(allCards, states, "all", now)
+}
+
+func SelectNextCardForTopic(allCards []cards.Card, states map[string]progress.CardProgress, topic string, now time.Time) (cards.Card, bool) {
 	var best cards.Card
 	bestScore := -1
 	found := false
 
 	for _, card := range allCards {
-		if !card.Enabled {
+		if !card.Enabled || !CardMatchesTopic(card, topic) {
 			continue
 		}
 
@@ -53,6 +60,51 @@ func SelectNextCard(allCards []cards.Card, states map[string]progress.CardProgre
 	}
 
 	return best, found
+}
+
+func FilterCardsByTopic(allCards []cards.Card, topic string) []cards.Card {
+	if normalizeTopic(topic) == "all" {
+		return slices.Clone(allCards)
+	}
+
+	filtered := make([]cards.Card, 0, len(allCards))
+	for _, card := range allCards {
+		if CardMatchesTopic(card, topic) {
+			filtered = append(filtered, card)
+		}
+	}
+
+	return filtered
+}
+
+func CardMatchesTopic(card cards.Card, topic string) bool {
+	normalized := normalizeTopic(topic)
+	if normalized == "all" {
+		return true
+	}
+
+	for _, tag := range card.Tags {
+		if strings.EqualFold(strings.TrimSpace(tag), normalized) {
+			return true
+		}
+	}
+
+	if card.SourcePath != "" {
+		parent := strings.ToLower(filepath.Base(filepath.Dir(card.SourcePath)))
+		if parent == normalized {
+			return true
+		}
+	}
+
+	return false
+}
+
+func normalizeTopic(topic string) string {
+	normalized := strings.ToLower(strings.TrimSpace(topic))
+	if normalized == "" {
+		return "all"
+	}
+	return normalized
 }
 
 func isReviewDue(nextReviewAt *string, now time.Time) bool {

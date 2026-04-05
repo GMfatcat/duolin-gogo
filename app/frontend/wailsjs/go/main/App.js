@@ -70,6 +70,10 @@ export function UpdateScheduleSettings(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['main']['App']['UpdateScheduleSettings'](arg1, arg2, arg3, arg4, arg5);
 }
 
+export function UpdateSelectedTopic(arg1) {
+  return window['go']['main']['App']['UpdateSelectedTopic'](arg1);
+}
+
 export function ValidateKnowledge() {
   return window['go']['main']['App']['ValidateKnowledge']();
 }

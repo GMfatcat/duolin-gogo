@@ -572,6 +572,7 @@ Suggested schema:
   "knowledge_directories": [
     "D:\\duolin-gogo\\knowledge"
   ],
+  "selected_topic": "all",
   "notification_interval_minutes": 10,
   "active_hours": {
     "enabled": true,
@@ -609,6 +610,7 @@ Suggested schema:
 - `version`: schema version for migration later
 - `knowledge_directories`: list of absolute paths
 - `notification_interval_minutes`: allowed MVP range `5` to `120`
+- `selected_topic`: allowed MVP values are `all` or one imported deck topic such as `git`, `docker`, `linux`, `go`, or `python`
 - `active_hours.start/end`: 24-hour `HH:MM`
 - `review_schedule.mode`: `daily`, `weekly`, or `off`
 - `review_schedule.weekday`: `mon` to `sun`, only used in weekly mode

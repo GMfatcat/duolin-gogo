@@ -86,6 +86,7 @@ Next targets:
   - support topic-aware summaries and selection filters
   - first content expansion slice starts with `docker` and `linux`
   - second content expansion slice adds foundational `go` and `python` decks
+  - third slice implemented: a global topic filter now constrains selected cards, review queues, and weak-topic summaries
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting
   - keep notifications active while the app window is hidden

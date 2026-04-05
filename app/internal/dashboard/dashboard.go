@@ -32,14 +32,25 @@ func BuildSummary(allCards []cards.Card, state progress.ProgressFile, now time.T
 	return Summary{
 		StudiedToday: day.Answered,
 		CorrectRate:  correctRate,
-		NextReviewAt: nextReviewTime(state.Cards, now),
+		NextReviewAt: nextReviewTime(allCards, state.Cards, now),
 		WeakTopics:   weakTopics(allCards, state.Cards),
 	}
 }
 
-func nextReviewTime(states map[string]progress.CardProgress, now time.Time) string {
+func nextReviewTime(allCards []cards.Card, states map[string]progress.CardProgress, now time.Time) string {
 	var next *time.Time
-	for _, state := range states {
+	allowed := map[string]struct{}{}
+	for _, card := range allCards {
+		allowed[card.ID] = struct{}{}
+	}
+
+	for cardID, state := range states {
+		if len(allowed) > 0 {
+			if _, ok := allowed[cardID]; !ok {
+				continue
+			}
+		}
+
 		if state.NextReviewAt == nil || *state.NextReviewAt == "" {
 			continue
 		}

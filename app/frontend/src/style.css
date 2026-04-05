@@ -75,6 +75,7 @@ body {
 .hero-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
@@ -214,6 +215,36 @@ body {
 .language-toggle {
   display: inline-flex;
   gap: 8px;
+}
+
+.topic-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid rgba(16, 33, 47, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 250, 239, 0.78);
+  color: #385168;
+  font-size: 0.86rem;
+}
+
+.topic-filter span {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.topic-filter select {
+  border: none;
+  background: transparent;
+  color: #10212f;
+  font: inherit;
+  min-width: 84px;
+}
+
+.topic-filter select:focus {
+  outline: none;
 }
 
 .language-toggle button,

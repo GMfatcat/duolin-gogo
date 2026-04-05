@@ -538,6 +538,7 @@ Deliverables:
 - optional topic filters in study selection
 - dashboard summaries grouped by topic
 - support for decks such as `docker`, `linux`, `go`, and `python`
+- first slice implemented: a global topic filter now drives next-card selection, review queue composition, and filtered dashboard summaries
 
 TDD focus:
 

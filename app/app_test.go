@@ -142,6 +142,12 @@ func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 	if dashboard.PreferredLanguage != "zh-TW" {
 		t.Fatalf("expected preferred language zh-TW, got %s", dashboard.PreferredLanguage)
 	}
+	if dashboard.SelectedTopic != "all" {
+		t.Fatalf("expected selected topic all, got %s", dashboard.SelectedTopic)
+	}
+	if len(dashboard.AvailableTopics) == 0 || dashboard.AvailableTopics[0] != "all" {
+		t.Fatalf("expected available topics to start with all, got %#v", dashboard.AvailableTopics)
+	}
 
 	if dashboard.CurrentCard == nil {
 		t.Fatal("expected current study card")
@@ -169,6 +175,66 @@ func TestLoadDashboardReturnsStudyCardAndStats(t *testing.T) {
 
 	if len(dashboard.ImportErrors) != 0 {
 		t.Fatalf("expected no import errors, got %d", len(dashboard.ImportErrors))
+	}
+}
+
+func TestUpdateSelectedTopicPersistsValueAndFiltersCurrentCard(t *testing.T) {
+	app := newTestApp(t)
+
+	dockerCard := `---
+id: docker-run-start-container
+title_zh: docker run 啟動容器
+title_en: Docker Run
+type: true-false
+tags: [docker, container]
+question_zh: "docker run 會建立並啟動一個容器。"
+question_en: "docker run creates and starts a container."
+clickbait_zh: "第一個 Docker 指令，很多人其實沒真的懂。"
+clickbait_en: "The first Docker command many people never really understand."
+review_hint_zh: "run = 建立並啟動容器。"
+review_hint_en: "run creates and starts a container."
+answer: true
+enabled: true
+---
+
+## zh-TW
+
+docker run 會根據 image 建立並啟動一個容器。
+## en
+
+docker run creates and starts a container from an image.
+`
+	if err := os.MkdirAll(filepath.Join(app.knowledgeDir, "docker"), 0o755); err != nil {
+		t.Fatalf("mkdir docker failed: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(app.knowledgeDir, "docker", "run.md"), []byte(dockerCard), 0o644); err != nil {
+		t.Fatalf("write docker card failed: %v", err)
+	}
+	if _, err := app.RescanKnowledge(); err != nil {
+		t.Fatalf("rescan knowledge failed: %v", err)
+	}
+
+	status, err := app.UpdateSelectedTopic("docker")
+	if err != nil {
+		t.Fatalf("update selected topic failed: %v", err)
+	}
+	if status.Message != "Topic filter updated." {
+		t.Fatalf("unexpected status: %s", status.Message)
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if dashboard.SelectedTopic != "docker" {
+		t.Fatalf("expected selected topic docker, got %s", dashboard.SelectedTopic)
+	}
+	if dashboard.CurrentCard == nil {
+		t.Fatal("expected current card")
+	}
+	if dashboard.CurrentCard.ID != "docker-run-start-container" {
+		t.Fatalf("expected docker card, got %s", dashboard.CurrentCard.ID)
 	}
 }
 

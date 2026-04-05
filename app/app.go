@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 	"time"
 
 	"duolin-gogo/internal/cards"
@@ -114,6 +116,8 @@ type StudyCard struct {
 type DashboardData struct {
 	Info                 AppInfo              `json:"info"`
 	PreferredLanguage    string               `json:"preferredLanguage"`
+	SelectedTopic        string               `json:"selectedTopic"`
+	AvailableTopics      []string             `json:"availableTopics"`
 	Stats                DashboardStats       `json:"stats"`
 	Summary              dashboard.Summary    `json:"summary"`
 	ImportErrors         []diagnostics.Error  `json:"importErrors"`
@@ -223,11 +227,14 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		return DashboardData{}, err
 	}
 
+	config := a.mustLoadSettings()
+	selectedTopic := normalizeSelectedTopic(config.SelectedTopic, cache.Cards)
+	filteredCards := selection.FilterCardsByTopic(cache.Cards, selectedTopic)
 	now := a.nowFunc()
-	reviewQueue := a.buildReviewQueue(cache, state, now)
-	reviewMode := review.ShouldStartReview(a.mustLoadSettings(), a.lastReviewRunAt, now) && len(reviewQueue) > 0
+	reviewQueue := a.buildReviewQueue(filteredCards, state, now)
+	reviewMode := review.ShouldStartReview(config, a.lastReviewRunAt, now) && len(reviewQueue) > 0
 
-	card, ok := selection.SelectNextCard(cache.Cards, state.Cards, now)
+	card, ok := selection.SelectNextCardForTopic(cache.Cards, state.Cards, selectedTopic, now)
 	var currentCard *StudyCard
 	if reviewMode {
 		first := reviewQueue[0]
@@ -239,19 +246,21 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 	return DashboardData{
 		Info:              a.AppInfo(),
 		PreferredLanguage: preferredLanguage,
+		SelectedTopic:     selectedTopic,
+		AvailableTopics:   availableTopics(cache.Cards),
 		Stats:             calculateStats(state, now),
-		Summary:           dashboard.BuildSummary(cache.Cards, state, now),
+		Summary:           dashboard.BuildSummary(filteredCards, state, now),
 		ImportErrors:      diagnosticFile.Errors,
 		NotificationSettings: NotificationSettings{
-			Style:     normalizeNotificationStyle(a.mustLoadSettings().Notifications.Style),
-			TitleMode: normalizeNotificationTitleMode(a.mustLoadSettings().Notifications.TitleMode),
+			Style:     normalizeNotificationStyle(config.Notifications.Style),
+			TitleMode: normalizeNotificationTitleMode(config.Notifications.TitleMode),
 		},
 		ScheduleSettings: ScheduleSettings{
-			NotificationIntervalMinutes: normalizeNotificationInterval(a.mustLoadSettings().NotificationIntervalMinutes),
-			ReviewTime:                  normalizeReviewTime(a.mustLoadSettings().ReviewSchedule.Time),
-			ActiveHoursEnabled:          a.mustLoadSettings().ActiveHours.Enabled,
-			ActiveHoursStart:            normalizeClockTime(a.mustLoadSettings().ActiveHours.Start, "09:00"),
-			ActiveHoursEnd:              normalizeClockTime(a.mustLoadSettings().ActiveHours.End, "22:00"),
+			NotificationIntervalMinutes: normalizeNotificationInterval(config.NotificationIntervalMinutes),
+			ReviewTime:                  normalizeReviewTime(config.ReviewSchedule.Time),
+			ActiveHoursEnabled:          config.ActiveHours.Enabled,
+			ActiveHoursStart:            normalizeClockTime(config.ActiveHours.Start, "09:00"),
+			ActiveHoursEnd:              normalizeClockTime(config.ActiveHours.End, "22:00"),
 		},
 		CurrentCard: currentCard,
 		ReviewQueue: reviewQueue,
@@ -338,9 +347,10 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	selectedTopic := normalizeSelectedTopic(config.SelectedTopic, cache.Cards)
 
 	if review.ShouldStartReview(config, a.lastReviewRunAt, now) {
-		queue := review.BuildQueue(cache.Cards, state.Cards, now, config.ReviewSchedule.BatchSize)
+		queue := review.BuildQueue(selection.FilterCardsByTopic(cache.Cards, selectedTopic), state.Cards, now, config.ReviewSchedule.BatchSize)
 		if len(queue) > 0 {
 			message := notifications.BuildStudyMessageForLanguage(queue[0], preferredLanguage, config.Notifications.Style, config.Notifications.TitleMode)
 			if preferredLanguage == "zh-TW" {
@@ -359,7 +369,7 @@ func (a *App) CheckAndSendNotification() (bool, error) {
 		}
 	}
 
-	card, ok := selection.SelectNextCard(cache.Cards, state.Cards, now)
+	card, ok := selection.SelectNextCardForTopic(cache.Cards, state.Cards, selectedTopic, now)
 	if !ok {
 		return false, nil
 	}
@@ -396,11 +406,15 @@ func (a *App) SendTestNotification() (ActionStatus, error) {
 	if err != nil {
 		return ActionStatus{}, err
 	}
+	selectedTopic := normalizeSelectedTopic(a.mustLoadSettings().SelectedTopic, cache.Cards)
 
-	card, ok := selection.SelectNextCard(cache.Cards, state.Cards, a.nowFunc())
-	if !ok && len(cache.Cards) > 0 {
-		card = cache.Cards[0]
-		ok = true
+	card, ok := selection.SelectNextCardForTopic(cache.Cards, state.Cards, selectedTopic, a.nowFunc())
+	if !ok {
+		filtered := selection.FilterCardsByTopic(cache.Cards, selectedTopic)
+		if len(filtered) > 0 {
+			card = filtered[0]
+			ok = true
+		}
 	}
 	if !ok {
 		return ActionStatus{Message: "No card available for test notification."}, nil
@@ -587,6 +601,27 @@ func (a *App) UpdatePreferredLanguage(language string) (ActionStatus, error) {
 	return ActionStatus{Message: "Language updated."}, nil
 }
 
+func (a *App) UpdateSelectedTopic(topic string) (ActionStatus, error) {
+	path := filepath.Join(a.dataDir, "settings.json")
+	file, err := settings.Load(path)
+	if err != nil {
+		return ActionStatus{}, err
+	}
+
+	cache, err := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	if err != nil {
+		return ActionStatus{}, err
+	}
+
+	file.SelectedTopic = normalizeSelectedTopic(topic, cache.Cards)
+
+	if err := writeSettingsFile(path, file); err != nil {
+		return ActionStatus{}, err
+	}
+
+	return ActionStatus{Message: "Topic filter updated."}, nil
+}
+
 func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime string, activeHoursEnabled bool, activeHoursStart string, activeHoursEnd string) (ActionStatus, error) {
 	path := filepath.Join(a.dataDir, "settings.json")
 	file, err := settings.Load(path)
@@ -757,12 +792,68 @@ func normalizePreferredLanguage(language string) string {
 	}
 }
 
+func normalizeSelectedTopic(topic string, allCards []cards.Card) string {
+	normalized := strings.ToLower(strings.TrimSpace(topic))
+	if normalized == "" || normalized == "all" {
+		return "all"
+	}
+
+	for _, available := range availableTopics(allCards) {
+		if available == normalized {
+			return normalized
+		}
+	}
+
+	return "all"
+}
+
 func normalizeTopic(topic string) string {
 	topic = filepath.Base(topic)
 	if topic == "." || topic == "" {
 		return "git"
 	}
 	return topic
+}
+
+func availableTopics(allCards []cards.Card) []string {
+	seen := map[string]struct{}{}
+	topics := []string{"all"}
+
+	for _, card := range allCards {
+		topic := topicForCard(card)
+		if topic == "" || topic == "all" {
+			continue
+		}
+		if _, ok := seen[topic]; ok {
+			continue
+		}
+		seen[topic] = struct{}{}
+		topics = append(topics, topic)
+	}
+
+	if len(topics) > 1 {
+		slices.Sort(topics[1:])
+	}
+
+	return topics
+}
+
+func topicForCard(card cards.Card) string {
+	if card.SourcePath != "" {
+		parent := strings.ToLower(strings.TrimSpace(filepath.Base(filepath.Dir(card.SourcePath))))
+		if parent != "" && parent != "." {
+			return parent
+		}
+	}
+
+	for _, tag := range card.Tags {
+		tag = strings.ToLower(strings.TrimSpace(tag))
+		if tag != "" && tag != "all" {
+			return tag
+		}
+	}
+
+	return ""
 }
 
 func normalizeNotificationInterval(minutes int) int {
@@ -809,9 +900,9 @@ func (a *App) mustLoadSettings() settings.File {
 	return file
 }
 
-func (a *App) buildReviewQueue(cache cards.CacheFile, state progress.ProgressFile, now time.Time) []StudyCard {
+func (a *App) buildReviewQueue(allCards []cards.Card, state progress.ProgressFile, now time.Time) []StudyCard {
 	config := a.mustLoadSettings()
-	queue := review.BuildQueue(cache.Cards, state.Cards, now, config.ReviewSchedule.BatchSize)
+	queue := review.BuildQueue(allCards, state.Cards, now, config.ReviewSchedule.BatchSize)
 	out := make([]StudyCard, 0, len(queue))
 	for _, card := range queue {
 		out = append(out, *studyCardFromCard(card, now))

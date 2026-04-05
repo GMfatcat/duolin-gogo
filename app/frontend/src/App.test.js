@@ -18,7 +18,7 @@ describe('App', () => {
     expect(wrapper.find('.sidebar-column').exists()).toBe(true)
 
     expect(wrapper.text()).toContain('duolin-gogo')
-    expect(wrapper.text()).toContain('Cherry-pick 的用途')
+    expect(wrapper.text()).toContain('Cherry-pick 指令用途')
     expect(wrapper.text()).toContain('開始作答')
     expect(wrapper.text()).not.toContain('快速問題')
     expect(wrapper.findAll('input[type="radio"]').length).toBe(0)
@@ -27,7 +27,7 @@ describe('App', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('快速問題')
-    expect(wrapper.text()).toContain('`git cherry-pick` 會把指定的 commit 套到目前分支。')
+    expect(wrapper.text()).toContain('`git cherry-pick` 會把選定的 commit 套用到目前分支。')
     expect(wrapper.findAll('input[type="radio"]').length).toBe(2)
 
     await wrapper.find('input[value="true"]').setValue()
@@ -37,7 +37,7 @@ describe('App', () => {
     expect(wrapper.text()).toContain('答對了。')
     expect(wrapper.text()).toContain('正確答案：是')
     expect(wrapper.text()).toContain('下一張卡')
-    expect(wrapper.text()).toContain('Cherry-pick 會把指定 commit 的變更套用到目前分支。')
+    expect(wrapper.text()).toContain('Cherry-pick 會把選定 commit 的變更套用到目前分支。')
   })
 
   it('shows settings popout with horizontal controls and active hours fields', async () => {
@@ -90,7 +90,7 @@ describe('App', () => {
     await buttons[3].trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Knowledge validated: 12 cards, 0 diagnostics.')
+    expect(wrapper.text()).toContain('Knowledge validated: 40 cards, 0 diagnostics.')
     expect(wrapper.find('.study-header h2').text()).toBe(currentTitle)
   })
 
@@ -142,7 +142,7 @@ describe('App', () => {
     await wrapper.find('.complete-review-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Cherry-pick 的用途')
+    expect(wrapper.text()).toContain('Cherry-pick 指令用途')
   })
 
   it('shows review session progress cues while a batch is active', async () => {
@@ -184,6 +184,20 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Cherry-pick Purpose')
     expect(wrapper.text()).toContain('Start question')
     expect(wrapper.text()).toContain('duolin-gogo')
+  })
+
+  it('updates the current card when the global topic filter changes', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Cherry-pick')
+
+    await wrapper.find('.topic-filter select').setValue('docker')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('docker run')
+    expect(wrapper.find('.study-header h2').text()).toContain('docker run')
   })
 
   it('distinguishes import warnings from import errors inside diagnostics popout', async () => {

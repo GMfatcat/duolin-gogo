@@ -296,6 +296,8 @@ export namespace main {
 	export class DashboardData {
 	    info: AppInfo;
 	    preferredLanguage: string;
+	    selectedTopic: string;
+	    availableTopics: string[];
 	    stats: DashboardStats;
 	    summary: dashboard.Summary;
 	    importErrors: diagnostics.Error[];
@@ -313,6 +315,8 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.info = this.convertValues(source["info"], AppInfo);
 	        this.preferredLanguage = source["preferredLanguage"];
+	        this.selectedTopic = source["selectedTopic"];
+	        this.availableTopics = source["availableTopics"];
 	        this.stats = this.convertValues(source["stats"], DashboardStats);
 	        this.summary = this.convertValues(source["summary"], dashboard.Summary);
 	        this.importErrors = this.convertValues(source["importErrors"], diagnostics.Error);

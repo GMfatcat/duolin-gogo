@@ -113,6 +113,7 @@ Current MVP note:
 
 Current useful controls:
 
+- global `Topic` filter for `all`, `git`, `docker`, `linux`, `go`, and `python`
 - `Send test notification`
 - `Snooze 15 min`
 - `Rescan knowledge`
@@ -247,7 +248,6 @@ The current UI mainly supports:
 It still does not include controls such as:
 
 - `Open next review`
-- `Open diagnostics details`
 
 ## 12. Data Files To Inspect During Testing
 

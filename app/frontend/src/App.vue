@@ -15,6 +15,7 @@ import {
   submitAnswer,
   updateNotificationSettings,
   updatePreferredLanguage,
+  updateSelectedTopic,
   updateScheduleSettings,
   validateKnowledge,
 } from './api'
@@ -50,6 +51,7 @@ const translations = {
     correctRate: '正答率',
     reviewQueue: '複習佇列',
     nextReview: '下次複習',
+    topicLabel: '主題',
     notScheduled: '尚未安排',
     weakTopicsLabel: '弱勢主題',
     weakTopicsTitle: '建議多看幾次',
@@ -149,6 +151,7 @@ const translations = {
     correctRate: 'Correct rate',
     reviewQueue: 'Review queue',
     nextReview: 'Next review',
+    topicLabel: 'Topic',
     notScheduled: 'Not scheduled',
     weakTopicsLabel: 'Weak topics',
     weakTopicsTitle: 'Concepts to revisit',
@@ -278,6 +281,8 @@ const scheduleForm = ref({
 let unsubscribe = null
 
 const card = computed(() => dashboard.value?.currentCard ?? null)
+const selectedTopic = computed(() => dashboard.value?.selectedTopic ?? 'all')
+const availableTopics = computed(() => dashboard.value?.availableTopics ?? ['all'])
 const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
 const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
@@ -404,7 +409,7 @@ const cleanCardCount = computed(() => {
   const dirty = new Set(diagnosticsBySource.value.keys())
   return Math.max(0, totalCardsCount.value - dirty.size)
 })
-const availableTopics = computed(() => {
+const availableDiagnosticTopics = computed(() => {
   const set = new Set()
   for (const item of importErrors.value) {
     const match = (item.source_path || '').match(/knowledge\/([^/]+)\//)
@@ -776,6 +781,18 @@ async function handleLanguageChange(language) {
   }
 }
 
+async function handleTopicChange(topic) {
+  if (selectedTopic.value === topic) return
+
+  try {
+    const result = await updateSelectedTopic(topic)
+    await refreshDashboard()
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Topic update failed: ${error?.message ?? String(error)}`
+  }
+}
+
 function toggleSettings() {
   settingsOpen.value = !settingsOpen.value
 }
@@ -817,6 +834,15 @@ function toggleDiagnostics() {
             en
           </button>
         </div>
+
+        <label class="topic-filter hero-toggle">
+          <span>{{ t.topicLabel }}</span>
+          <select :value="selectedTopic" @change="handleTopicChange($event.target.value)">
+            <option v-for="topic in availableTopics" :key="topic" :value="topic">
+              {{ topic === 'all' ? t.allFilter : topic }}
+            </option>
+          </select>
+        </label>
 
         <button class="library-button" type="button" :aria-label="t.libraryLabel" @click="toggleLibrary">
           <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -1299,7 +1325,7 @@ function toggleDiagnostics() {
             <label class="settings-field">
               <span>{{ t.topicFilter }}</span>
               <select v-model="diagnosticsFilter.topic" class="diagnostic-filter">
-                <option v-for="topic in availableTopics" :key="topic" :value="topic">
+                <option v-for="topic in availableDiagnosticTopics" :key="topic" :value="topic">
                   {{ topic === 'all' ? t.allFilter : topic }}
                 </option>
               </select>
