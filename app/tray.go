@@ -7,7 +7,7 @@ import (
 	"fyne.io/systray"
 )
 
-//go:embed build/appicon.png
+//go:embed build/windows/icon.ico
 var trayIcon []byte
 
 type backgroundTray struct {

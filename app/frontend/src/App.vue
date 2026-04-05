@@ -987,7 +987,6 @@ function toggleLibrary() {
       <section class="settings-popout">
         <div class="study-header">
           <div>
-            <p class="label">{{ t.notificationSettings }}</p>
             <h2>{{ t.settingsLabel }} <span class="settings-meta">{{ diagnosticsSummary }}</span></h2>
           </div>
           <button class="close-button" type="button" @click="toggleSettings">{{ t.close }}</button>
@@ -997,8 +996,7 @@ function toggleLibrary() {
           <section class="study-card inset-card tools-panel">
             <div class="study-header">
               <div>
-                <p class="label">{{ t.toolsLabel }}</p>
-                <h2>{{ t.settingsLabel }}</h2>
+                <h2>{{ t.toolsLabel }}</h2>
               </div>
             </div>
 
@@ -1015,7 +1013,6 @@ function toggleLibrary() {
           <section class="study-card inset-card">
             <div class="study-header">
               <div>
-                <p class="label">{{ t.notificationSettings }}</p>
                 <h2>{{ t.hookMode }}</h2>
               </div>
             </div>
@@ -1044,7 +1041,6 @@ function toggleLibrary() {
           <section class="study-card inset-card">
             <div class="study-header">
               <div>
-                <p class="label">{{ t.scheduleLabel }}</p>
                 <h2>{{ t.scheduleLabel }}</h2>
               </div>
               <span class="phase-pill schedule-pill">{{ activeHoursSummary }}</span>
@@ -1093,7 +1089,6 @@ function toggleLibrary() {
       <section class="settings-popout library-popout">
         <div class="study-header">
           <div>
-            <p class="label">{{ t.libraryLabel }}</p>
             <h2>{{ t.libraryLabel }}</h2>
           </div>
           <button class="close-button" type="button" @click="toggleLibrary">{{ t.close }}</button>
@@ -1103,7 +1098,6 @@ function toggleLibrary() {
           <section class="study-card inset-card preview-panel">
             <div class="study-header">
               <div>
-                <p class="label">{{ t.authoringPreview }}</p>
                 <h2>{{ t.authoringPreview }}</h2>
               </div>
             </div>
@@ -1154,7 +1148,6 @@ function toggleLibrary() {
           <section class="study-card inset-card preview-panel">
             <div class="study-header">
               <div>
-                <p class="label">{{ t.aiDraftReview }}</p>
                 <h2>{{ t.aiDraftReview }}</h2>
               </div>
             </div>
