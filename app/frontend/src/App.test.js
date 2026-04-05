@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App.vue'
 import { __resetFallbackState } from './api'
 
@@ -640,7 +640,8 @@ git fetch 只會更新遠端追蹤參照，不會直接把變更合併進目前�
 git fetch only updates remote-tracking refs and does not merge into the current branch.`
 
     await wrapper.find('.draft-input').setValue(draft)
-    await wrapper.findAll('.phase-button')[1].trigger('click')
+    const reviewButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Review draft'))
+    await reviewButton.trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('Git Fetch Draft')
@@ -692,7 +693,8 @@ answer: true
 Only one language section.`
 
     await wrapper.find('.draft-input').setValue(batchDraft)
-    await wrapper.findAll('.phase-button')[1].trigger('click')
+    const reviewButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Review draft'))
+    await reviewButton.trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('Draft 1')
@@ -737,7 +739,8 @@ git fetch 只會更新遠端追蹤參照，不會直接把變更合併進目前�
 git fetch only updates remote-tracking refs and does not merge into the current branch.`
 
     await wrapper.find('.draft-input').setValue(draft)
-    await wrapper.findAll('.phase-button')[1].trigger('click')
+    const reviewButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Review draft'))
+    await reviewButton.trigger('click')
     await flushPromises()
     const secondaryButtons = wrapper.findAll('.toolbar-button.secondary')
     await secondaryButtons[secondaryButtons.length - 1].trigger('click')
@@ -746,5 +749,29 @@ git fetch only updates remote-tracking refs and does not merge into the current 
     expect(wrapper.text()).toContain('Draft saved to')
     expect(wrapper.text()).toContain('knowledge/git/git-ai-review.md')
     expect(wrapper.findAll('.preview-card')[0].text()).toContain('Git Fetch')
+  })
+
+  it('shows the in-app AI prompt panel and copies the prompt', async () => {
+    const wrapper = mount(App)
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(global.navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+    })
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+    await wrapper.find('.library-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('AI card prompt')
+    expect(wrapper.text()).toContain('You are generating one Markdown study card for duolin-gogo.')
+
+    const promptButton = wrapper.findAll('.phase-button').find((button) => button.text().includes('Copy prompt'))
+    await promptButton.trigger('click')
+    await flushPromises()
+
+    expect(writeText).toHaveBeenCalled()
+    expect(wrapper.text()).toContain('Copied.')
   })
 })

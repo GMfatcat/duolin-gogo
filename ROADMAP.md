@@ -420,6 +420,7 @@ TDD focus:
 Current status:
 
 - in_progress
+- first slice implemented: the reusable prompt from `AI_CARD_PROMPT.md` now loads inside the Library surface and can be copied directly from the app
 
 ### Next Phase A1: Card Preview
 
@@ -566,7 +567,29 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
+- first slice implemented: common diagnostics now carry direct fix suggestions, and authoring surfaces render those suggestions beside the original error or warning message
+
+### Next Phase A5.5: In-App AI Prompt Viewer
+
+Goal:
+
+- make the authoring prompt available inside the app so users can generate cards without leaving the authoring workflow
+
+Deliverables:
+
+- load the reusable prompt from `AI_CARD_PROMPT.md`
+- show a prompt viewer inside the Library surface
+- provide a one-click copy action for the prompt text
+
+TDD focus:
+
+- backend test for loading prompt content from disk
+- frontend test for rendering the prompt panel and copy action feedback
+
+Current status:
+
+- in_progress
 
 ### Next Phase A7: Markdown-To-Card Assist
 

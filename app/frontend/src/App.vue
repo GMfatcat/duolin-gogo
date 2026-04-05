@@ -13,6 +13,7 @@ import {
   getDGReaction,
   interactWithDG,
   loadAuthoringPreview,
+  loadAuthoringPrompt,
   loadDashboard,
   previewKnowledgeCard,
   reviewDraft,
@@ -28,6 +29,7 @@ import {
   updateSelectedTopic,
   updateScheduleSettings,
   validateKnowledge,
+  copyText,
 } from './api'
 
 const translations = {
@@ -153,6 +155,9 @@ const translations = {
     draftValid: '可用',
     draftNeedsFix: '需修正',
     saveSingleDraftOnly: '批次審查時請先逐張修完，再單張儲存。',
+    aiPrompt: 'AI 產卡 Prompt',
+    aiPromptCopy: '複製 Prompt',
+    aiPromptHint: '直接把這段 prompt 丟給 LLM，會比較符合目前卡片 schema。',
   },
   en: {
     summary: 'Turn notes into study nudges and review loops.',
@@ -276,6 +281,9 @@ const translations = {
     draftValid: 'Ready',
     draftNeedsFix: 'Needs fixes',
     saveSingleDraftOnly: 'Save is available when one reviewed draft is active.',
+    aiPrompt: 'AI card prompt',
+    aiPromptCopy: 'Copy prompt',
+    aiPromptHint: 'Use this prompt with your LLM to stay closer to the current card schema.',
   },
 }
 
@@ -344,6 +352,7 @@ const authoringPreview = ref({
   currentCard: null,
   importErrors: [],
 })
+const authoringPrompt = ref('')
 const draftReview = ref({
   raw: '',
   items: [],
@@ -710,6 +719,7 @@ function matchesDiagnosticFilter(item) {
 onMounted(async () => {
   await refreshDashboard()
   await refreshAuthoringPreview()
+  await refreshAuthoringPrompt()
 
   if (typeof window !== 'undefined' && typeof window.runtime !== 'undefined') {
     EventsOn('notification:open-card', async (cardId) => {
@@ -798,6 +808,11 @@ async function refreshAuthoringPreview(selectedPath = '') {
   authoringPreview.value = selectedPath
     ? await previewKnowledgeCard(selectedPath)
     : await loadAuthoringPreview()
+}
+
+async function refreshAuthoringPrompt() {
+  const result = await loadAuthoringPrompt()
+  authoringPrompt.value = result.content ?? ''
 }
 
 function resetStudyFlow() {
@@ -1227,6 +1242,15 @@ async function handleAssistantInteraction() {
     }, 4000)
   } catch (error) {
     actionMessage.value = `DG interaction failed: ${error?.message ?? String(error)}`
+  }
+}
+
+async function handleCopyAuthoringPrompt() {
+  try {
+    const result = await copyText(authoringPrompt.value)
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Copy failed: ${error?.message ?? String(error)}`
   }
 }
 
@@ -1751,12 +1775,28 @@ async function showPetReaction(trigger) {
             </div>
           </section>
 
-          <section class="study-card inset-card preview-panel">
-            <div class="study-header">
-              <div>
-                <h2>{{ t.aiDraftReview }}</h2>
+            <section class="study-card inset-card preview-panel">
+              <div class="study-header">
+                <div>
+                  <h2>{{ t.aiPrompt }}</h2>
+                </div>
               </div>
-            </div>
+
+              <p class="explanation compact">{{ t.aiPromptHint }}</p>
+              <div class="draft-actions">
+                <button class="phase-button" type="button" @click="handleCopyAuthoringPrompt">
+                  {{ t.aiPromptCopy }}
+                </button>
+              </div>
+              <pre class="prompt-viewer">{{ authoringPrompt }}</pre>
+            </section>
+
+            <section class="study-card inset-card preview-panel">
+              <div class="study-header">
+                <div>
+                  <h2>{{ t.aiDraftReview }}</h2>
+                </div>
+              </div>
 
             <label class="settings-field">
               <span>{{ t.draftInput }}</span>

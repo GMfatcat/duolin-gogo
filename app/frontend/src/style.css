@@ -1382,6 +1382,20 @@ body {
   gap: 0.9rem;
 }
 
+.prompt-viewer {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(9, 29, 42, 0.6);
+  border: 1px solid rgba(23, 168, 181, 0.16);
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  max-height: 16rem;
+  overflow: auto;
+}
+
 .diagnostic-suggestion {
   margin: 0.25rem 0 0;
   color: var(--text-soft);

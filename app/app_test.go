@@ -1083,6 +1083,28 @@ git fetch only updates tracking refs and does not merge directly.`
 	}
 }
 
+func TestLoadAuthoringPromptReturnsPromptContent(t *testing.T) {
+	app := newTestApp(t)
+
+	root := filepath.Dir(app.knowledgeDir)
+	prompt := "# Prompt\n\nYou are generating one Markdown study card."
+	if err := os.WriteFile(filepath.Join(root, "AI_CARD_PROMPT.md"), []byte(prompt), 0o644); err != nil {
+		t.Fatalf("write prompt failed: %v", err)
+	}
+
+	result, err := app.LoadAuthoringPrompt()
+	if err != nil {
+		t.Fatalf("load authoring prompt failed: %v", err)
+	}
+
+	if result.Content == "" {
+		t.Fatal("expected prompt content")
+	}
+	if result.Content != prompt {
+		t.Fatalf("unexpected prompt content: %q", result.Content)
+	}
+}
+
 func TestUpdateNotificationSettingsPersistsValues(t *testing.T) {
 	app := newTestApp(t)
 

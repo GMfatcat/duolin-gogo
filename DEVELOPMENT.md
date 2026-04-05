@@ -80,6 +80,8 @@ Next targets:
     - A7: Markdown-to-card assist for turning plain notes into draft scaffolds
   - thirteenth slice implemented: AI draft review now supports batch input with `===` separators, per-draft normalized previews, and per-draft diagnostics in one pass
   - fourteenth slice implemented: common authoring diagnostics now include direct fix suggestions, so preview, batch review, and diagnostics panels tell authors what to change instead of only reporting the problem
+  - next authoring utility slice: surface the reusable AI card prompt inside the Library popout with a direct copy action
+  - fifteenth slice implemented: the reusable AI authoring prompt now lives inside the Library surface with a one-click copy action, so users can generate new cards without leaving the app
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

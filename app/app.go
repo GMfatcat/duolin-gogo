@@ -95,6 +95,10 @@ type SaveDraftStatus struct {
 	Successful bool   `json:"successful"`
 }
 
+type AuthoringPromptData struct {
+	Content string `json:"content"`
+}
+
 type AnswerChoice struct {
 	Value   string `json:"value"`
 	LabelZH string `json:"labelZh"`
@@ -669,6 +673,18 @@ func (a *App) SaveDraft(raw string, topic string) (SaveDraftStatus, error) {
 		SavedPath:  targetPath,
 		Topic:      topic,
 		Successful: true,
+	}, nil
+}
+
+func (a *App) LoadAuthoringPrompt() (AuthoringPromptData, error) {
+	root := filepath.Dir(a.knowledgeDir)
+	content, err := os.ReadFile(filepath.Join(root, "AI_CARD_PROMPT.md"))
+	if err != nil {
+		return AuthoringPromptData{}, err
+	}
+
+	return AuthoringPromptData{
+		Content: string(content),
 	}, nil
 }
 

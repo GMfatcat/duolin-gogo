@@ -446,6 +446,7 @@ Suggested review scheduling:
 - later authoring slices should add fix suggestions, batch import reporting, and Markdown-to-card scaffolding
 - the first batch-draft implementation should use a simple delimiter such as `===` so several AI-generated drafts can be reviewed in one review panel before any save step
 - authoring diagnostics should progressively evolve from plain error reporting into fix-oriented guidance, starting with direct suggestions for common schema and bilingual mistakes
+- the reusable AI authoring prompt should also be available inside the app, so the Library surface can act as a full authoring workspace instead of relying only on external markdown files
 
 ## 12. Local Storage Strategy
 

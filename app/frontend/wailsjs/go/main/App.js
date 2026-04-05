@@ -30,6 +30,10 @@ export function LoadAuthoringPreview() {
   return window['go']['main']['App']['LoadAuthoringPreview']();
 }
 
+export function LoadAuthoringPrompt() {
+  return window['go']['main']['App']['LoadAuthoringPrompt']();
+}
+
 export function LoadDashboard() {
   return window['go']['main']['App']['LoadDashboard']();
 }

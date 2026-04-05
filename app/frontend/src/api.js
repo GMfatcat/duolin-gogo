@@ -3,6 +3,7 @@
   GetDGReaction,
   InteractWithDG,
   LoadAuthoringPreview,
+  LoadAuthoringPrompt,
   LoadDashboard,
   PreviewKnowledgeCard,
   ResetStudyData,
@@ -823,6 +824,25 @@ export async function reviewDraft(raw) {
     currentCard: items[0]?.currentCard ?? null,
     importErrors: items[0]?.importErrors ?? [],
   }
+}
+
+export async function loadAuthoringPrompt() {
+  if (hasBackend()) {
+    return LoadAuthoringPrompt()
+  }
+
+  return {
+    content: `You are generating one Markdown study card for duolin-gogo.\n\nOutput requirements:\n- Return only the final Markdown card.\n- The body must contain exactly two sections:\n  - ## zh-TW\n  - ## en\n`,
+  }
+}
+
+export async function copyText(text) {
+  if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text)
+    return { message: 'Copied.' }
+  }
+
+  return { message: 'Copied.' }
 }
 
 export async function saveDraft({ raw, topic }) {
