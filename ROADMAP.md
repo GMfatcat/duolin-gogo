@@ -754,6 +754,7 @@ Current status:
 - eighth slice implemented: `DG` persona copy is now topic-aware, so focused scopes such as `docker` and grouped scopes such as `languages` can surface different companion tone instead of reusing the same generic lines
 - ninth slice planned: pull the app chrome and mascot states into a shared `DG teal + spark gold` color system so the UI feels like one visual world instead of splitting between gold and unrelated bright blue accents
 - ninth slice implemented: the shell, top controls, and popout surfaces now share the same `DG teal + spark gold` palette, so mascot chrome, settings, library, and diagnostics no longer feel like separate themes
+- tenth slice implemented: Easter Egg V1 has begun with hidden `rapid_click` and `welcome_back` reactions, keeping rare companion surprises inside the existing DG bubble without adding visible unlock UI
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

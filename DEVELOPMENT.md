@@ -164,3 +164,5 @@ Next targets:
   - eighth slice implemented: DG reaction copy is now topic-aware, so focused study scopes like `docker` and grouped scopes like `languages` can sound different from general mixed-mode nudges
   - next visual slice: tighten the shell palette around `DG teal + spark gold`, replacing leftover bright-blue focus accents so the mascot and the app chrome feel like the same system
   - latest visual slice: that palette now extends through the top controls and popout surfaces as well, so settings, library, diagnostics, and authoring panels read as part of the same mascot-led UI system
+  - next easter-egg slice: introduce low-frequency hidden surprises without any visible unlock UI
+  - latest easter-egg slice: `rapid_click` and `welcome_back` now live inside the hidden pet layer, so DG can occasionally react in playful or familiar ways when users boop too fast or return after a long gap

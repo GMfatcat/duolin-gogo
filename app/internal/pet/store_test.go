@@ -252,3 +252,53 @@ func TestReactionForTriggerUsesTopicAwarePool(t *testing.T) {
 		t.Fatalf("expected language-themed reaction, got %q", other.Reaction.Body)
 	}
 }
+
+func TestInteractTriggersRapidClickEasterEgg(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 6, 11, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	if _, err := Interact(path, "en", "all", base); err != nil {
+		t.Fatalf("first interaction failed: %v", err)
+	}
+	if _, err := Interact(path, "en", "all", base.Add(4*time.Second)); err != nil {
+		t.Fatalf("second interaction failed: %v", err)
+	}
+	third, err := Interact(path, "en", "all", base.Add(8*time.Second))
+	if err != nil {
+		t.Fatalf("third interaction failed: %v", err)
+	}
+
+	if third.Reaction.Key != "rapid_click_stage_zero_notice" && third.Reaction.Key != "rapid_click_stage_zero_tickle" {
+		t.Fatalf("expected rapid click easter egg, got %s", third.Reaction.Key)
+	}
+	if third.Reaction.Pose != "spark" {
+		t.Fatalf("expected rapid click pose spark, got %s", third.Reaction.Pose)
+	}
+}
+
+func TestInteractTriggersWelcomeBackAfterLongGap(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 6, 11, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	first, err := Interact(path, "en", "git", base)
+	if err != nil {
+		t.Fatalf("first interaction failed: %v", err)
+	}
+	if first.Reaction.Key != "stage_zero_click_intro" &&
+		first.Reaction.Key != "stage_zero_click_warmup" &&
+		first.Reaction.Key != "topic_git_click_history" {
+		t.Fatalf("expected normal click reaction, got %s", first.Reaction.Key)
+	}
+
+	second, err := Interact(path, "en", "git", base.Add(9*time.Hour))
+	if err != nil {
+		t.Fatalf("second interaction failed: %v", err)
+	}
+
+	if second.Reaction.Key != "welcome_back_git" {
+		t.Fatalf("expected welcome-back reaction, got %s", second.Reaction.Key)
+	}
+	if second.Reaction.Pose != "wave" {
+		t.Fatalf("expected welcome-back pose wave, got %s", second.Reaction.Pose)
+	}
+}

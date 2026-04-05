@@ -423,6 +423,7 @@ Suggested review scheduling:
   - the next refinement after that should rotate among multiple short reactions inside the same trigger pool, so even one hidden stage does not feel locked to a single sentence
   - after that, ambient reactions should become more selective, with lightweight cooldown/probability rules and tiny pose changes such as `nod`, `think`, `rest`, or `spark` to imply growth without adding visible pet stats
   - later mascot slices can also let `DG` shift tone by active study scope, so focused modes such as `docker` or grouped modes such as `languages` feel like distinct companion contexts rather than one generic voice
+  - hidden easter eggs can layer on top of this companion without visible unlock UI, starting with rare rapid-click reactions and low-frequency welcome-back lines after a long absence
 
 ### 11.4 Review Session Screen
 
