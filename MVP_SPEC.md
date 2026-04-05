@@ -392,6 +392,7 @@ Suggested review scheduling:
 - top-right chrome: language toggle plus a settings icon button
 - settings popout: test notification, snooze, rescan, hook settings, review time, notification interval, active hours, import diagnostics
 - separate library/authoring popout: authoring preview, AI draft review, detailed diagnostics, batch validation, recently changed cards
+- separate AI popout: AI card prompt, Markdown-to-card assist, AI draft review, and batch import results
 - import health should be summarized inline near the settings title, with detailed diagnostics only expanded when issues exist
 - active-hours values should be editable from the same settings popout so users can debug notification timing without hand-editing JSON
 - keep `duolin-gogo` as the primary fixed product label across languages
@@ -439,6 +440,8 @@ Suggested review scheduling:
 - a card preview view should help authors inspect one card before it enters the normal study flow
 - preview should show parsed content, language switching, and validation results
 - the first implementation can live inside the settings panel as an authoring preview block with file selection and per-card diagnostics
+- later authoring UX should split preview/browse from AI-assisted generation, so `Library` stays focused on browsing cards while `AI` handles prompt, scaffolding, and draft review flows
+- authoring preview should support a general search field over filename, path, card id, localized titles, and topic so larger decks can be scanned quickly without long dropdown-only selection
 - AI-generated drafts should be reviewable against the same schema before saving into `knowledge/`
 - the first AI-draft implementation can use a pasted Markdown textarea plus normalized preview and diagnostics before any save flow exists
 - whole-deck validation should later support grouped warning/error review for batch AI generation

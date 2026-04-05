@@ -206,6 +206,34 @@ function cloneCard(topic) {
   return structuredClone(fallbackCardsByTopic[topic] || fallbackCardsByTopic.git)
 }
 
+function fallbackPreviewFile(path, card = null) {
+  const resolvedCard = card || fallbackSavedDrafts.get(path)
+  const normalizedPath = path.replace(/\\/g, '/')
+  const name = normalizedPath.split('/').at(-1) || normalizedPath
+  const topic = normalizedPath.split('/knowledge/')[1]?.split('/')[0] || 'git'
+  const searchText = [
+    name,
+    normalizedPath,
+    resolvedCard?.id || '',
+    resolvedCard?.titleZh || '',
+    resolvedCard?.titleEn || '',
+    topic,
+  ]
+    .join('\n')
+    .toLowerCase()
+
+  return {
+    path: normalizedPath,
+    name,
+    modifiedAt: '2026-04-05T12:00:00+08:00',
+    cardId: resolvedCard?.id || '',
+    titleZh: resolvedCard?.titleZh || '',
+    titleEn: resolvedCard?.titleEn || '',
+    topic,
+    searchText,
+  }
+}
+
 function primaryTopicForMode(topic) {
   switch (topic) {
     case 'backend-tools':
@@ -271,16 +299,13 @@ const fallbackDashboard = {
 
 const fallbackAuthoringPreview = {
   files: [
-    {
-      path: 'D:/duolin-gogo/knowledge/git/cherry-pick.md',
-      name: 'cherry-pick.md',
-      modifiedAt: '2026-04-04T09:30:00+08:00',
-    },
-    {
-      path: 'D:/duolin-gogo/knowledge/git/rebase.md',
-      name: 'rebase.md',
-      modifiedAt: '2026-04-05T11:45:00+08:00',
-    },
+    fallbackPreviewFile('D:/duolin-gogo/knowledge/git/cherry-pick.md', cloneCard('git')),
+    fallbackPreviewFile('D:/duolin-gogo/knowledge/git/rebase.md', {
+      ...cloneCard('git'),
+      id: 'git-rebase-vs-merge',
+      titleZh: 'Rebase 與 Merge 的差異',
+      titleEn: 'Rebase vs Merge',
+    }),
   ],
   selectedPath: 'D:/duolin-gogo/knowledge/git/cherry-pick.md',
   currentCard: cloneCard('git'),
@@ -509,16 +534,13 @@ export function __resetFallbackState() {
   fallbackAuthoringPreview.currentCard = cloneCard('git')
   fallbackAuthoringPreview.importErrors = []
   fallbackAuthoringPreview.files = [
-    {
-      path: 'D:/duolin-gogo/knowledge/git/cherry-pick.md',
-      name: 'cherry-pick.md',
-      modifiedAt: '2026-04-04T09:30:00+08:00',
-    },
-    {
-      path: 'D:/duolin-gogo/knowledge/git/rebase.md',
-      name: 'rebase.md',
-      modifiedAt: '2026-04-05T11:45:00+08:00',
-    },
+    fallbackPreviewFile('D:/duolin-gogo/knowledge/git/cherry-pick.md', cloneCard('git')),
+    fallbackPreviewFile('D:/duolin-gogo/knowledge/git/rebase.md', {
+      ...cloneCard('git'),
+      id: 'git-rebase-vs-merge',
+      titleZh: 'Rebase 與 Merge 的差異',
+      titleEn: 'Rebase vs Merge',
+    }),
   ]
   fallbackSavedDrafts.clear()
   fallbackPetState.bondXp = 0
@@ -697,11 +719,9 @@ export async function loadAuthoringPreview() {
     return LoadAuthoringPreview()
   }
 
-  const savedFiles = Array.from(fallbackSavedDrafts.entries()).map(([path]) => ({
-    path,
-    name: path.split('/').at(-1),
-    modifiedAt: '2026-04-05T12:00:00+08:00',
-  }))
+  const savedFiles = Array.from(fallbackSavedDrafts.entries()).map(([path, card]) =>
+    fallbackPreviewFile(path, card),
+  )
 
   return structuredClone({
     ...fallbackAuthoringPreview,
@@ -720,11 +740,9 @@ export async function previewKnowledgeCard(path) {
       ...structuredClone(fallbackAuthoringPreview),
       files: [
         ...fallbackAuthoringPreview.files,
-        ...Array.from(fallbackSavedDrafts.keys()).map((savedPath) => ({
-          path: savedPath,
-          name: savedPath.split('/').at(-1),
-          modifiedAt: '2026-04-05T12:00:00+08:00',
-        })),
+        ...Array.from(fallbackSavedDrafts.entries()).map(([savedPath, card]) =>
+          fallbackPreviewFile(savedPath, card),
+        ),
       ],
       selectedPath: path,
       currentCard: structuredClone(savedCard),

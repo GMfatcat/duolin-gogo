@@ -84,6 +84,8 @@ Next targets:
   - fifteenth slice implemented: the reusable AI authoring prompt now lives inside the Library surface with a one-click copy action, so users can generate new cards without leaving the app
   - sixteenth slice implemented: saving reviewed batch drafts now produces an import report with saved/skipped counts and per-draft outcomes, so larger AI-assisted authoring passes are auditable
   - seventeenth slice implemented: Markdown-to-card assist now turns plain notes into a card-shaped scaffold and feeds that scaffold into the existing draft review flow inside Library
+  - eighteenth slice implemented: authoring UI is now split between `Library` and a dedicated `AI` popout, so authoring preview stays focused on card browsing while AI prompt, draft review, and note-to-card assist live in their own workspace
+  - nineteenth slice implemented: authoring preview now includes a plain search box backed by tokenized regex matching across filename, path, card id, localized titles, and topic, so growing knowledge decks no longer depend on long dropdown scrolling
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

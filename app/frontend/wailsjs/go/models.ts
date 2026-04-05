@@ -227,6 +227,11 @@ export namespace main {
 	    path: string;
 	    name: string;
 	    modifiedAt: string;
+	    cardId: string;
+	    titleZh: string;
+	    titleEn: string;
+	    topic: string;
+	    searchText: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new AuthoringPreviewFile(source);
@@ -237,6 +242,11 @@ export namespace main {
 	        this.path = source["path"];
 	        this.name = source["name"];
 	        this.modifiedAt = source["modifiedAt"];
+	        this.cardId = source["cardId"];
+	        this.titleZh = source["titleZh"];
+	        this.titleEn = source["titleEn"];
+	        this.topic = source["topic"];
+	        this.searchText = source["searchText"];
 	    }
 	}
 	export class AuthoringPreviewData {

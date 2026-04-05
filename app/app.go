@@ -68,6 +68,11 @@ type AuthoringPreviewFile struct {
 	Path       string `json:"path"`
 	Name       string `json:"name"`
 	ModifiedAt string `json:"modifiedAt"`
+	CardID     string `json:"cardId"`
+	TitleZH    string `json:"titleZh"`
+	TitleEN    string `json:"titleEn"`
+	Topic      string `json:"topic"`
+	SearchText string `json:"searchText"`
 }
 
 type AuthoringPreviewData struct {
@@ -1059,16 +1064,41 @@ func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error
 }
 
 func (a *App) previewKnowledgeCard(path string, files []string) (AuthoringPreviewData, error) {
+	cache, _ := loadCache(filepath.Join(a.dataDir, "cards-cache.json"))
+	cacheByPath := make(map[string]cards.Card, len(cache.Cards))
+	for _, card := range cache.Cards {
+		if card.SourcePath == "" {
+			continue
+		}
+		cacheByPath[filepath.Clean(card.SourcePath)] = card
+	}
+
 	previewFiles := make([]AuthoringPreviewFile, 0, len(files))
 	for _, file := range files {
 		modifiedAt := ""
 		if info, err := os.Stat(file); err == nil {
 			modifiedAt = info.ModTime().Format(time.RFC3339)
 		}
+		cleanPath := filepath.Clean(file)
+		cachedCard := cacheByPath[cleanPath]
+		topic := authoringTopicFromPath(cleanPath)
+		searchParts := []string{
+			filepath.Base(cleanPath),
+			cleanPath,
+			cachedCard.ID,
+			cachedCard.TitleZH,
+			cachedCard.TitleEN,
+			topic,
+		}
 		previewFiles = append(previewFiles, AuthoringPreviewFile{
 			Path:       file,
 			Name:       filepath.Base(file),
 			ModifiedAt: modifiedAt,
+			CardID:     cachedCard.ID,
+			TitleZH:    cachedCard.TitleZH,
+			TitleEN:    cachedCard.TitleEN,
+			Topic:      topic,
+			SearchText: strings.ToLower(strings.Join(searchParts, "\n")),
 		})
 	}
 
@@ -1122,6 +1152,15 @@ func (a *App) previewKnowledgeCard(path string, files []string) (AuthoringPrevie
 		CurrentCard:  previewCard,
 		ImportErrors: enrichDiagnosticsErrors(diagnosticItems),
 	}, nil
+}
+
+func authoringTopicFromPath(path string) string {
+	normalized := filepath.ToSlash(path)
+	match := regexp.MustCompile(`/knowledge/([^/]+)/`).FindStringSubmatch(normalized)
+	if len(match) > 1 {
+		return match[1]
+	}
+	return ""
 }
 
 func loadCache(path string) (cards.CacheFile, error) {

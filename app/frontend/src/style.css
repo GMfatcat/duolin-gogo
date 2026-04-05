@@ -1131,6 +1131,10 @@ body {
   border: 1px solid rgba(23, 168, 181, 0.16);
 }
 
+.preview-search {
+  width: 100%;
+}
+
 .preview-diagnostics {
   display: grid;
   gap: 10px;

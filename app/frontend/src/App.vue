@@ -124,6 +124,7 @@ const translations = {
     accuracySuffix: '正答率',
     settingsLabel: '設定',
     libraryLabel: '書庫',
+    aiLabel: 'AI',
     diagnosticsLabel: '診斷',
     insightsLabel: '洞察',
     close: '關閉',
@@ -145,6 +146,7 @@ const translations = {
     allFilter: '全部',
     authoringPreview: '作者預覽',
     previewFile: '卡片檔案',
+    previewSearch: '搜尋卡片',
     previewDiagnostics: '這張卡的診斷',
     noPreviewDiagnostics: '這張卡目前沒有額外診斷。',
     fixSuggestion: '建議修法',
@@ -265,6 +267,7 @@ const translations = {
     accuracySuffix: 'accuracy',
     settingsLabel: 'Settings',
     libraryLabel: 'Library',
+    aiLabel: 'AI',
     diagnosticsLabel: 'Diagnostics',
     insightsLabel: 'Insights',
     close: 'Close',
@@ -286,6 +289,7 @@ const translations = {
     allFilter: 'All',
     authoringPreview: 'Authoring preview',
     previewFile: 'Card file',
+    previewSearch: 'Search cards',
     previewDiagnostics: 'Diagnostics for this card',
     noPreviewDiagnostics: 'No diagnostics for this card.',
     fixSuggestion: 'Suggested fix',
@@ -331,6 +335,7 @@ const changingLanguage = ref(false)
 const phase = ref('learn')
 const settingsOpen = ref(false)
 const libraryOpen = ref(false)
+const aiOpen = ref(false)
 const diagnosticsOpen = ref(false)
 const insightsOpen = ref(false)
 const assistantHintCollapsed = ref(false)
@@ -386,6 +391,7 @@ const authoringPreview = ref({
   importErrors: [],
 })
 const authoringPrompt = ref('')
+const previewSearch = ref('')
 const scaffoldSource = ref('')
 const draftReview = ref({
   raw: '',
@@ -430,6 +436,20 @@ const scheduleSettings = computed(() =>
 )
 const previewCard = computed(() => authoringPreview.value?.currentCard ?? null)
 const previewFiles = computed(() => authoringPreview.value?.files ?? [])
+const filteredPreviewFiles = computed(() => {
+  const query = previewSearch.value.trim()
+  if (!query) return previewFiles.value
+
+  const tokens = query
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean)
+    .map((token) => new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'))
+
+  return previewFiles.value.filter((file) =>
+    tokens.every((pattern) => pattern.test(file.searchText || `${file.name}\n${file.path}`)),
+  )
+})
 const previewErrors = computed(() => authoringPreview.value?.importErrors ?? [])
 const draftReviewItems = computed(() => draftReview.value?.items ?? [])
 const draftReviewErrors = computed(() => draftReview.value?.importErrors ?? [])
@@ -439,6 +459,13 @@ const saveDraftLabel = computed(() =>
   draftReviewItems.value.length > 1 ? t.value.saveValidDrafts : t.value.saveDraft,
 )
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
+
+function previewFileLabel(file) {
+  if (file?.cardId) {
+    return `${file.name} · ${file.cardId}`
+  }
+  return file?.name || ''
+}
 const reviewProgressText = computed(() => {
   if (!reviewSessionProgress.value.active || reviewSessionProgress.value.total <= 0) return ''
   const completed = reviewSessionProgress.value.total - reviewSessionProgress.value.remaining
@@ -1313,6 +1340,10 @@ function toggleLibrary() {
   libraryOpen.value = !libraryOpen.value
 }
 
+function toggleAI() {
+  aiOpen.value = !aiOpen.value
+}
+
 function toggleDiagnostics() {
   diagnosticsOpen.value = !diagnosticsOpen.value
 }
@@ -1458,6 +1489,27 @@ async function showPetReaction(trigger) {
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="1.8"
+            />
+          </svg>
+        </button>
+
+        <button class="library-button ai-button" type="button" :aria-label="t.aiLabel" @click="toggleAI">
+          <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 3l1.7 4.1L18 8.8l-4.3 1.8L12 15l-1.7-4.4L6 8.8l4.3-1.7L12 3Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+            />
+            <path
+              d="M18.5 14.5l.8 1.8 1.8.8-1.8.8-.8 1.8-.8-1.8-1.8-.8 1.8-.8.8-1.8ZM5.5 14.5l.8 1.8 1.8.8-1.8.8-.8 1.8-.8-1.8-1.8-.8 1.8-.8.8-1.8Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.4"
             />
           </svg>
         </button>
@@ -1872,14 +1924,24 @@ async function showPetReaction(trigger) {
             </div>
 
             <label class="settings-field">
+              <span>{{ t.previewSearch }}</span>
+              <input
+                v-model="previewSearch"
+                class="preview-search"
+                type="search"
+                placeholder="git fetch / docker volume / python class"
+              >
+            </label>
+
+            <label class="settings-field">
               <span>{{ t.previewFile }}</span>
               <select
                 class="preview-select"
                 :value="authoringPreview.selectedPath"
                 @change="handlePreviewSelection($event.target.value)"
               >
-                <option v-for="file in previewFiles" :key="file.path" :value="file.path">
-                  {{ file.name }}
+                <option v-for="file in filteredPreviewFiles" :key="file.path" :value="file.path">
+                  {{ previewFileLabel(file) }}
                 </option>
               </select>
             </label>
@@ -1916,7 +1978,22 @@ async function showPetReaction(trigger) {
               <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
             </div>
           </section>
+        </div>
 
+        <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
+      </section>
+    </div>
+
+    <div v-if="aiOpen" class="settings-overlay" @click.self="toggleAI">
+      <section class="settings-popout library-popout">
+        <div class="study-header">
+          <div>
+            <h2>{{ t.aiLabel }}</h2>
+          </div>
+          <button class="close-button" type="button" @click="toggleAI">{{ t.close }}</button>
+        </div>
+
+        <div class="settings-layout library-layout">
             <section class="study-card inset-card preview-panel">
               <div class="study-header">
                 <div>

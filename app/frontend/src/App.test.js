@@ -645,7 +645,7 @@ describe('App', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.text()).toContain('rebase.md')
-    expect(wrapper.text()).toContain('2026-04-05 11:45')
+    expect(wrapper.text()).toContain('2026-04-05 12:00')
     expect(wrapper.text()).toContain('cherry-pick.md')
   })
 
@@ -667,12 +667,36 @@ describe('App', () => {
     expect(wrapper.find('.preview-card').text()).toContain('Rebase vs Merge')
   })
 
-  it('reviews pasted AI draft markdown and shows normalized preview', async () => {
+  it('filters authoring preview files from the library search box', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
     await switchToEnglish(wrapper)
     await wrapper.find('.library-button').trigger('click')
+    await flushPromises()
+
+    const searchInput = wrapper.find('.preview-search')
+    await searchInput.setValue('rebase')
+    await flushPromises()
+
+    const options = wrapper.findAll('.preview-select option')
+    expect(options).toHaveLength(1)
+    expect(options[0].text()).toContain('rebase.md')
+
+    await searchInput.setValue('git cherry')
+    await flushPromises()
+
+    const cherryOptions = wrapper.findAll('.preview-select option')
+    expect(cherryOptions).toHaveLength(1)
+    expect(cherryOptions[0].text()).toContain('git-cherry-pick-purpose')
+  })
+
+  it('reviews pasted AI draft markdown and shows normalized preview', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+    await wrapper.find('.ai-button').trigger('click')
     await flushPromises()
 
     const draft = `---
@@ -712,7 +736,7 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     await flushPromises()
     await switchToEnglish(wrapper)
-    await wrapper.find('.library-button').trigger('click')
+    await wrapper.find('.ai-button').trigger('click')
     await flushPromises()
 
     const batchDraft = `---
@@ -775,7 +799,7 @@ Only one language section.`
 
     await flushPromises()
     await switchToEnglish(wrapper)
-    await wrapper.find('.library-button').trigger('click')
+    await wrapper.find('.ai-button').trigger('click')
     await flushPromises()
 
     const draft = `---
@@ -811,6 +835,8 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     expect(wrapper.text()).toContain('Draft saved to')
     expect(wrapper.text()).toContain('knowledge/git/git-ai-review.md')
+    await wrapper.find('.library-button').trigger('click')
+    await flushPromises()
     const previewPanel = findPreviewPanel(wrapper, 'Authoring preview')
     expect(previewPanel.find('.preview-card').text()).toContain('Git Fetch')
   })
@@ -825,7 +851,7 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     await flushPromises()
     await switchToEnglish(wrapper)
-    await wrapper.find('.library-button').trigger('click')
+    await wrapper.find('.ai-button').trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('AI card prompt')
@@ -845,7 +871,7 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     await flushPromises()
     await switchToEnglish(wrapper)
-    await wrapper.find('.library-button').trigger('click')
+    await wrapper.find('.ai-button').trigger('click')
     await flushPromises()
 
     const batchDraft = `---
@@ -907,7 +933,7 @@ Only one language section.`
 
     await flushPromises()
     await switchToEnglish(wrapper)
-    await wrapper.find('.library-button').trigger('click')
+    await wrapper.find('.ai-button').trigger('click')
     await flushPromises()
 
     const assistPanel = findPreviewPanel(wrapper, 'Markdown-to-card assist')
