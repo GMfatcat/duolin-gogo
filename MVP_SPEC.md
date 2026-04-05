@@ -208,6 +208,7 @@ Question types deferred until later:
 - Settings popout should prefer a wider horizontal layout so the main controls fit without vertical scrolling in normal desktop use
 - Settings popout should prefer concise health summaries instead of full authoring diagnostics detail
 - Detailed diagnostics and batch validation should live in a dedicated diagnostics popout instead of stretching the authoring surface
+- Diagnostics should default to a collapsed disclosure state, with health summarized inline beside the diagnostics title
 - During the `Learn` phase, the explanation is visible and the question is hidden
 - During the `Answer` phase, the question and answer choices are visible and the explanation is hidden
 - User can submit an answer
@@ -216,6 +217,8 @@ Question types deferred until later:
 - The feedback state must provide a clear next-step action such as `Next card`
 - Displayed times should use a human-readable local format like `2026-04-05 21:00`
 - Avoid raw ISO timestamps in the visible UI
+- Grouped topic guidance should be promoted closer to the top of the shell as a compact assistant-style hint instead of living only lower in the sidebar
+- Language and study-mode controls should converge toward compact dropdown selectors instead of parallel button groups
 - User can dismiss and return later
 
 ### 8.4 Progress Tracking

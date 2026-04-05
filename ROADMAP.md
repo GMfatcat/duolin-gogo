@@ -546,6 +546,7 @@ Deliverables:
 - sixth slice implemented: review notifications and test-notification feedback now respect multi-topic scopes such as `backend-tools` and `languages`
 - seventh slice implemented: each non-Git deck now has a second wave of cards, giving `docker`, `linux`, `go`, and `python` more study depth
 - eighth slice implemented: grouped topic modes now surface the weakest deck inside the group, so presets like `languages` can directly point back to `go` or `python`
+- next UI refinement: promote grouped-topic guidance into a top assistant-style hint, collapse diagnostics by default, and replace parallel language/mode controls with dropdown selectors
 
 TDD focus:
 

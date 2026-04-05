@@ -44,6 +44,7 @@ export namespace dashboard {
 	    nextReviewAt: string;
 	    weakTopics: WeakTopic[];
 	    topicProgress: TopicProgress[];
+	    weakestDeck?: TopicProgress;
 	
 	    static createFrom(source: any = {}) {
 	        return new Summary(source);
@@ -56,6 +57,7 @@ export namespace dashboard {
 	        this.nextReviewAt = source["nextReviewAt"];
 	        this.weakTopics = this.convertValues(source["weakTopics"], WeakTopic);
 	        this.topicProgress = this.convertValues(source["topicProgress"], TopicProgress);
+	        this.weakestDeck = this.convertValues(source["weakestDeck"], TopicProgress);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

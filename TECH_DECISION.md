@@ -474,6 +474,7 @@ Recommended direction:
 - that settings popout should favor a wider horizontal layout so tool actions and scheduling controls can fit without forcing routine vertical scrolling on desktop
 - the authoring/library popout should contain authoring preview, AI draft review, batch validation, and detailed diagnostics
 - current MVP verification shows interval notifications working after widening active hours from the settings popout, confirming that schedule changes can be tested from the UI instead of editing `data/settings.json`
+- diagnostics disclosure should default to collapsed and communicate deck health inline at the title level before users open the full details
 
 Recommended study-state model:
 
@@ -493,6 +494,8 @@ Recommended density rule:
 - reduce hero weight and oversized spacing
 - keep the main study card visually dominant while making the sidebar lighter
 - keep top summary copy visually stable when switching languages to avoid obvious layout jumps
+- promote grouped topic guidance closer to the top of the shell with a compact assistant-style hint instead of requiring users to scroll down for it
+- collapse language and study-mode switching into compact dropdown selectors instead of multiple parallel button groups
 
 Recommended time-format rule:
 
