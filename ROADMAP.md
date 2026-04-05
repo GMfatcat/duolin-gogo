@@ -756,6 +756,7 @@ Current status:
 - ninth slice implemented: the shell, top controls, and popout surfaces now share the same `DG teal + spark gold` palette, so mascot chrome, settings, library, and diagnostics no longer feel like separate themes
 - tenth slice implemented: Easter Egg V1 has begun with hidden `rapid_click` and `welcome_back` reactions, keeping rare companion surprises inside the existing DG bubble without adding visible unlock UI
 - eleventh slice implemented: Easter Egg V1 now also includes topic inside jokes and rare celebration lines, and DG reaction rotation is less script-like because repeated triggers no longer lock into the same exact sentence order
+- twelfth slice implemented: DG now has a thicker everyday reaction pool plus low-frequency time-of-day flavor, while topic-aware click tones stay primary so normal interactions feel less scripted without drowning in easter eggs
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

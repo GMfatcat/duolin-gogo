@@ -424,7 +424,8 @@ Suggested review scheduling:
   - after that, ambient reactions should become more selective, with lightweight cooldown/probability rules and tiny pose changes such as `nod`, `think`, `rest`, or `spark` to imply growth without adding visible pet stats
   - later mascot slices can also let `DG` shift tone by active study scope, so focused modes such as `docker` or grouped modes such as `languages` feel like distinct companion contexts rather than one generic voice
   - hidden easter eggs can layer on top of this companion without visible unlock UI, starting with rare rapid-click reactions and low-frequency welcome-back lines after a long absence
-  - later hidden easter eggs can also include topic-specific inside jokes and occasional rare celebration lines, so DG feels more discoverable without ever surfacing a public unlock list
+- later hidden easter eggs can also include topic-specific inside jokes and occasional rare celebration lines, so DG feels more discoverable without ever surfacing a public unlock list
+- once those hidden easter eggs exist, the ordinary reaction pools should still keep growing too; DG should feel more alive in normal use through a thicker everyday line set, while low-frequency flavors such as time-of-day greetings stay secondary to the active study topic
 
 ### 11.4 Review Session Screen
 

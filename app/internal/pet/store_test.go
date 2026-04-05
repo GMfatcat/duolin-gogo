@@ -84,7 +84,11 @@ func TestInteractUnlocksRicherReactionPoolAtHigherStage(t *testing.T) {
 	if result.State.Stage < 2 {
 		t.Fatalf("expected hidden stage at least 2, got %d", result.State.Stage)
 	}
-	if result.Reaction.Key != "stage_two_click_warm" && result.Reaction.Key != "stage_two_click_sync" {
+	if result.Reaction.Key != "stage_two_click_warm" &&
+		result.Reaction.Key != "stage_two_click_sync" &&
+		result.Reaction.Key != "stage_two_click_grin" &&
+		result.Reaction.Key != "stage_two_click_anchor" &&
+		result.Reaction.Key != "stage_two_click_companion" {
 		t.Fatalf("expected stage two click pool reaction, got %s", result.Reaction.Key)
 	}
 }
@@ -286,7 +290,8 @@ func TestInteractTriggersWelcomeBackAfterLongGap(t *testing.T) {
 	}
 	if first.Reaction.Key != "stage_zero_click_intro" &&
 		first.Reaction.Key != "stage_zero_click_warmup" &&
-		first.Reaction.Key != "topic_git_click_history" {
+		first.Reaction.Key != "topic_git_click_history" &&
+		first.Reaction.Key != "topic_git_click_branch" {
 		t.Fatalf("expected normal click reaction, got %s", first.Reaction.Key)
 	}
 
@@ -295,7 +300,7 @@ func TestInteractTriggersWelcomeBackAfterLongGap(t *testing.T) {
 		t.Fatalf("second interaction failed: %v", err)
 	}
 
-	if second.Reaction.Key != "welcome_back_git" {
+	if second.Reaction.Key != "welcome_back_git" && second.Reaction.Key != "welcome_back_git_rebase" {
 		t.Fatalf("expected welcome-back reaction, got %s", second.Reaction.Key)
 	}
 	if second.Reaction.Pose != "wave" {

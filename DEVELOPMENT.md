@@ -165,5 +165,6 @@ Next targets:
   - next visual slice: tighten the shell palette around `DG teal + spark gold`, replacing leftover bright-blue focus accents so the mascot and the app chrome feel like the same system
   - latest visual slice: that palette now extends through the top controls and popout surfaces as well, so settings, library, diagnostics, and authoring panels read as part of the same mascot-led UI system
   - next easter-egg slice: introduce low-frequency hidden surprises without any visible unlock UI
-  - latest easter-egg slice: `rapid_click` and `welcome_back` now live inside the hidden pet layer, so DG can occasionally react in playful or familiar ways when users boop too fast or return after a long gap
-  - latest refinement: hidden easter eggs now also include topic inside jokes plus rarer celebration lines, and the reaction picker now advances through an internal step counter so repeated interactions feel less like a fixed script
+- latest easter-egg slice: `rapid_click` and `welcome_back` now live inside the hidden pet layer, so DG can occasionally react in playful or familiar ways when users boop too fast or return after a long gap
+- latest refinement: hidden easter eggs now also include topic inside jokes plus rarer celebration lines, and the reaction picker now advances through an internal step counter so repeated interactions feel less like a fixed script
+- latest refinement: the everyday DG pools are now thicker and a low-frequency time-of-day flavor can surface in general scopes, while focused topics such as `git`, `docker`, `sql`, and `http` still keep their own personality first
