@@ -216,6 +216,7 @@ Question types deferred until later:
 - The feedback state should restore a short explanation or hint after submission
 - The feedback state must provide a clear next-step action such as `Next card`
 - In normal learn mode, the app may treat every 3 answered cards as a mini batch and then pause new cards until the next notification rhythm
+- That mini-batch rest state should also show a lightweight summary of answered count, estimated accuracy, and the concept or topic most worth revisiting
 - Displayed times should use a human-readable local format like `2026-04-05 21:00`
 - Avoid raw ISO timestamps in the visible UI
 - Grouped topic guidance should be promoted closer to the top of the shell as a compact assistant-style hint instead of living only lower in the sidebar

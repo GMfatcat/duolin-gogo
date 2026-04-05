@@ -164,6 +164,22 @@ describe('App', () => {
     await flushPromises()
     await switchToEnglish(wrapper)
 
+    wrapper.vm.learnSessionSnapshot = {
+      started: true,
+      studiedToday: 0,
+      correctAnswers: 0,
+    }
+    wrapper.vm.dashboard = {
+      ...wrapper.vm.dashboard,
+      stats: {
+        studiedToday: 3,
+        correctRate: 2 / 3,
+      },
+      summary: {
+        ...wrapper.vm.dashboard.summary,
+        weakestDeck: { topic: 'docker', accuracy: 0.67 },
+      },
+    }
     wrapper.vm.learnSessionProgress = {
       answered: 2,
       total: 3,
@@ -182,6 +198,9 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Take a short break')
     expect(wrapper.text()).toContain('Next card unlocks at')
     expect(wrapper.text()).toContain('3')
+    expect(wrapper.text()).toContain('Session summary')
+    expect(wrapper.text()).toContain('67%')
+    expect(wrapper.text()).toContain('docker')
   })
 
   it('shows review session progress cues while a batch is active', async () => {

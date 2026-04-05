@@ -526,6 +526,7 @@ Current status:
 - third slice implemented: review batches now show explicit progress cues for completed, total, and remaining cards
 - fourth slice implemented: review completion now includes a lightweight end-of-session summary with answered count, accuracy, and the current weakest topic
 - fifth slice implemented: normal learn mode now pauses after each 3-card mini batch and waits until the next notification interval before unlocking another card
+- sixth slice implemented: the learn-break state now includes a lightweight session summary with answered count, accuracy, and the current topic to revisit
 
 ### Next Phase C: Multi-Topic Expansion
 

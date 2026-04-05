@@ -295,7 +295,18 @@ const reviewSessionSnapshot = ref({
   studiedToday: 0,
   correctAnswers: 0,
 })
+const learnSessionSnapshot = ref({
+  started: false,
+  studiedToday: 0,
+  correctAnswers: 0,
+})
 const sessionSummary = ref({
+  visible: false,
+  answered: 0,
+  accuracy: 0,
+  weakTopic: '',
+})
+const learnSessionSummary = ref({
   visible: false,
   answered: 0,
   accuracy: 0,
@@ -710,6 +721,13 @@ async function refreshDashboard() {
       correctAnswers: 0,
     }
   }
+  if (!learnSessionSnapshot.value.started) {
+    learnSessionSnapshot.value = {
+      started: true,
+      studiedToday: nextDashboard.stats?.studiedToday ?? 0,
+      correctAnswers: estimatedCorrectAnswers(nextDashboard.stats),
+    }
+  }
   dashboard.value = nextDashboard
   selectedLanguage.value = dashboard.value.preferredLanguage || dashboard.value.info.defaultLanguage
   scheduleForm.value = {
@@ -741,6 +759,17 @@ function resetLearnBreakState() {
     answered: 0,
     total: 3,
     cooldownUntil: '',
+  }
+  learnSessionSnapshot.value = {
+    started: false,
+    studiedToday: dashboard.value?.stats?.studiedToday ?? 0,
+    correctAnswers: estimatedCorrectAnswers(dashboard.value?.stats),
+  }
+  learnSessionSummary.value = {
+    visible: false,
+    answered: 0,
+    accuracy: 0,
+    weakTopic: '',
   }
   if (learnResumeTimer.value) {
     clearTimeout(learnResumeTimer.value)
@@ -793,10 +822,20 @@ async function handleNextCard() {
       const breakStatus = await startLearnBreak()
       const intervalMinutes = breakStatus.durationMinutes || scheduleSettings.value.notificationIntervalMinutes || 20
       const cooldownUntil = breakStatus.unlockAt ? new Date(breakStatus.unlockAt) : new Date(Date.now() + intervalMinutes * 60 * 1000)
+      const currentStudied = dashboard.value?.stats?.studiedToday ?? 0
+      const currentCorrectAnswers = estimatedCorrectAnswers(dashboard.value?.stats)
+      const answeredThisBatch = Math.max(0, currentStudied - learnSessionSnapshot.value.studiedToday)
+      const correctThisBatch = Math.max(0, currentCorrectAnswers - learnSessionSnapshot.value.correctAnswers)
       learnSessionProgress.value = {
         ...learnSessionProgress.value,
         answered: nextAnswered,
         cooldownUntil: cooldownUntil.toISOString(),
+      }
+      learnSessionSummary.value = {
+        visible: true,
+        answered: answeredThisBatch || nextAnswered,
+        accuracy: answeredThisBatch > 0 ? correctThisBatch / answeredThisBatch : dashboard.value?.stats?.correctRate ?? 0,
+        weakTopic: dashboard.value?.summary?.weakestDeck?.topic ?? dashboard.value?.summary?.weakTopics?.[0]?.tag ?? '',
       }
       learnBreakActive.value = true
       actionMessage.value = breakStatus.message
@@ -1179,6 +1218,23 @@ function toggleAssistantHint() {
                 <span class="label">{{ t.learnBreakUnlocksAt }}</span>
                 <strong>{{ learnBreakUntilText }}</strong>
               </article>
+            </div>
+            <div v-if="learnSessionSummary.visible" class="session-summary">
+              <p class="label">{{ t.sessionSummaryTitle }}</p>
+              <div class="session-summary-grid">
+                <article class="status-card batch-stat">
+                  <span class="label">{{ t.sessionAnswered }}</span>
+                  <strong>{{ learnSessionSummary.answered }}</strong>
+                </article>
+                <article class="status-card batch-stat">
+                  <span class="label">{{ t.sessionAccuracy }}</span>
+                  <strong>{{ Math.round((learnSessionSummary.accuracy ?? 0) * 100) }}%</strong>
+                </article>
+              </div>
+              <p class="explanation session-summary-note">
+                {{ t.sessionWeakTopic }}:
+                <strong>{{ learnSessionSummary.weakTopic || t.noSessionWeakTopic }}</strong>
+              </p>
             </div>
           </div>
         </section>
