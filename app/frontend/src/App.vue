@@ -995,7 +995,7 @@ function toggleAssistantHint() {
           @click="toggleAssistantHint"
         >
           <span class="assistant-avatar">{{ t.dgLabel }}</span>
-          <div v-if="!assistantHintCollapsed" class="assistant-copy">
+          <div class="assistant-copy">
             <strong>{{ assistantHintTitle }}</strong>
             <p>{{ assistantHintText }}</p>
           </div>
