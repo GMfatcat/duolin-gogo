@@ -91,3 +91,7 @@ Next targets:
   - treat minimize-to-tray as a follow-up after close-to-tray is stable
   - first slice implemented: explicit close now hides the window through `OnBeforeClose` instead of terminating the app
   - second slice implemented: a minimal tray icon now exposes `Open duolin-gogo` and `Exit`
+- Cross-cut UI structure work
+  - split runtime settings from authoring tools
+  - keep `Settings` focused on schedule, notification, and utility controls
+  - move `Authoring preview`, `AI draft review`, detailed diagnostics, and batch validation into a separate library/authoring popout

@@ -199,8 +199,14 @@ Question types deferred until later:
   - left side for the active study flow
   - right side for answer-related stats and weak-topic context only
 - Utility controls and diagnostics should move out of the main sidebar and into a settings popout triggered from the top-right app chrome
+- Authoring workflows should not live in the same popout as end-user settings
+- The top-right chrome should provide two separate utility entry points:
+  - a settings trigger for runtime settings and operational actions
+  - a library/authoring trigger for card preview, AI draft review, and detailed deck diagnostics
 - Settings popout should also contain scheduling controls such as review time, notification interval, and active hours
 - Settings popout should prefer a wider horizontal layout so the main controls fit without vertical scrolling in normal desktop use
+- Settings popout should prefer concise health summaries instead of full authoring diagnostics detail
+- Detailed diagnostics, authoring preview, AI draft review, and batch validation should live in the dedicated authoring/library popout
 - During the `Learn` phase, the explanation is visible and the question is hidden
 - During the `Answer` phase, the question and answer choices are visible and the explanation is hidden
 - User can submit an answer
@@ -364,6 +370,7 @@ Suggested review scheduling:
 - right panel: answer-related stats and weak topics only
 - top-right chrome: language toggle plus a settings icon button
 - settings popout: test notification, snooze, rescan, hook settings, review time, notification interval, active hours, import diagnostics
+- separate library/authoring popout: authoring preview, AI draft review, detailed diagnostics, batch validation, recently changed cards
 - import health should be summarized inline near the settings title, with detailed diagnostics only expanded when issues exist
 - active-hours values should be editable from the same settings popout so users can debug notification timing without hand-editing JSON
 - keep `duolin-gogo` as the only fixed product label across languages

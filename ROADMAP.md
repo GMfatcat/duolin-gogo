@@ -547,10 +547,7 @@ TDD focus:
 
 Current status:
 
-- in_progress
-- first slice implemented: clicking `X` now routes through close interception and hides the window instead of quitting
-- second slice implemented: a minimal Windows tray surface now provides `Open duolin-gogo` and `Exit`
-- manual verification still needed for the full tray restore and explicit-exit flow on the built app
+- planned
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 
@@ -571,6 +568,33 @@ TDD focus:
 - app-level tests for close interception policy
 - lifecycle tests for explicit quit vs hide behavior
 - manual verification checklist for tray restore and explicit exit
+
+Current status:
+
+- in_progress
+- first slice implemented: clicking `X` now routes through close interception and hides the window instead of quitting
+- second slice implemented: a minimal Windows tray surface now provides `Open duolin-gogo` and `Exit`
+- manual verification passed for tray restore and explicit exit on the built app
+
+### Cross-Cut: Settings And Authoring Surface Split
+
+Goal:
+
+- keep runtime settings lightweight while moving card-authoring tools into a separate workspace
+
+Deliverables:
+
+- keep gear/settings popout focused on runtime settings and operational actions
+- add a separate library or authoring button in the top-right chrome
+- move authoring preview and AI draft review out of settings
+- move detailed diagnostics and batch validation into the authoring/library surface
+- keep only a concise knowledge-health summary inside settings
+
+TDD focus:
+
+- component tests for separate popout toggles
+- UI tests ensuring authoring preview is no longer rendered inside settings
+- UI tests for detailed diagnostics living in the authoring surface
 
 Current status:
 

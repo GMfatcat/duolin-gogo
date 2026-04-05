@@ -469,8 +469,10 @@ Recommended direction:
 - right column reserved for answer-related stats and weak topics
 - a compact settings trigger should live in the top-right chrome next to the global language toggle
 - utility controls and diagnostics should live in a settings popout instead of the main sidebar
+- authoring tools should move into a separate library-style popout instead of sharing the same settings surface
 - scheduling controls such as review time, notification interval, and active hours should also live in that settings popout
 - that settings popout should favor a wider horizontal layout so tool actions and scheduling controls can fit without forcing routine vertical scrolling on desktop
+- the authoring/library popout should contain authoring preview, AI draft review, batch validation, and detailed diagnostics
 - current MVP verification shows interval notifications working after widening active hours from the settings popout, confirming that schedule changes can be tested from the UI instead of editing `data/settings.json`
 
 Recommended study-state model:
