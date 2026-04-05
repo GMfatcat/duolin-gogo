@@ -286,8 +286,9 @@ const availableTopics = computed(() => dashboard.value?.availableTopics ?? ['all
 const stats = computed(() => dashboard.value?.stats ?? { studiedToday: 0, correctRate: 0 })
 const reviewMode = computed(() => dashboard.value?.reviewMode ?? false)
 const reviewQueue = computed(() => dashboard.value?.reviewQueue ?? [])
-const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [], topicProgress: [] })
+const summary = computed(() => dashboard.value?.summary ?? { nextReviewAt: '', weakTopics: [], topicProgress: [], weakestDeck: null })
 const topicProgressItems = computed(() => summary.value?.topicProgress ?? [])
+const weakestDeck = computed(() => summary.value?.weakestDeck ?? null)
 const importErrors = computed(() => dashboard.value?.importErrors ?? [])
 const notificationSettings = computed(() =>
   dashboard.value?.notificationSettings ?? { style: 'playful', titleMode: 'prefer_manual' },
@@ -438,6 +439,19 @@ const noTopicProgressText = computed(() =>
     ? 'Not enough answer history yet to show per-topic progress.'
     : '目前還沒有足夠的作答資料來顯示主題進度。',
 )
+const weakestDeckInsightText = computed(() => {
+  if (!weakestDeck.value) return ''
+
+  if (selectedTopic.value === 'all') {
+    return selectedLanguage.value === 'en'
+      ? `Most attention is needed in ${topicName(weakestDeck.value.topic)} right now.`
+      : `目前最該回頭看的是 ${topicName(weakestDeck.value.topic)}。`
+  }
+
+  return selectedLanguage.value === 'en'
+    ? `Within ${topicName(selectedTopic.value)}, ${topicName(weakestDeck.value.topic)} is currently slipping the most.`
+    : `目前群組內最弱的是 ${topicName(weakestDeck.value.topic)}。`
+})
 const reviewCompleteBodyText = computed(() => {
   if (selectedTopic.value === 'all') {
     return t.value.reviewCompleteBody
@@ -699,7 +713,7 @@ async function handleNextCard() {
       visible: true,
       answered: answered || previousReviewTotal || previousQueueLength,
       accuracy: answered > 0 ? correctAnswers / answered : dashboard.value.stats?.correctRate ?? 0,
-      weakTopic: dashboard.value.summary?.weakTopics?.[0]?.tag ?? '',
+      weakTopic: dashboard.value.summary?.weakestDeck?.topic ?? dashboard.value.summary?.weakTopics?.[0]?.tag ?? '',
     }
   }
 }
@@ -1144,6 +1158,7 @@ function toggleDiagnostics() {
             </article>
           </div>
           <p v-else class="explanation">{{ noTopicProgressText }}</p>
+          <p v-if="weakestDeckInsightText" class="explanation topic-insight">{{ weakestDeckInsightText }}</p>
         </section>
 
         <section class="study-card sidebar-panel">

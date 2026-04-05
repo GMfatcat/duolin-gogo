@@ -110,6 +110,7 @@ Expected current UI behavior:
 - sidebar now includes a per-topic progress overview alongside weak-topic cues
 - review notifications now adapt to the active topic scope, including grouped presets like `backend-tools` and `languages`
 - non-Git decks now include a deeper second wave of cards for `docker`, `linux`, `go`, and `python`
+- grouped topic presets now also call out the weakest deck inside the preset, such as `go` inside `languages`
 
 Current MVP note:
 

@@ -23,6 +23,7 @@ type Summary struct {
 	NextReviewAt  string          `json:"nextReviewAt"`
 	WeakTopics    []WeakTopic     `json:"weakTopics"`
 	TopicProgress []TopicProgress `json:"topicProgress"`
+	WeakestDeck   *TopicProgress  `json:"weakestDeck,omitempty"`
 }
 
 type TopicProgress struct {
@@ -40,13 +41,25 @@ func BuildSummary(allCards []cards.Card, state progress.ProgressFile, now time.T
 		correctRate = float64(day.Correct) / float64(day.Answered)
 	}
 
+	progressItems := topicProgress(allCards, state.Cards)
+
 	return Summary{
 		StudiedToday:  day.Answered,
 		CorrectRate:   correctRate,
 		NextReviewAt:  nextReviewTime(allCards, state.Cards, now),
 		WeakTopics:    weakTopics(allCards, state.Cards),
-		TopicProgress: topicProgress(allCards, state.Cards),
+		TopicProgress: progressItems,
+		WeakestDeck:   weakestDeck(progressItems),
 	}
+}
+
+func weakestDeck(items []TopicProgress) *TopicProgress {
+	if len(items) <= 1 {
+		return nil
+	}
+
+	weakest := items[0]
+	return &weakest
 }
 
 func nextReviewTime(allCards []cards.Card, states map[string]progress.CardProgress, now time.Time) string {

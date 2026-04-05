@@ -187,6 +187,17 @@ const topicProgressByMode = {
   python: [{ topic: 'python', seenCount: 5, correctCount: 4, wrongCount: 1, accuracy: 0.8 }],
 }
 
+const weakestDeckByMode = {
+  all: { topic: 'docker', seenCount: 3, correctCount: 2, wrongCount: 1, accuracy: 0.67 },
+  'backend-tools': { topic: 'docker', seenCount: 3, correctCount: 2, wrongCount: 1, accuracy: 0.67 },
+  languages: { topic: 'go', seenCount: 5, correctCount: 3, wrongCount: 2, accuracy: 0.6 },
+  git: null,
+  docker: null,
+  linux: null,
+  go: null,
+  python: null,
+}
+
 function cloneCard(topic) {
   return structuredClone(fallbackCardsByTopic[topic] || fallbackCardsByTopic.git)
 }
@@ -212,6 +223,7 @@ function applyFallbackTopic(topic) {
     ...fallbackDashboard.summary,
     weakTopics: structuredClone(topicWeakTopics[resolvedTopic] || topicWeakTopics.all),
     topicProgress: structuredClone(topicProgressByMode[resolvedTopic] || topicProgressByMode.all),
+    weakestDeck: structuredClone(weakestDeckByMode[resolvedTopic] ?? weakestDeckByMode.all),
   }
 }
 
@@ -232,6 +244,7 @@ const fallbackDashboard = {
     nextReviewAt: '2026-04-05T21:00:00+08:00',
     weakTopics: structuredClone(topicWeakTopics.all),
     topicProgress: structuredClone(topicProgressByMode.all),
+    weakestDeck: structuredClone(weakestDeckByMode.all),
   },
   notificationSettings: {
     style: 'playful',
@@ -282,6 +295,7 @@ export function __resetFallbackState() {
     nextReviewAt: '2026-04-05T21:00:00+08:00',
     weakTopics: structuredClone(topicWeakTopics.all),
     topicProgress: structuredClone(topicProgressByMode.all),
+    weakestDeck: structuredClone(weakestDeckByMode.all),
   }
   fallbackDashboard.notificationSettings = {
     style: 'playful',
@@ -410,6 +424,7 @@ export async function resetStudyData() {
     ...fallbackDashboard.summary,
     nextReviewAt: '',
     weakTopics: [],
+    weakestDeck: null,
   }
   fallbackDashboard.reviewQueue = []
   return { message: 'Study data reset.' }

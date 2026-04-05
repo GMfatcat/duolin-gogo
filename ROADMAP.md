@@ -545,6 +545,7 @@ Deliverables:
 - fifth slice implemented: topic pin presets now provide one-click filters for `all`, `backend-tools`, `languages`, and `git`
 - sixth slice implemented: review notifications and test-notification feedback now respect multi-topic scopes such as `backend-tools` and `languages`
 - seventh slice implemented: each non-Git deck now has a second wave of cards, giving `docker`, `linux`, `go`, and `python` more study depth
+- eighth slice implemented: grouped topic modes now surface the weakest deck inside the group, so presets like `languages` can directly point back to `go` or `python`
 
 TDD focus:
 

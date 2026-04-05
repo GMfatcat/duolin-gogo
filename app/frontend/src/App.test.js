@@ -423,4 +423,24 @@ git fetch only updates remote-tracking refs and does not merge into the current 
     expect(wrapper.text()).toContain('knowledge/git/git-ai-review.md')
     expect(wrapper.findAll('.preview-card')[0].text()).toContain('Git Fetch 草稿')
   })
+  it('surfaces weakest deck hints for grouped topic modes', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await wrapper.findAll('.topic-preset')[2].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('go')
+
+    wrapper.vm.reviewCompleted = true
+    wrapper.vm.sessionSummary = {
+      visible: true,
+      answered: 3,
+      accuracy: 0.67,
+      weakTopic: 'go',
+    }
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('go')
+  })
 })

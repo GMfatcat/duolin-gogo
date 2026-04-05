@@ -112,4 +112,32 @@ func TestBuildSummaryReturnsTopicProgress(t *testing.T) {
 	if summary.TopicProgress[1].Topic != "git" {
 		t.Fatalf("expected git topic, got %s", summary.TopicProgress[1].Topic)
 	}
+
+	if summary.WeakestDeck == nil {
+		t.Fatal("expected weakest deck insight")
+	}
+
+	if summary.WeakestDeck.Topic != "docker" {
+		t.Fatalf("expected docker as weakest deck, got %s", summary.WeakestDeck.Topic)
+	}
+}
+
+func TestBuildSummaryOmitsWeakestDeckWhenOnlyOneDeckIsPresent(t *testing.T) {
+	now := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	summary := BuildSummary([]cards.Card{
+		{ID: "git-rebase-vs-merge", Tags: []string{"git", "branching"}, SourcePath: "D:/duolin-gogo/knowledge/git/rebase.md"},
+	}, progress.ProgressFile{
+		Cards: map[string]progress.CardProgress{
+			"git-rebase-vs-merge": {
+				SeenCount:    4,
+				CorrectCount: 3,
+				WrongCount:   1,
+			},
+		},
+	}, now)
+
+	if summary.WeakestDeck != nil {
+		t.Fatalf("expected no weakest deck for single-topic summary, got %#v", summary.WeakestDeck)
+	}
 }

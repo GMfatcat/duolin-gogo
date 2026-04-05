@@ -93,6 +93,7 @@ Next targets:
 - seventh slice implemented: quick topic pin presets now jump between `all`, `backend-tools`, `languages`, and `git`
 - eighth slice implemented: review notifications and test-notification feedback now use the current multi-topic scope instead of assuming Git
 - ninth slice implemented: `docker`, `linux`, `go`, and `python` now each have a deeper second-wave deck for mixed-mode study
+- tenth slice implemented: grouped topic modes now expose the weakest deck insight so focused presets can call out the weakest sub-deck directly
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting
   - keep notifications active while the app window is hidden
