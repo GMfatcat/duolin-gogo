@@ -430,6 +430,37 @@ func TestInteractWithDGReturnsLocalizedReaction(t *testing.T) {
 	}
 }
 
+func TestGetDGReactionReturnsContextualReaction(t *testing.T) {
+	app := newTestApp(t)
+
+	for index := 0; index < 4; index++ {
+		dashboard, err := app.LoadDashboard()
+		if err != nil {
+			t.Fatalf("load dashboard failed: %v", err)
+		}
+		shownAt := app.nowFunc().Add(-time.Duration(index+1) * time.Minute).Format(time.RFC3339)
+		if _, err := app.SubmitAnswer(dashboard.CurrentCard.ID, "learn", "true", shownAt); err != nil {
+			t.Fatalf("submit answer %d failed: %v", index, err)
+		}
+	}
+
+	if _, err := app.UpdatePreferredLanguage("en"); err != nil {
+		t.Fatalf("update preferred language failed: %v", err)
+	}
+
+	result, err := app.GetDGReaction(pet.TriggerCorrect)
+	if err != nil {
+		t.Fatalf("get dg reaction failed: %v", err)
+	}
+
+	if result.Variant != "celebration" {
+		t.Fatalf("expected celebration variant, got %s", result.Variant)
+	}
+	if result.Body == "" {
+		t.Fatal("expected reaction body")
+	}
+}
+
 func TestSubmitAnswerAdvancesHiddenPetGrowth(t *testing.T) {
 	app := newTestApp(t)
 

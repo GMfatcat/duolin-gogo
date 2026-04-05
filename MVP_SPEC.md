@@ -416,6 +416,7 @@ Suggested review scheduling:
   - unlockable reaction pools and mood variations
   - stronger sense of companionship after repeated real study activity
   - the next implementation slice should expand reactions by trigger type, so `DG` can respond differently to direct clicks, correct answers, wrong answers, break states, review completion, and returning after a pause
+  - the first expanded pet slice should keep these reactions short and contextual, using study events as the source of personality instead of adding visible progression UI
 
 ### 11.4 Review Session Screen
 

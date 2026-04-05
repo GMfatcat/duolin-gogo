@@ -14,6 +14,10 @@ export function ExitApplication() {
   return window['go']['main']['App']['ExitApplication']();
 }
 
+export function GetDGReaction(arg1) {
+  return window['go']['main']['App']['GetDGReaction'](arg1);
+}
+
 export function GetStudyCard(arg1) {
   return window['go']['main']['App']['GetStudyCard'](arg1);
 }

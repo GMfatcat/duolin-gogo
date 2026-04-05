@@ -134,3 +134,4 @@ Next targets:
     - split reactions by trigger type instead of one generic stage pool
     - wire stage-aware pet reactions into correct, wrong, break, review-complete, and return states
     - preserve cooldown/probability guards so `DG` still feels compact and low-noise
+  - second slice implemented: stage-aware reactions now differentiate direct clicks from correct/wrong answers, learn breaks, review completion, and returning after a pause

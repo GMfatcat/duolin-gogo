@@ -85,3 +85,32 @@ func TestInteractUnlocksRicherReactionPoolAtHigherStage(t *testing.T) {
 		t.Fatalf("expected stage two click reaction, got %s", result.Reaction.Key)
 	}
 }
+
+func TestReactionForTriggerUsesContextSpecificPool(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	for index := 0; index < 4; index++ {
+		if _, err := RecordStudyEvent(path, StudyEventAnsweredCorrect, base.Add(time.Duration(index)*time.Minute)); err != nil {
+			t.Fatalf("seed study event %d failed: %v", index, err)
+		}
+	}
+
+	result, err := ReactionForTrigger(path, TriggerCorrect, "en", base.Add(20*time.Minute))
+	if err != nil {
+		t.Fatalf("reaction for trigger failed: %v", err)
+	}
+
+	if result.Reaction.Key != "correct_stage_one" {
+		t.Fatalf("expected stage-one correct reaction, got %s", result.Reaction.Key)
+	}
+
+	result, err = ReactionForTrigger(path, TriggerReviewComplete, "en", base.Add(21*time.Minute))
+	if err != nil {
+		t.Fatalf("review complete reaction failed: %v", err)
+	}
+
+	if result.Reaction.Key != "review_complete_stage_one" {
+		t.Fatalf("expected review-complete reaction, got %s", result.Reaction.Key)
+	}
+}

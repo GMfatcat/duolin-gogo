@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
 import {
   getStudyCard,
+  getDGReaction,
   interactWithDG,
   loadAuthoringPreview,
   loadDashboard,
@@ -801,6 +802,7 @@ async function resumeLearnSession() {
   resetLearnBreakState()
   await refreshDashboard()
   learnRestartCue.value = true
+  await showPetReaction('return')
 }
 
 function formatDisplayTime(value, fallback) {
@@ -835,6 +837,7 @@ async function handleSubmit() {
     stats: result.stats,
   }
   phase.value = 'feedback'
+  await showPetReaction(result.isCorrect ? 'correct' : 'wrong')
   submitting.value = false
 }
 
@@ -865,6 +868,7 @@ async function handleNextCard() {
       }
       learnBreakActive.value = true
       actionMessage.value = breakStatus.message
+      await showPetReaction('learn_break')
       if (learnResumeTimer.value) {
         clearTimeout(learnResumeTimer.value)
       }
@@ -895,6 +899,7 @@ async function handleNextCard() {
       accuracy: answered > 0 ? correctAnswers / answered : dashboard.value.stats?.correctRate ?? 0,
       weakTopic: dashboard.value.summary?.weakestDeck?.topic ?? dashboard.value.summary?.weakTopics?.[0]?.tag ?? '',
     }
+    await showPetReaction('review_complete')
   }
 }
 
@@ -1125,6 +1130,24 @@ async function handleAssistantInteraction() {
     }, 4000)
   } catch (error) {
     actionMessage.value = `DG interaction failed: ${error?.message ?? String(error)}`
+  }
+}
+
+async function showPetReaction(trigger) {
+  try {
+    const result = await getDGReaction(trigger)
+    if (!result) return
+
+    petReaction.value = result
+    if (petReactionTimer.value) {
+      clearTimeout(petReactionTimer.value)
+    }
+    petReactionTimer.value = setTimeout(() => {
+      petReaction.value = null
+      petReactionTimer.value = null
+    }, 4000)
+  } catch (error) {
+    actionMessage.value = `DG reaction failed: ${error?.message ?? String(error)}`
   }
 }
 </script>

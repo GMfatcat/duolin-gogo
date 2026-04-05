@@ -620,7 +620,7 @@ Current status:
 
 - planned
 - first slice implemented: `DG` now stores hidden local bond state and supports click-to-react with stage-based unlocks
-- next active slice: expand reaction pools across study triggers so the companion feels more alive beyond direct clicks
+- second slice implemented: `DG` now has trigger-specific reaction pools for `correct`, `wrong`, `learn-break`, `review-complete`, and `return`, so the companion can react across the study loop instead of only on direct clicks
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

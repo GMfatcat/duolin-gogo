@@ -1,5 +1,6 @@
 import {
   GetStudyCard,
+  GetDGReaction,
   InteractWithDG,
   LoadAuthoringPreview,
   LoadDashboard,
@@ -531,6 +532,85 @@ export async function interactWithDG() {
     variant: 'neutral',
     stage: fallbackPetState.stage,
   }
+}
+
+export async function getDGReaction(trigger) {
+  if (hasBackend()) {
+    return GetDGReaction(trigger)
+  }
+
+  const stage = fallbackPetState.stage
+  const zh = fallbackDashboard.preferredLanguage === 'zh-TW'
+
+  const map = {
+    correct: zh
+      ? {
+          title: 'DG',
+          body: stage >= 1 ? '這題很穩，我有看到你越來越熟。' : '答得不錯，先把這個手感記住。',
+          variant: 'celebration',
+          stage,
+        }
+      : {
+          title: 'DG',
+          body: stage >= 1 ? 'That was clean. I can tell this is starting to stick.' : 'Nice hit. Hold on to that feeling for the next one.',
+          variant: 'celebration',
+          stage,
+        },
+    wrong: zh
+      ? {
+          title: 'DG',
+          body: stage >= 1 ? '沒關係，這種差一點的題最值得撿回來。' : '先記住差異就好，下一次會更穩。',
+          variant: 'warning',
+          stage,
+        }
+      : {
+          title: 'DG',
+          body: stage >= 1 ? 'That is okay. These almost-right misses are worth keeping.' : 'Just hold on to the difference. The next pass will feel steadier.',
+          variant: 'warning',
+          stage,
+        },
+    learn_break: zh
+      ? {
+          title: 'DG',
+          body: stage >= 1 ? '這輪收得很好，先讓腦袋留一點空間。' : '先休一下，等下一輪來就好。',
+          variant: 'focus',
+          stage,
+        }
+      : {
+          title: 'DG',
+          body: stage >= 1 ? 'That batch landed well. Give your brain a little room now.' : 'Take a short beat. The next batch can wait.',
+          variant: 'focus',
+          stage,
+        },
+    review_complete: zh
+      ? {
+          title: 'DG',
+          body: stage >= 1 ? '這輪複習收得很完整，我記得你有把它撿回來。' : '這輪複習做完了，先收一下成果。',
+          variant: 'celebration',
+          stage,
+        }
+      : {
+          title: 'DG',
+          body: stage >= 1 ? 'That review batch closed out nicely. I can feel the loop settling in.' : 'That review batch is done. Take a moment and let it settle.',
+          variant: 'celebration',
+          stage,
+        },
+    return: zh
+      ? {
+          title: 'DG',
+          body: stage >= 1 ? '你回來了，我們可以接著往下推。' : '好，下一輪可以開始了。',
+          variant: 'focus',
+          stage,
+        }
+      : {
+          title: 'DG',
+          body: stage >= 1 ? 'You are back. We can pick up the thread from here.' : 'Alright, the next round is ready.',
+          variant: 'focus',
+          stage,
+        },
+  }
+
+  return map[trigger] || null
 }
 
 export async function loadAuthoringPreview() {

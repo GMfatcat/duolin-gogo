@@ -400,17 +400,15 @@ describe('App', () => {
     await flushPromises()
     await switchToEnglish(wrapper)
 
-    wrapper.vm.phase = 'feedback'
-    wrapper.vm.feedback = {
-      isCorrect: true,
-      correctAnswer: 'true',
-    }
-    await wrapper.vm.$nextTick()
+    await wrapper.find('.phase-button').trigger('click')
+    await flushPromises()
+    await wrapper.find('input[value="true"]').setValue()
+    await wrapper.find('.submit-button').trigger('click')
+    await flushPromises()
 
     const bubble = wrapper.find('.assistant-hint')
     expect(bubble.classes()).toContain('celebration')
-    expect(bubble.text()).toContain('DG says you nailed it')
-    expect(bubble.text()).toContain('Nice hit.')
+    expect(bubble.text()).toContain('Nice hit')
   })
 
   it('switches the dg bubble after a wrong answer', async () => {
@@ -419,17 +417,55 @@ describe('App', () => {
     await flushPromises()
     await switchToEnglish(wrapper)
 
-    wrapper.vm.phase = 'feedback'
-    wrapper.vm.feedback = {
-      isCorrect: false,
-      correctAnswer: 'false',
-    }
-    await wrapper.vm.$nextTick()
+    await wrapper.find('.phase-button').trigger('click')
+    await flushPromises()
+    await wrapper.find('input[value="false"]').setValue()
+    await wrapper.find('.submit-button').trigger('click')
+    await flushPromises()
 
     const bubble = wrapper.find('.assistant-hint')
     expect(bubble.classes()).toContain('warning')
-    expect(bubble.text()).toContain('DG says keep going')
-    expect(bubble.text()).toContain('This one is worth one more calm pass')
+    expect(bubble.text()).toContain('difference')
+  })
+
+  it('uses a dedicated dg reaction during a learn break', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    wrapper.vm.learnSessionSnapshot = {
+      started: true,
+      studiedToday: 0,
+      correctAnswers: 0,
+    }
+    wrapper.vm.dashboard = {
+      ...wrapper.vm.dashboard,
+      stats: {
+        studiedToday: 3,
+        correctRate: 2 / 3,
+      },
+      summary: {
+        ...wrapper.vm.dashboard.summary,
+        weakestDeck: { topic: 'docker', accuracy: 0.67 },
+      },
+    }
+    wrapper.vm.learnSessionProgress = {
+      answered: 2,
+      total: 3,
+      cooldownUntil: '',
+    }
+    wrapper.vm.phase = 'feedback'
+    wrapper.vm.feedback = {
+      isCorrect: true,
+      correctAnswer: 'true',
+    }
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.next-button').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.assistant-hint').text()).toContain('Take a short beat')
   })
 
   it('keeps diagnostics collapsed by default and shows severity grouping', async () => {

@@ -478,6 +478,20 @@ func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 	}, nil
 }
 
+func (a *App) GetDGReaction(trigger string) (DGInteractionStatus, error) {
+	result, err := pet.ReactionForTrigger(filepath.Join(a.dataDir, "pet.json"), trigger, a.loadPreferredLanguage(), a.nowFunc())
+	if err != nil {
+		return DGInteractionStatus{}, err
+	}
+
+	return DGInteractionStatus{
+		Title:   result.Reaction.Title,
+		Body:    result.Reaction.Body,
+		Variant: result.Reaction.Variant,
+		Stage:   result.State.Stage,
+	}, nil
+}
+
 func (a *App) RescanKnowledge() (ActionStatus, error) {
 	result, err := cards.RefreshKnowledge(a.knowledgeDir, a.dataDir)
 	if err != nil {

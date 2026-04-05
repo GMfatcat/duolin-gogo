@@ -8,6 +8,8 @@ export function CheckAndSendNotification():Promise<boolean>;
 
 export function ExitApplication():Promise<void>;
 
+export function GetDGReaction(arg1:string):Promise<main.DGInteractionStatus>;
+
 export function GetStudyCard(arg1:string):Promise<main.StudyCard>;
 
 export function InteractWithDG():Promise<main.DGInteractionStatus>;
