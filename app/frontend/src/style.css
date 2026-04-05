@@ -185,6 +185,11 @@ body {
   font-weight: 800;
   text-transform: uppercase;
   box-shadow: inset 0 -2px 0 rgba(16, 33, 47, 0.15);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease,
+    border-radius 180ms ease;
 }
 
 .assistant-collapse {
@@ -213,6 +218,50 @@ body {
 .assistant-hint.focus .assistant-avatar {
   background: #7cb7ff;
   color: #10212f;
+}
+
+.assistant-avatar.stage-1 {
+  box-shadow:
+    inset 0 -2px 0 rgba(16, 33, 47, 0.15),
+    0 0 0 2px rgba(124, 183, 255, 0.18);
+}
+
+.assistant-avatar.stage-2 {
+  box-shadow:
+    inset 0 -2px 0 rgba(16, 33, 47, 0.15),
+    0 0 0 2px rgba(42, 157, 143, 0.28),
+    0 8px 20px rgba(42, 157, 143, 0.24);
+  filter: saturate(1.08);
+}
+
+.assistant-avatar.pose-idle {
+  transform: translateY(0);
+}
+
+.assistant-avatar.pose-wave {
+  transform: rotate(-6deg);
+}
+
+.assistant-avatar.pose-focus {
+  transform: scale(1.02);
+  border-radius: 12px;
+}
+
+.assistant-avatar.pose-think {
+  transform: translateY(-1px) rotate(5deg);
+}
+
+.assistant-avatar.pose-rest {
+  transform: scale(0.96);
+  opacity: 0.92;
+}
+
+.assistant-avatar.pose-nod {
+  transform: translateY(1px);
+}
+
+.assistant-avatar.pose-spark {
+  transform: translateY(-1px) scale(1.04);
 }
 
 @keyframes assistant-enter {

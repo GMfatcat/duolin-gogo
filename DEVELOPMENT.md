@@ -136,3 +136,4 @@ Next targets:
     - preserve cooldown/probability guards so `DG` still feels compact and low-noise
   - second slice implemented: stage-aware reactions now differentiate direct clicks from correct/wrong answers, learn breaks, review completion, and returning after a pause
   - third slice implemented: those trigger-specific reactions now rotate through multi-line pools at each hidden stage, so DG feels more alive without adding visible progression UI
+  - fourth slice implemented: ambient pet reactions now use low-noise cooldown/probability rules, and DG bubbles expose lightweight pose states like `nod`, `think`, `rest`, and `spark` so the UI can show subtle micro-expression changes

@@ -428,6 +428,9 @@ func TestInteractWithDGReturnsLocalizedReaction(t *testing.T) {
 	if result.Stage != 0 {
 		t.Fatalf("expected hidden stage 0, got %d", result.Stage)
 	}
+	if result.Pose == "" {
+		t.Fatal("expected pose to be returned")
+	}
 }
 
 func TestGetDGReactionReturnsContextualReaction(t *testing.T) {
@@ -448,17 +451,29 @@ func TestGetDGReactionReturnsContextualReaction(t *testing.T) {
 		t.Fatalf("update preferred language failed: %v", err)
 	}
 
-	result, err := app.GetDGReaction(pet.TriggerCorrect)
-	if err != nil {
-		t.Fatalf("get dg reaction failed: %v", err)
+	for offset := 0; offset < 6; offset++ {
+		app.nowFunc = func() time.Time {
+			return time.Date(2026, 4, 5, 10, 20+offset, 0, 0, time.FixedZone("UTC+8", 8*3600))
+		}
+
+		result, err := app.GetDGReaction(pet.TriggerCorrect)
+		if err != nil {
+			t.Fatalf("get dg reaction failed: %v", err)
+		}
+
+		if result.Body == "" {
+			continue
+		}
+		if result.Variant != "celebration" {
+			t.Fatalf("expected celebration variant, got %s", result.Variant)
+		}
+		if result.Pose != "nod" {
+			t.Fatalf("expected nod pose, got %s", result.Pose)
+		}
+		return
 	}
 
-	if result.Variant != "celebration" {
-		t.Fatalf("expected celebration variant, got %s", result.Variant)
-	}
-	if result.Body == "" {
-		t.Fatal("expected reaction body")
-	}
+	t.Fatal("expected at least one correct-trigger pet reaction within the sampled window")
 }
 
 func TestSubmitAnswerAdvancesHiddenPetGrowth(t *testing.T) {

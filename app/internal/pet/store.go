@@ -7,7 +7,10 @@ import (
 	"time"
 )
 
-const cooldownWindow = 15 * time.Second
+const (
+	clickCooldownWindow   = 15 * time.Second
+	ambientCooldownWindow = 6 * time.Second
+)
 
 const (
 	StudyEventAnsweredCorrect = "answered_correct"
@@ -36,6 +39,7 @@ type State struct {
 type Reaction struct {
 	Key     string `json:"key"`
 	Variant string `json:"variant"`
+	Pose    string `json:"pose"`
 	Title   string `json:"title"`
 	Body    string `json:"body"`
 }
@@ -79,8 +83,6 @@ func RecordStudyEvent(path string, event string, now time.Time) (State, error) {
 
 	state.BondXP += xpForStudyEvent(event)
 	state.Stage = stageForXP(state.BondXP)
-	timestamp := now.Format(time.RFC3339)
-	state.LastReactionAt = &timestamp
 
 	if err := Save(path, state); err != nil {
 		return State{}, err
@@ -98,15 +100,15 @@ func Interact(path string, language string, now time.Time) (InteractionResult, e
 	if lastInteractionWithinCooldown(state, now) {
 		return InteractionResult{
 			State:    state,
-			Reaction: reactionFor(language, TriggerClicked, state, now, true),
+			Reaction: cooldownReaction(language),
 		}, nil
 	}
 
 	state.BondXP += 1
 	state.Stage = stageForXP(state.BondXP)
-	timestamp := now.Format(time.RFC3339)
-	state.LastInteractionAt = &timestamp
-	state.LastReactionAt = &timestamp
+	stamp := now.Format(time.RFC3339)
+	state.LastInteractionAt = &stamp
+	state.LastReactionAt = &stamp
 
 	if err := Save(path, state); err != nil {
 		return InteractionResult{}, err
@@ -114,7 +116,7 @@ func Interact(path string, language string, now time.Time) (InteractionResult, e
 
 	return InteractionResult{
 		State:    state,
-		Reaction: reactionFor(language, TriggerClicked, state, now, false),
+		Reaction: pickReaction(clickReactions(language, state.Stage), state, TriggerClicked, now),
 	}, nil
 }
 
@@ -124,16 +126,18 @@ func ReactionForTrigger(path string, trigger string, language string, now time.T
 		return InteractionResult{}, err
 	}
 
-	timestamp := now.Format(time.RFC3339)
-	state.LastReactionAt = &timestamp
+	if !shouldEmitAmbientReaction(state, trigger, now) {
+		return InteractionResult{State: state}, nil
+	}
 
+	state.LastReactionAt = stringPtr(now.Format(time.RFC3339))
 	if err := Save(path, state); err != nil {
 		return InteractionResult{}, err
 	}
 
 	return InteractionResult{
 		State:    state,
-		Reaction: reactionFor(language, trigger, state, now, false),
+		Reaction: reactionForTrigger(language, trigger, state, now),
 	}, nil
 }
 
@@ -165,27 +169,28 @@ func stageForXP(bondXP int) int {
 	}
 }
 
-func lastInteractionWithinCooldown(state State, now time.Time) bool {
-	if state.LastInteractionAt == nil || *state.LastInteractionAt == "" {
+func shouldEmitAmbientReaction(state State, trigger string, now time.Time) bool {
+	switch trigger {
+	case TriggerLearnBreak, TriggerReviewComplete, TriggerReturn:
+		return true
+	}
+
+	if lastReactionWithinCooldown(state, now) {
 		return false
 	}
 
-	lastInteractionAt, err := time.Parse(time.RFC3339, *state.LastInteractionAt)
-	if err != nil {
-		return false
+	seed := int(now.Unix()/60) + state.BondXP + len(trigger)
+	switch trigger {
+	case TriggerCorrect:
+		return seed%3 != 0
+	case TriggerWrong:
+		return seed%2 == 0
+	default:
+		return true
 	}
-
-	return now.Sub(lastInteractionAt) < cooldownWindow
 }
 
-func reactionFor(language string, trigger string, state State, now time.Time, cooldown bool) Reaction {
-	if cooldown {
-		if language == "zh-TW" {
-			return Reaction{Key: "cooldown", Variant: "focus", Title: "DG", Body: "我有聽到，先讓我喘一口氣。"}
-		}
-		return Reaction{Key: "cooldown", Variant: "focus", Title: "DG", Body: "I heard you. Give me a beat."}
-	}
-
+func reactionForTrigger(language string, trigger string, state State, now time.Time) Reaction {
 	switch trigger {
 	case TriggerCorrect:
 		return pickReaction(correctReactions(language, state.Stage), state, trigger, now)
@@ -204,11 +209,18 @@ func reactionFor(language string, trigger string, state State, now time.Time, co
 
 func pickReaction(pool []Reaction, state State, trigger string, now time.Time) Reaction {
 	if len(pool) == 0 {
-		return Reaction{Key: "fallback", Variant: "neutral", Title: "DG", Body: "..."}
+		return Reaction{Key: "fallback", Variant: "neutral", Pose: "idle", Title: "DG", Body: "..."}
 	}
 
 	index := int((now.Unix()/60)+int64(state.BondXP)+int64(len(trigger))) % len(pool)
 	return pool[index]
+}
+
+func cooldownReaction(language string) Reaction {
+	if language == "zh-TW" {
+		return Reaction{Key: "cooldown", Variant: "focus", Pose: "rest", Title: "DG", Body: "我有聽到，先讓我喘一口氣。"}
+	}
+	return Reaction{Key: "cooldown", Variant: "focus", Pose: "rest", Title: "DG", Body: "I heard you. Give me a beat."}
 }
 
 func clickReactions(language string, stage int) []Reaction {
@@ -216,35 +228,35 @@ func clickReactions(language string, stage int) []Reaction {
 	case stage >= 2:
 		if language == "zh-TW" {
 			return []Reaction{
-				{Key: "stage_two_click_warm", Variant: "celebration", Title: "DG", Body: "你回來了，我開始抓到你的節奏了。"},
-				{Key: "stage_two_click_sync", Variant: "celebration", Title: "DG", Body: "這輪我跟得上，你只管繼續。"},
+				{Key: "stage_two_click_warm", Variant: "celebration", Pose: "spark", Title: "DG", Body: "你回來了，我開始抓到你的節奏了。"},
+				{Key: "stage_two_click_sync", Variant: "celebration", Pose: "spark", Title: "DG", Body: "這輪我跟得上，你只管繼續。"},
 			}
 		}
 		return []Reaction{
-			{Key: "stage_two_click_warm", Variant: "celebration", Title: "DG", Body: "You are back. I am starting to learn your rhythm."},
-			{Key: "stage_two_click_sync", Variant: "celebration", Title: "DG", Body: "I am in sync now. You can keep the pace up."},
+			{Key: "stage_two_click_warm", Variant: "celebration", Pose: "spark", Title: "DG", Body: "You are back. I am starting to learn your rhythm."},
+			{Key: "stage_two_click_sync", Variant: "celebration", Pose: "spark", Title: "DG", Body: "I am in sync now. You can keep the pace up."},
 		}
 	case stage >= 1:
 		if language == "zh-TW" {
 			return []Reaction{
-				{Key: "stage_one_click_focus", Variant: "focus", Title: "DG", Body: "好，這一輪我們一起走完。"},
-				{Key: "stage_one_click_ready", Variant: "focus", Title: "DG", Body: "我準備好了，你先開題。"},
+				{Key: "stage_one_click_focus", Variant: "focus", Pose: "wave", Title: "DG", Body: "好，這一輪我們一起走完。"},
+				{Key: "stage_one_click_ready", Variant: "focus", Pose: "wave", Title: "DG", Body: "我準備好了，你先開題。"},
 			}
 		}
 		return []Reaction{
-			{Key: "stage_one_click_focus", Variant: "focus", Title: "DG", Body: "Alright, let us work through this batch together."},
-			{Key: "stage_one_click_ready", Variant: "focus", Title: "DG", Body: "I am ready. You take the first step."},
+			{Key: "stage_one_click_focus", Variant: "focus", Pose: "wave", Title: "DG", Body: "Alright, let us work through this batch together."},
+			{Key: "stage_one_click_ready", Variant: "focus", Pose: "wave", Title: "DG", Body: "I am ready. You take the first step."},
 		}
 	default:
 		if language == "zh-TW" {
 			return []Reaction{
-				{Key: "stage_zero_click_intro", Variant: "neutral", Title: "DG", Body: "我在這裡，慢慢來就好。"},
-				{Key: "stage_zero_click_warmup", Variant: "neutral", Title: "DG", Body: "多點我幾次，我會更快進入狀態。"},
+				{Key: "stage_zero_click_intro", Variant: "neutral", Pose: "idle", Title: "DG", Body: "我在這裡，慢慢來就好。"},
+				{Key: "stage_zero_click_warmup", Variant: "neutral", Pose: "idle", Title: "DG", Body: "多點我幾次，我會更快進入狀態。"},
 			}
 		}
 		return []Reaction{
-			{Key: "stage_zero_click_intro", Variant: "neutral", Title: "DG", Body: "I am here. Keep tapping in and I will warm up."},
-			{Key: "stage_zero_click_warmup", Variant: "neutral", Title: "DG", Body: "Tap back in a little more and I will wake up faster."},
+			{Key: "stage_zero_click_intro", Variant: "neutral", Pose: "idle", Title: "DG", Body: "I am here. Keep tapping in and I will warm up."},
+			{Key: "stage_zero_click_warmup", Variant: "neutral", Pose: "idle", Title: "DG", Body: "Tap back in a little more and I will wake up faster."},
 		}
 	}
 }
@@ -253,24 +265,24 @@ func correctReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
 			return []Reaction{
-				{Key: "correct_stage_one_clean", Variant: "celebration", Title: "DG", Body: "這題很乾淨，感覺開始黏住了。"},
-				{Key: "correct_stage_one_locking", Variant: "celebration", Title: "DG", Body: "對，就是這種手感，先記住。"},
+				{Key: "correct_stage_one_clean", Variant: "celebration", Pose: "nod", Title: "DG", Body: "這題很乾淨，感覺開始黏住了。"},
+				{Key: "correct_stage_one_locking", Variant: "celebration", Pose: "nod", Title: "DG", Body: "對，就是這種手感，先記住。"},
 			}
 		}
 		return []Reaction{
-			{Key: "correct_stage_one_clean", Variant: "celebration", Title: "DG", Body: "That was clean. I can tell this is starting to stick."},
-			{Key: "correct_stage_one_locking", Variant: "celebration", Title: "DG", Body: "Yes, that is the feeling. Keep it for the next card."},
+			{Key: "correct_stage_one_clean", Variant: "celebration", Pose: "nod", Title: "DG", Body: "That was clean. I can tell this is starting to stick."},
+			{Key: "correct_stage_one_locking", Variant: "celebration", Pose: "nod", Title: "DG", Body: "Yes, that is the feeling. Keep it for the next card."},
 		}
 	}
 	if language == "zh-TW" {
 		return []Reaction{
-			{Key: "correct_stage_zero_nice", Variant: "celebration", Title: "DG", Body: "漂亮，這一題先收下來。"},
-			{Key: "correct_stage_zero_hold", Variant: "celebration", Title: "DG", Body: "很好，把這個感覺帶到下一題。"},
+			{Key: "correct_stage_zero_nice", Variant: "celebration", Pose: "nod", Title: "DG", Body: "漂亮，這一題先收下來。"},
+			{Key: "correct_stage_zero_hold", Variant: "celebration", Pose: "nod", Title: "DG", Body: "很好，把這個感覺帶到下一題。"},
 		}
 	}
 	return []Reaction{
-		{Key: "correct_stage_zero_nice", Variant: "celebration", Title: "DG", Body: "Nice hit. Hold on to that feeling for the next one."},
-		{Key: "correct_stage_zero_hold", Variant: "celebration", Title: "DG", Body: "Good catch. Bring that same energy into the next card."},
+		{Key: "correct_stage_zero_nice", Variant: "celebration", Pose: "nod", Title: "DG", Body: "Nice hit. Hold on to that feeling for the next one."},
+		{Key: "correct_stage_zero_hold", Variant: "celebration", Pose: "nod", Title: "DG", Body: "Good catch. Bring that same energy into the next card."},
 	}
 }
 
@@ -278,24 +290,24 @@ func wrongReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
 			return []Reaction{
-				{Key: "wrong_stage_one_almost", Variant: "warning", Title: "DG", Body: "沒關係，這種差一點最值得記。"},
-				{Key: "wrong_stage_one_keep", Variant: "warning", Title: "DG", Body: "先記住差異，下次會更穩。"},
+				{Key: "wrong_stage_one_almost", Variant: "warning", Pose: "think", Title: "DG", Body: "沒關係，這種差一點最值得記。"},
+				{Key: "wrong_stage_one_keep", Variant: "warning", Pose: "think", Title: "DG", Body: "先記住差異，下次會更穩。"},
 			}
 		}
 		return []Reaction{
-			{Key: "wrong_stage_one_almost", Variant: "warning", Title: "DG", Body: "That is okay. These almost-right misses are worth keeping."},
-			{Key: "wrong_stage_one_keep", Variant: "warning", Title: "DG", Body: "Keep the difference in view. The next pass will feel steadier."},
+			{Key: "wrong_stage_one_almost", Variant: "warning", Pose: "think", Title: "DG", Body: "That is okay. These almost-right misses are worth keeping."},
+			{Key: "wrong_stage_one_keep", Variant: "warning", Pose: "think", Title: "DG", Body: "Keep the difference in view. The next pass will feel steadier."},
 		}
 	}
 	if language == "zh-TW" {
 		return []Reaction{
-			{Key: "wrong_stage_zero_difference", Variant: "warning", Title: "DG", Body: "先抓住差異，下一輪就會好很多。"},
-			{Key: "wrong_stage_zero_retry", Variant: "warning", Title: "DG", Body: "這題先別怕，等下再看一次。"},
+			{Key: "wrong_stage_zero_difference", Variant: "warning", Pose: "think", Title: "DG", Body: "先抓住差異，下一輪就會好很多。"},
+			{Key: "wrong_stage_zero_retry", Variant: "warning", Pose: "think", Title: "DG", Body: "這題先別怕，等下再看一次。"},
 		}
 	}
 	return []Reaction{
-		{Key: "wrong_stage_zero_difference", Variant: "warning", Title: "DG", Body: "Just hold on to the difference. The next pass will feel steadier."},
-		{Key: "wrong_stage_zero_retry", Variant: "warning", Title: "DG", Body: "Do not worry about this one yet. We can loop back cleanly."},
+		{Key: "wrong_stage_zero_difference", Variant: "warning", Pose: "think", Title: "DG", Body: "Just hold on to the difference. The next pass will feel steadier."},
+		{Key: "wrong_stage_zero_retry", Variant: "warning", Pose: "think", Title: "DG", Body: "Do not worry about this one yet. We can loop back cleanly."},
 	}
 }
 
@@ -303,24 +315,24 @@ func learnBreakReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
 			return []Reaction{
-				{Key: "learn_break_stage_one_land", Variant: "focus", Title: "DG", Body: "這輪收得不錯，先讓腦袋留點空間。"},
-				{Key: "learn_break_stage_one_room", Variant: "focus", Title: "DG", Body: "停一下剛剛好，讓記憶沉一沉。"},
+				{Key: "learn_break_stage_one_land", Variant: "focus", Pose: "rest", Title: "DG", Body: "這輪收得不錯，先讓腦袋留點空間。"},
+				{Key: "learn_break_stage_one_room", Variant: "focus", Pose: "rest", Title: "DG", Body: "停一下剛剛好，讓記憶沉一沉。"},
 			}
 		}
 		return []Reaction{
-			{Key: "learn_break_stage_one_land", Variant: "focus", Title: "DG", Body: "That batch landed well. Give your brain a little room now."},
-			{Key: "learn_break_stage_one_room", Variant: "focus", Title: "DG", Body: "A short pause is right. Let the last few cards settle."},
+			{Key: "learn_break_stage_one_land", Variant: "focus", Pose: "rest", Title: "DG", Body: "That batch landed well. Give your brain a little room now."},
+			{Key: "learn_break_stage_one_room", Variant: "focus", Pose: "rest", Title: "DG", Body: "A short pause is right. Let the last few cards settle."},
 		}
 	}
 	if language == "zh-TW" {
 		return []Reaction{
-			{Key: "learn_break_stage_zero_wait", Variant: "focus", Title: "DG", Body: "先休息一下，下一輪不急。"},
-			{Key: "learn_break_stage_zero_pause", Variant: "focus", Title: "DG", Body: "這裡先停一下，等等再回來。"},
+			{Key: "learn_break_stage_zero_wait", Variant: "focus", Pose: "rest", Title: "DG", Body: "先休息一下，下一輪不急。"},
+			{Key: "learn_break_stage_zero_pause", Variant: "focus", Pose: "rest", Title: "DG", Body: "這裡先停一下，等等再回來。"},
 		}
 	}
 	return []Reaction{
-		{Key: "learn_break_stage_zero_wait", Variant: "focus", Title: "DG", Body: "Take a short beat. The next batch can wait."},
-		{Key: "learn_break_stage_zero_pause", Variant: "focus", Title: "DG", Body: "Pause here for a moment. The next round is fine waiting."},
+		{Key: "learn_break_stage_zero_wait", Variant: "focus", Pose: "rest", Title: "DG", Body: "Take a short beat. The next batch can wait."},
+		{Key: "learn_break_stage_zero_pause", Variant: "focus", Pose: "rest", Title: "DG", Body: "Pause here for a moment. The next round is fine waiting."},
 	}
 }
 
@@ -328,24 +340,24 @@ func reviewCompleteReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
 			return []Reaction{
-				{Key: "review_complete_stage_one_closed", Variant: "celebration", Title: "DG", Body: "這輪複習收得很漂亮，節奏在成形了。"},
-				{Key: "review_complete_stage_one_settle", Variant: "celebration", Title: "DG", Body: "很好，讓這一輪在腦中沉下去。"},
+				{Key: "review_complete_stage_one_closed", Variant: "celebration", Pose: "spark", Title: "DG", Body: "這輪複習收得很漂亮，節奏在成形了。"},
+				{Key: "review_complete_stage_one_settle", Variant: "celebration", Pose: "spark", Title: "DG", Body: "很好，讓這一輪在腦中沉下去。"},
 			}
 		}
 		return []Reaction{
-			{Key: "review_complete_stage_one_closed", Variant: "celebration", Title: "DG", Body: "That review batch closed out nicely. I can feel the loop settling in."},
-			{Key: "review_complete_stage_one_settle", Variant: "celebration", Title: "DG", Body: "Nice finish. Let that review loop settle in a bit."},
+			{Key: "review_complete_stage_one_closed", Variant: "celebration", Pose: "spark", Title: "DG", Body: "That review batch closed out nicely. I can feel the loop settling in."},
+			{Key: "review_complete_stage_one_settle", Variant: "celebration", Pose: "spark", Title: "DG", Body: "Nice finish. Let that review loop settle in a bit."},
 		}
 	}
 	if language == "zh-TW" {
 		return []Reaction{
-			{Key: "review_complete_stage_zero_done", Variant: "celebration", Title: "DG", Body: "這輪複習完成了，先讓它停一下。"},
-			{Key: "review_complete_stage_zero_breathe", Variant: "celebration", Title: "DG", Body: "複習做完了，現在先喘一口氣。"},
+			{Key: "review_complete_stage_zero_done", Variant: "celebration", Pose: "spark", Title: "DG", Body: "這輪複習完成了，先讓它停一下。"},
+			{Key: "review_complete_stage_zero_breathe", Variant: "celebration", Pose: "spark", Title: "DG", Body: "複習做完了，現在先喘一口氣。"},
 		}
 	}
 	return []Reaction{
-		{Key: "review_complete_stage_zero_done", Variant: "celebration", Title: "DG", Body: "That review batch is done. Take a moment and let it settle."},
-		{Key: "review_complete_stage_zero_breathe", Variant: "celebration", Title: "DG", Body: "Review complete. Take a breath before you move on."},
+		{Key: "review_complete_stage_zero_done", Variant: "celebration", Pose: "spark", Title: "DG", Body: "That review batch is done. Take a moment and let it settle."},
+		{Key: "review_complete_stage_zero_breathe", Variant: "celebration", Pose: "spark", Title: "DG", Body: "Review complete. Take a breath before you move on."},
 	}
 }
 
@@ -353,23 +365,48 @@ func returnReactions(language string, stage int) []Reaction {
 	if stage >= 1 {
 		if language == "zh-TW" {
 			return []Reaction{
-				{Key: "return_stage_one_pickup", Variant: "focus", Title: "DG", Body: "你回來了，我們從這裡接著走。"},
-				{Key: "return_stage_one_thread", Variant: "focus", Title: "DG", Body: "剛剛那條線還在，現在可以繼續。"},
+				{Key: "return_stage_one_pickup", Variant: "focus", Pose: "wave", Title: "DG", Body: "你回來了，我們從這裡接著走。"},
+				{Key: "return_stage_one_thread", Variant: "focus", Pose: "wave", Title: "DG", Body: "剛剛那條線還在，現在可以繼續。"},
 			}
 		}
 		return []Reaction{
-			{Key: "return_stage_one_pickup", Variant: "focus", Title: "DG", Body: "You are back. We can pick up the thread from here."},
-			{Key: "return_stage_one_thread", Variant: "focus", Title: "DG", Body: "That thread is still here. We can keep going now."},
+			{Key: "return_stage_one_pickup", Variant: "focus", Pose: "wave", Title: "DG", Body: "You are back. We can pick up the thread from here."},
+			{Key: "return_stage_one_thread", Variant: "focus", Pose: "wave", Title: "DG", Body: "That thread is still here. We can keep going now."},
 		}
 	}
 	if language == "zh-TW" {
 		return []Reaction{
-			{Key: "return_stage_zero_ready", Variant: "focus", Title: "DG", Body: "下一輪已經準備好了。"},
-			{Key: "return_stage_zero_resume", Variant: "focus", Title: "DG", Body: "好，現在可以重新開始。"},
+			{Key: "return_stage_zero_ready", Variant: "focus", Pose: "wave", Title: "DG", Body: "下一輪已經準備好了。"},
+			{Key: "return_stage_zero_resume", Variant: "focus", Pose: "wave", Title: "DG", Body: "好，現在可以重新開始。"},
 		}
 	}
 	return []Reaction{
-		{Key: "return_stage_zero_ready", Variant: "focus", Title: "DG", Body: "Alright, the next round is ready."},
-		{Key: "return_stage_zero_resume", Variant: "focus", Title: "DG", Body: "Okay, we can start fresh from here."},
+		{Key: "return_stage_zero_ready", Variant: "focus", Pose: "wave", Title: "DG", Body: "Alright, the next round is ready."},
+		{Key: "return_stage_zero_resume", Variant: "focus", Pose: "wave", Title: "DG", Body: "Okay, we can start fresh from here."},
 	}
+}
+
+func lastInteractionWithinCooldown(state State, now time.Time) bool {
+	return lastTimestampWithin(state.LastInteractionAt, clickCooldownWindow, now)
+}
+
+func lastReactionWithinCooldown(state State, now time.Time) bool {
+	return lastTimestampWithin(state.LastReactionAt, ambientCooldownWindow, now)
+}
+
+func lastTimestampWithin(value *string, window time.Duration, now time.Time) bool {
+	if value == nil || *value == "" {
+		return false
+	}
+
+	stamp, err := time.Parse(time.RFC3339, *value)
+	if err != nil {
+		return false
+	}
+
+	return now.Sub(stamp) < window
+}
+
+func stringPtr(value string) *string {
+	return &value
 }

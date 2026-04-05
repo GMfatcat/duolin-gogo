@@ -289,6 +289,7 @@ const fallbackPetState = {
   bondXp: 0,
   stage: 0,
   lastInteractionAt: '',
+  lastReactionAt: '',
 }
 
 function fallbackPetIndex(trigger, size) {
@@ -307,37 +308,37 @@ function fallbackClickPool(language, stage) {
   if (language === 'zh-TW') {
     if (stage >= 2) {
       return [
-        { title: 'DG', body: '你回來了，我開始抓到你的節奏了。', variant: 'celebration', stage },
-        { title: 'DG', body: '這輪我跟得上，你只管繼續。', variant: 'celebration', stage },
+        { title: 'DG', body: '你回來了，我開始抓到你的節奏了。', variant: 'celebration', pose: 'spark', stage },
+        { title: 'DG', body: '這輪我跟得上，你只管繼續。', variant: 'celebration', pose: 'spark', stage },
       ]
     }
     if (stage >= 1) {
       return [
-        { title: 'DG', body: '好，這一輪我們一起走完。', variant: 'focus', stage },
-        { title: 'DG', body: '我準備好了，你先開題。', variant: 'focus', stage },
+        { title: 'DG', body: '好，這一輪我們一起走完。', variant: 'focus', pose: 'wave', stage },
+        { title: 'DG', body: '我準備好了，你先開題。', variant: 'focus', pose: 'wave', stage },
       ]
     }
     return [
-      { title: 'DG', body: '我在這裡，慢慢來就好。', variant: 'neutral', stage },
-      { title: 'DG', body: '多點我幾次，我會更快進入狀態。', variant: 'neutral', stage },
+      { title: 'DG', body: '我在這裡，慢慢來就好。', variant: 'neutral', pose: 'idle', stage },
+      { title: 'DG', body: '多點我幾次，我會更快進入狀態。', variant: 'neutral', pose: 'idle', stage },
     ]
   }
 
   if (stage >= 2) {
     return [
-      { title: 'DG', body: 'You are back. I am starting to learn your rhythm.', variant: 'celebration', stage },
-      { title: 'DG', body: 'I am in sync now. You can keep the pace up.', variant: 'celebration', stage },
+      { title: 'DG', body: 'You are back. I am starting to learn your rhythm.', variant: 'celebration', pose: 'spark', stage },
+      { title: 'DG', body: 'I am in sync now. You can keep the pace up.', variant: 'celebration', pose: 'spark', stage },
     ]
   }
   if (stage >= 1) {
     return [
-      { title: 'DG', body: 'Alright, let us work through this batch together.', variant: 'focus', stage },
-      { title: 'DG', body: 'I am ready. You take the first step.', variant: 'focus', stage },
+      { title: 'DG', body: 'Alright, let us work through this batch together.', variant: 'focus', pose: 'wave', stage },
+      { title: 'DG', body: 'I am ready. You take the first step.', variant: 'focus', pose: 'wave', stage },
     ]
   }
   return [
-    { title: 'DG', body: 'I am here. Keep tapping in and I will warm up.', variant: 'neutral', stage },
-    { title: 'DG', body: 'Tap back in a little more and I will wake up faster.', variant: 'neutral', stage },
+    { title: 'DG', body: 'I am here. Keep tapping in and I will warm up.', variant: 'neutral', pose: 'idle', stage },
+    { title: 'DG', body: 'Tap back in a little more and I will wake up faster.', variant: 'neutral', pose: 'idle', stage },
   ]
 }
 
@@ -346,52 +347,74 @@ function fallbackTriggerPool(trigger, language, stage) {
   const pools = {
     correct: zh
       ? [
-          { title: 'DG', body: stage >= 1 ? '這題很乾淨，感覺開始黏住了。' : '漂亮，這一題先收下來。', variant: 'celebration', stage },
-          { title: 'DG', body: stage >= 1 ? '對，就是這種手感，先記住。' : '很好，把這個感覺帶到下一題。', variant: 'celebration', stage },
+          { title: 'DG', body: stage >= 1 ? '這題很乾淨，感覺開始黏住了。' : '漂亮，這一題先收下來。', variant: 'celebration', pose: 'nod', stage },
+          { title: 'DG', body: stage >= 1 ? '對，就是這種手感，先記住。' : '很好，把這個感覺帶到下一題。', variant: 'celebration', pose: 'nod', stage },
         ]
       : [
-          { title: 'DG', body: stage >= 1 ? 'That was clean. I can tell this is starting to stick.' : 'Nice hit. Hold on to that feeling for the next one.', variant: 'celebration', stage },
-          { title: 'DG', body: stage >= 1 ? 'Yes, that is the feeling. Keep it for the next card.' : 'Good catch. Bring that same energy into the next card.', variant: 'celebration', stage },
+          { title: 'DG', body: stage >= 1 ? 'That was clean. I can tell this is starting to stick.' : 'Nice hit. Hold on to that feeling for the next one.', variant: 'celebration', pose: 'nod', stage },
+          { title: 'DG', body: stage >= 1 ? 'Yes, that is the feeling. Keep it for the next card.' : 'Good catch. Bring that same energy into the next card.', variant: 'celebration', pose: 'nod', stage },
         ],
     wrong: zh
       ? [
-          { title: 'DG', body: stage >= 1 ? '沒關係，這種差一點最值得記。' : '先抓住差異，下一輪就會好很多。', variant: 'warning', stage },
-          { title: 'DG', body: stage >= 1 ? '先記住差異，下次會更穩。' : '這題先別怕，等下再看一次。', variant: 'warning', stage },
+          { title: 'DG', body: stage >= 1 ? '沒關係，這種差一點最值得記。' : '先抓住差異，下一輪就會好很多。', variant: 'warning', pose: 'think', stage },
+          { title: 'DG', body: stage >= 1 ? '先記住差異，下次會更穩。' : '這題先別怕，等下再看一次。', variant: 'warning', pose: 'think', stage },
         ]
       : [
-          { title: 'DG', body: stage >= 1 ? 'That is okay. These almost-right misses are worth keeping.' : 'Just hold on to the difference. The next pass will feel steadier.', variant: 'warning', stage },
-          { title: 'DG', body: stage >= 1 ? 'Keep the difference in view. The next pass will feel steadier.' : 'Do not worry about this one yet. We can loop back cleanly.', variant: 'warning', stage },
+          { title: 'DG', body: stage >= 1 ? 'That is okay. These almost-right misses are worth keeping.' : 'Just hold on to the difference. The next pass will feel steadier.', variant: 'warning', pose: 'think', stage },
+          { title: 'DG', body: stage >= 1 ? 'Keep the difference in view. The next pass will feel steadier.' : 'Do not worry about this one yet. We can loop back cleanly.', variant: 'warning', pose: 'think', stage },
         ],
     learn_break: zh
       ? [
-          { title: 'DG', body: stage >= 1 ? '這輪收得不錯，先讓腦袋留點空間。' : '先休息一下，下一輪不急。', variant: 'focus', stage },
-          { title: 'DG', body: stage >= 1 ? '停一下剛剛好，讓記憶沉一沉。' : '這裡先停一下，等等再回來。', variant: 'focus', stage },
+          { title: 'DG', body: stage >= 1 ? '這輪收得不錯，先讓腦袋留點空間。' : '先休息一下，下一輪不急。', variant: 'focus', pose: 'rest', stage },
+          { title: 'DG', body: stage >= 1 ? '停一下剛剛好，讓記憶沉一沉。' : '這裡先停一下，等等再回來。', variant: 'focus', pose: 'rest', stage },
         ]
       : [
-          { title: 'DG', body: stage >= 1 ? 'That batch landed well. Give your brain a little room now.' : 'Take a short beat. The next batch can wait.', variant: 'focus', stage },
-          { title: 'DG', body: stage >= 1 ? 'A short pause is right. Let the last few cards settle.' : 'Pause here for a moment. The next round is fine waiting.', variant: 'focus', stage },
+          { title: 'DG', body: stage >= 1 ? 'That batch landed well. Give your brain a little room now.' : 'Take a short beat. The next batch can wait.', variant: 'focus', pose: 'rest', stage },
+          { title: 'DG', body: stage >= 1 ? 'A short pause is right. Let the last few cards settle.' : 'Pause here for a moment. The next round is fine waiting.', variant: 'focus', pose: 'rest', stage },
         ],
     review_complete: zh
       ? [
-          { title: 'DG', body: stage >= 1 ? '這輪複習收得很漂亮，節奏在成形了。' : '這輪複習完成了，先讓它停一下。', variant: 'celebration', stage },
-          { title: 'DG', body: stage >= 1 ? '很好，讓這一輪在腦中沉下去。' : '複習做完了，現在先喘一口氣。', variant: 'celebration', stage },
+          { title: 'DG', body: stage >= 1 ? '這輪複習收得很漂亮，節奏在成形了。' : '這輪複習完成了，先讓它停一下。', variant: 'celebration', pose: 'spark', stage },
+          { title: 'DG', body: stage >= 1 ? '很好，讓這一輪在腦中沉下去。' : '複習做完了，現在先喘一口氣。', variant: 'celebration', pose: 'spark', stage },
         ]
       : [
-          { title: 'DG', body: stage >= 1 ? 'That review batch closed out nicely. I can feel the loop settling in.' : 'That review batch is done. Take a moment and let it settle.', variant: 'celebration', stage },
-          { title: 'DG', body: stage >= 1 ? 'Nice finish. Let that review loop settle in a bit.' : 'Review complete. Take a breath before you move on.', variant: 'celebration', stage },
+          { title: 'DG', body: stage >= 1 ? 'That review batch closed out nicely. I can feel the loop settling in.' : 'That review batch is done. Take a moment and let it settle.', variant: 'celebration', pose: 'spark', stage },
+          { title: 'DG', body: stage >= 1 ? 'Nice finish. Let that review loop settle in a bit.' : 'Review complete. Take a breath before you move on.', variant: 'celebration', pose: 'spark', stage },
         ],
     return: zh
       ? [
-          { title: 'DG', body: stage >= 1 ? '你回來了，我們從這裡接著走。' : '下一輪已經準備好了。', variant: 'focus', stage },
-          { title: 'DG', body: stage >= 1 ? '剛剛那條線還在，現在可以繼續。' : '好，現在可以重新開始。', variant: 'focus', stage },
+          { title: 'DG', body: stage >= 1 ? '你回來了，我們從這裡接著走。' : '下一輪已經準備好了。', variant: 'focus', pose: 'wave', stage },
+          { title: 'DG', body: stage >= 1 ? '剛剛那條線還在，現在可以繼續。' : '好，現在可以重新開始。', variant: 'focus', pose: 'wave', stage },
         ]
       : [
-          { title: 'DG', body: stage >= 1 ? 'You are back. We can pick up the thread from here.' : 'Alright, the next round is ready.', variant: 'focus', stage },
-          { title: 'DG', body: stage >= 1 ? 'That thread is still here. We can keep going now.' : 'Okay, we can start fresh from here.', variant: 'focus', stage },
+          { title: 'DG', body: stage >= 1 ? 'You are back. We can pick up the thread from here.' : 'Alright, the next round is ready.', variant: 'focus', pose: 'wave', stage },
+          { title: 'DG', body: stage >= 1 ? 'That thread is still here. We can keep going now.' : 'Okay, we can start fresh from here.', variant: 'focus', pose: 'wave', stage },
         ],
   }
 
   return pools[trigger] || fallbackClickPool(language, stage)
+}
+
+function shouldEmitFallbackReaction(trigger, now) {
+  if (['learn_break', 'review_complete', 'return'].includes(trigger)) {
+    return true
+  }
+
+  if (fallbackPetState.lastReactionAt) {
+    const last = new Date(fallbackPetState.lastReactionAt)
+    if (now.getTime() - last.getTime() < 6000) {
+      return false
+    }
+  }
+
+  const seed = Math.floor(now.getTime() / 60000) + fallbackPetState.bondXp + trigger.length
+  if (trigger === 'correct') {
+    return seed % 3 !== 0
+  }
+  if (trigger === 'wrong') {
+    return seed % 2 === 0
+  }
+  return true
 }
 
 const hasBackend = () => typeof window !== 'undefined' && typeof window.go !== 'undefined'
@@ -443,6 +466,7 @@ export function __resetFallbackState() {
   fallbackPetState.bondXp = 0
   fallbackPetState.stage = 0
   fallbackPetState.lastInteractionAt = ''
+  fallbackPetState.lastReactionAt = ''
 }
 
 export async function loadDashboard() {
@@ -460,6 +484,8 @@ export async function submitAnswer({ cardId, sessionType, selectedAnswer, shownA
 
   const preferredLanguage = fallbackDashboard.preferredLanguage
   const isCorrect = selectedAnswer === 'true' || selectedAnswer === '1' || selectedAnswer === '0'
+  fallbackPetState.bondXp += isCorrect ? 2 : 1
+  fallbackPetState.stage = fallbackPetState.bondXp >= 16 ? 2 : fallbackPetState.bondXp >= 6 ? 1 : 0
 
   return {
     cardId,
@@ -559,6 +585,7 @@ export async function resetStudyData() {
   fallbackPetState.bondXp = 0
   fallbackPetState.stage = 0
   fallbackPetState.lastInteractionAt = ''
+  fallbackPetState.lastReactionAt = ''
   return { message: 'Study data reset.' }
 }
 
@@ -583,6 +610,7 @@ export async function interactWithDG() {
   fallbackPetState.bondXp += 1
   fallbackPetState.stage = fallbackPetState.bondXp >= 16 ? 2 : fallbackPetState.bondXp >= 6 ? 1 : 0
   fallbackPetState.lastInteractionAt = now.toISOString()
+  fallbackPetState.lastReactionAt = now.toISOString()
   return pickFallbackPetReaction('clicked', fallbackClickPool(fallbackDashboard.preferredLanguage, fallbackPetState.stage))
 }
 
@@ -591,6 +619,12 @@ export async function getDGReaction(trigger) {
     return GetDGReaction(trigger)
   }
 
+  const now = new Date('2026-04-05T10:00:00+08:00')
+  if (!shouldEmitFallbackReaction(trigger, now)) {
+    return { title: '', body: '', variant: '', pose: '', stage: fallbackPetState.stage }
+  }
+
+  fallbackPetState.lastReactionAt = now.toISOString()
   return pickFallbackPetReaction(trigger, fallbackTriggerPool(trigger, fallbackDashboard.preferredLanguage, fallbackPetState.stage))
 }
 

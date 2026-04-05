@@ -276,6 +276,7 @@ export namespace main {
 	    title: string;
 	    body: string;
 	    variant: string;
+	    pose: string;
 	    stage: number;
 	
 	    static createFrom(source: any = {}) {
@@ -287,6 +288,7 @@ export namespace main {
 	        this.title = source["title"];
 	        this.body = source["body"];
 	        this.variant = source["variant"];
+	        this.pose = source["pose"];
 	        this.stage = source["stage"];
 	    }
 	}

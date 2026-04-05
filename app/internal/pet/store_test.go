@@ -61,6 +61,9 @@ func TestInteractUsesCooldownWithoutAddingMoreGrowth(t *testing.T) {
 	if second.Reaction.Key != "cooldown" {
 		t.Fatalf("expected cooldown reaction, got %s", second.Reaction.Key)
 	}
+	if second.Reaction.Pose != "rest" {
+		t.Fatalf("expected cooldown pose rest, got %s", second.Reaction.Pose)
+	}
 }
 
 func TestInteractUnlocksRicherReactionPoolAtHigherStage(t *testing.T) {
@@ -104,6 +107,9 @@ func TestReactionForTriggerUsesContextSpecificPool(t *testing.T) {
 	if result.Reaction.Key != "correct_stage_one_clean" && result.Reaction.Key != "correct_stage_one_locking" {
 		t.Fatalf("expected stage-one correct reaction, got %s", result.Reaction.Key)
 	}
+	if result.Reaction.Pose != "nod" {
+		t.Fatalf("expected correct pose nod, got %s", result.Reaction.Pose)
+	}
 
 	result, err = ReactionForTrigger(path, TriggerReviewComplete, "en", base.Add(21*time.Minute))
 	if err != nil {
@@ -112,6 +118,57 @@ func TestReactionForTriggerUsesContextSpecificPool(t *testing.T) {
 
 	if result.Reaction.Key != "review_complete_stage_one_closed" && result.Reaction.Key != "review_complete_stage_one_settle" {
 		t.Fatalf("expected review-complete reaction, got %s", result.Reaction.Key)
+	}
+}
+
+func TestReactionForTriggerCanStayQuietForLowNoisePrompts(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	for index := 0; index < 4; index++ {
+		if _, err := RecordStudyEvent(path, StudyEventAnsweredCorrect, base.Add(time.Duration(index)*time.Minute)); err != nil {
+			t.Fatalf("seed study event %d failed: %v", index, err)
+		}
+	}
+
+	for offset := 0; offset < 6; offset++ {
+		result, err := ReactionForTrigger(path, TriggerCorrect, "en", base.Add(time.Duration(17+offset)*time.Minute))
+		if err != nil {
+			t.Fatalf("reaction for quiet trigger failed: %v", err)
+		}
+		if result.Reaction.Body == "" {
+			return
+		}
+	}
+
+	t.Fatal("expected at least one quiet correct prompt within the sampled window")
+}
+
+func TestReviewCompleteAlwaysEmitsReactionEvenAfterRecentCue(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	if _, err := RecordStudyEvent(path, StudyEventReviewBatch, base); err != nil {
+		t.Fatalf("seed review batch failed: %v", err)
+	}
+
+	first, err := ReactionForTrigger(path, TriggerLearnBreak, "en", base.Add(20*time.Minute))
+	if err != nil {
+		t.Fatalf("learn break reaction failed: %v", err)
+	}
+	if first.Reaction.Body == "" {
+		t.Fatal("expected learn break reaction body")
+	}
+
+	second, err := ReactionForTrigger(path, TriggerReviewComplete, "en", base.Add(21*time.Minute))
+	if err != nil {
+		t.Fatalf("review complete reaction failed: %v", err)
+	}
+	if second.Reaction.Body == "" {
+		t.Fatal("expected review complete reaction body")
+	}
+	if second.Reaction.Pose != "spark" {
+		t.Fatalf("expected review complete pose spark, got %s", second.Reaction.Pose)
 	}
 }
 

@@ -533,6 +533,16 @@ const assistantHintTone = computed(() => {
   if (weakestDeck.value) return 'warning'
   return 'neutral'
 })
+const assistantHintPose = computed(() => {
+  if (petReaction.value?.pose) return `pose-${petReaction.value.pose}`
+  if (reviewCompleted.value) return 'pose-spark'
+  if (phase.value === 'feedback' && feedback.value?.isCorrect) return 'pose-nod'
+  if (phase.value === 'feedback' && feedback.value && !feedback.value.isCorrect) return 'pose-think'
+  if (phase.value === 'answer') return 'pose-focus'
+  if (phase.value === 'learn') return 'pose-idle'
+  return 'pose-wave'
+})
+const assistantStageClass = computed(() => `stage-${petReaction.value?.stage ?? 0}`)
 const assistantHintTitle = computed(() => {
   if (petReaction.value?.title) return petReaction.value.title
   if (reviewCompleted.value) return t.value.dgReviewTitle
@@ -1136,7 +1146,7 @@ async function handleAssistantInteraction() {
 async function showPetReaction(trigger) {
   try {
     const result = await getDGReaction(trigger)
-    if (!result) return
+    if (!result || !result.body) return
 
     petReaction.value = result
     if (petReactionTimer.value) {
@@ -1163,11 +1173,11 @@ async function showPetReaction(trigger) {
         <button
           v-if="assistantHintText"
           class="assistant-hint"
-          :class="[assistantHintTone, { collapsed: assistantHintCollapsed }]"
+          :class="[assistantHintTone, assistantHintPose, assistantStageClass, { collapsed: assistantHintCollapsed }]"
           type="button"
           @click="handleAssistantInteraction"
         >
-          <span class="assistant-avatar">{{ t.dgLabel }}</span>
+          <span class="assistant-avatar" :class="[assistantHintTone, assistantHintPose, assistantStageClass]">{{ t.dgLabel }}</span>
           <div class="assistant-copy">
             <strong>{{ assistantHintTitle }}</strong>
             <p>{{ assistantHintText }}</p>

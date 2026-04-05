@@ -408,6 +408,7 @@ describe('App', () => {
 
     const bubble = wrapper.find('.assistant-hint')
     expect(bubble.classes()).toContain('celebration')
+    expect(wrapper.find('.assistant-avatar').classes()).toContain('pose-nod')
     expect(
       bubble.text().includes('Nice hit') ||
         bubble.text().includes('Good catch') ||
@@ -430,6 +431,7 @@ describe('App', () => {
 
     const bubble = wrapper.find('.assistant-hint')
     expect(bubble.classes()).toContain('warning')
+    expect(wrapper.find('.assistant-avatar').classes()).toContain('pose-think')
     expect(
       bubble.text().includes('difference') ||
         bubble.text().includes('almost-right') ||
@@ -481,6 +483,7 @@ describe('App', () => {
         wrapper.find('.assistant-hint').text().includes('That batch landed well') ||
         wrapper.find('.assistant-hint').text().includes('A short pause is right'),
     ).toBe(true)
+    expect(wrapper.find('.assistant-avatar').classes()).toContain('pose-rest')
   })
 
   it('keeps diagnostics collapsed by default and shows severity grouping', async () => {

@@ -158,6 +158,7 @@ type DGInteractionStatus struct {
 	Title   string `json:"title"`
 	Body    string `json:"body"`
 	Variant string `json:"variant"`
+	Pose    string `json:"pose"`
 	Stage   int    `json:"stage"`
 }
 
@@ -474,6 +475,7 @@ func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 		Title:   result.Reaction.Title,
 		Body:    result.Reaction.Body,
 		Variant: result.Reaction.Variant,
+		Pose:    result.Reaction.Pose,
 		Stage:   result.State.Stage,
 	}, nil
 }
@@ -488,6 +490,7 @@ func (a *App) GetDGReaction(trigger string) (DGInteractionStatus, error) {
 		Title:   result.Reaction.Title,
 		Body:    result.Reaction.Body,
 		Variant: result.Reaction.Variant,
+		Pose:    result.Reaction.Pose,
 		Stage:   result.State.Stage,
 	}, nil
 }

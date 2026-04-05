@@ -419,6 +419,7 @@ Suggested review scheduling:
   - the next implementation slice should expand reactions by trigger type, so `DG` can respond differently to direct clicks, correct answers, wrong answers, break states, review completion, and returning after a pause
   - the first expanded pet slice should keep these reactions short and contextual, using study events as the source of personality instead of adding visible progression UI
   - the next refinement after that should rotate among multiple short reactions inside the same trigger pool, so even one hidden stage does not feel locked to a single sentence
+  - after that, ambient reactions should become more selective, with lightweight cooldown/probability rules and tiny pose changes such as `nod`, `think`, `rest`, or `spark` to imply growth without adding visible pet stats
 
 ### 11.4 Review Session Screen
 
