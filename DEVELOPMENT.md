@@ -141,3 +141,4 @@ Next targets:
   - sixth slice implemented: the mascot SVGs have already been compressed substantially after initial import, so the app keeps the new character visuals without carrying the original heavier asset footprint
   - seventh slice implemented: pose-specific motion polish now adds clearer one-shot transitions and idle float behavior, so users can actually feel `nod`, `think`, `rest`, `spark`, and `wave` without the mascot becoming visually noisy
   - eighth slice implemented: DG reaction copy is now topic-aware, so focused study scopes like `docker` and grouped scopes like `languages` can sound different from general mixed-mode nudges
+  - next visual slice: tighten the shell palette around `DG teal + spark gold`, replacing leftover bright-blue focus accents so the mascot and the app chrome feel like the same system

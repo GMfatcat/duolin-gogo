@@ -576,6 +576,14 @@ Current mascot baseline:
 - mascot growth remains hidden from the user and only shows up through richer reactions and pose changes
 - the first imported SVG pack has already been compressed to reduce frontend asset weight
 
+Current visual-system direction:
+
+- the app should align more closely with the mascot palette instead of mixing unrelated blue accents
+- the primary accent family should be `DG teal`
+- the secondary highlight family should be `spark gold`
+- deep navy backgrounds should remain the stage behind the mascot and study cards
+- bright blue accents should be reduced or replaced so focused states still feel like the same product world as the mascot
+
 ## 21. Recommended MVP Delivery Order
 
 ### Phase 1: Core Content + Study Loop

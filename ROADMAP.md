@@ -627,6 +627,7 @@ Current status:
 - sixth slice implemented: the first mascot asset pack has already been SVG-compressed for lighter frontend delivery while keeping the pose mapping intact
 - seventh slice implemented: pose-specific motion polish now makes `idle`, `wave`, `nod`, `think`, `rest`, and `spark` transitions easier to notice without turning DG into a noisy animated element
 - eighth slice implemented: `DG` persona copy is now topic-aware, so focused scopes such as `docker` and grouped scopes such as `languages` can surface different companion tone instead of reusing the same generic lines
+- ninth slice planned: pull the app chrome and mascot states into a shared `DG teal + spark gold` color system so the UI feels like one visual world instead of splitting between gold and unrelated bright blue accents
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 
