@@ -603,6 +603,11 @@ Deliverables:
 - unlock-based reaction growth, where later usage gradually reveals more lines, moods, and micro-reactions
 - growth driven by real study behavior such as answered cards, completed mini batches, completed review batches, and streak continuation
 - low-noise behavior rules so `DG` does not react on every single event
+- next planned slices:
+  - expand the reaction pool by trigger type: `clicked`, `correct`, `wrong`, `learn-break`, `review-complete`, `return`
+  - make later hidden stages unlock richer variants inside each trigger type instead of only swapping one generic line
+  - add cooldown and probability rules so contextual pet reactions stay occasional and pleasant
+  - keep the companion layer invisible as a system, with no public level meters or growth charts
 
 TDD focus:
 
@@ -614,6 +619,8 @@ TDD focus:
 Current status:
 
 - planned
+- first slice implemented: `DG` now stores hidden local bond state and supports click-to-react with stage-based unlocks
+- next active slice: expand reaction pools across study triggers so the companion feels more alive beyond direct clicks
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 
