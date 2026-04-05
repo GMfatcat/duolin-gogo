@@ -231,6 +231,9 @@ describe('App', () => {
     await flushPromises()
     await switchToEnglish(wrapper)
 
+    await wrapper.find('.insights-button').trigger('click')
+    await flushPromises()
+
     expect(wrapper.text()).toContain('Topic progress')
     expect(wrapper.text()).toContain('docker')
     expect(wrapper.text()).toContain('git')
@@ -249,6 +252,11 @@ describe('App', () => {
     await flushPromises()
 
     expect(wrapper.find('.assistant-hint').text()).toContain('go')
+
+    await wrapper.find('.assistant-hint').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.assistant-hint').classes()).toContain('collapsed')
   })
 
   it('keeps diagnostics collapsed by default and shows severity grouping', async () => {
@@ -285,6 +293,8 @@ describe('App', () => {
     expect(disclosure.attributes('open')).toBeUndefined()
     expect(wrapper.find('.diagnostics-popout h2').text()).toContain('warnings')
     expect(wrapper.find('.diagnostics-popout h2').text()).toContain('errors')
+    expect(wrapper.find('.diagnostics-disclosure summary').text()).not.toContain('import OK')
+    expect(wrapper.find('.diagnostics-disclosure summary').text()).not.toContain('warnings')
 
     await disclosure.element.setAttribute('open', '')
     await wrapper.vm.$nextTick()

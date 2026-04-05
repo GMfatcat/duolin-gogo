@@ -88,6 +88,9 @@ body {
   border-radius: 16px;
   background: rgba(28, 51, 69, 0.58);
   border: 1px solid rgba(233, 196, 106, 0.18);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
 }
 
 .assistant-hint p {
@@ -95,6 +98,10 @@ body {
   color: #f7f3e8;
   font-size: 0.93rem;
   line-height: 1.5;
+}
+
+.assistant-hint.collapsed {
+  padding-right: 12px;
 }
 
 .assistant-avatar {
@@ -161,6 +168,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.sidebar-column .sidebar-panel {
+  display: none;
 }
 
 .study-card,
@@ -317,6 +328,7 @@ body {
 .next-button,
 .toolbar-button,
 .library-button,
+.insights-button,
 .diagnostics-button,
 .settings-button,
 .close-button {
@@ -327,6 +339,7 @@ body {
 
 .settings-button,
 .library-button,
+.insights-button,
 .diagnostics-button {
   width: 44px;
   height: 44px;
@@ -653,6 +666,10 @@ body {
 .diagnostics-disclosure summary {
   cursor: pointer;
   color: #90a4b5;
+}
+
+.insights-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .diagnostics-list {

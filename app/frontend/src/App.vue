@@ -94,6 +94,7 @@ const translations = {
     settingsLabel: '設定',
     libraryLabel: '書庫',
     diagnosticsLabel: '診斷',
+    insightsLabel: '洞察',
     close: '關閉',
     saveSchedule: '儲存排程',
     openSettings: '開啟設定',
@@ -196,6 +197,7 @@ const translations = {
     settingsLabel: 'Settings',
     libraryLabel: 'Library',
     diagnosticsLabel: 'Diagnostics',
+    insightsLabel: 'Insights',
     close: 'Close',
     saveSchedule: 'Save schedule',
     openSettings: 'Open settings',
@@ -241,6 +243,8 @@ const phase = ref('learn')
 const settingsOpen = ref(false)
 const libraryOpen = ref(false)
 const diagnosticsOpen = ref(false)
+const insightsOpen = ref(false)
+const assistantHintCollapsed = ref(false)
 const resetWarningOpen = ref(false)
 const reviewCompleted = ref(false)
 const reviewSessionProgress = ref({
@@ -920,6 +924,14 @@ function toggleLibrary() {
 function toggleDiagnostics() {
   diagnosticsOpen.value = !diagnosticsOpen.value
 }
+
+function toggleInsights() {
+  insightsOpen.value = !insightsOpen.value
+}
+
+function toggleAssistantHint() {
+  assistantHintCollapsed.value = !assistantHintCollapsed.value
+}
 </script>
 
 <template>
@@ -930,10 +942,16 @@ function toggleDiagnostics() {
         <h1>duolin-gogo</h1>
         <p class="summary">{{ t.summary }}</p>
         <p class="topic-context">{{ topicDescription }}</p>
-        <div v-if="assistantHintText" class="assistant-hint" role="status">
+        <button
+          v-if="assistantHintText"
+          class="assistant-hint"
+          :class="{ collapsed: assistantHintCollapsed }"
+          type="button"
+          @click="toggleAssistantHint"
+        >
           <span class="assistant-avatar">dg</span>
-          <p>{{ assistantHintText }}</p>
-        </div>
+          <p v-if="!assistantHintCollapsed">{{ assistantHintText }}</p>
+        </button>
       </div>
 
       <div class="hero-actions">
@@ -971,6 +989,27 @@ function toggleDiagnostics() {
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="1.8"
+            />
+          </svg>
+        </button>
+
+        <button class="insights-button" type="button" :aria-label="t.insightsLabel" @click="toggleInsights">
+          <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8L12 3Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+            />
+            <path
+              d="M18.5 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9.9-2.1ZM5.5 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9.9-2.1Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
             />
           </svg>
         </button>
@@ -1408,7 +1447,7 @@ function toggleDiagnostics() {
         </div>
 
         <details class="diagnostics-disclosure">
-          <summary>{{ t.diagnosticsTitle }} <span class="settings-meta">{{ diagnosticsSummary }}</span></summary>
+          <summary>{{ t.diagnosticsTitle }}</summary>
           <p class="label batch-report-title">{{ t.deckReport }}</p>
           <section class="batch-report">
             <article class="status-card batch-stat">
@@ -1507,6 +1546,58 @@ function toggleDiagnostics() {
             </section>
           </div>
         </details>
+      </section>
+    </div>
+
+    <div v-if="insightsOpen" class="settings-overlay" @click.self="toggleInsights">
+      <section class="settings-popout insights-popout">
+        <div class="study-header">
+          <div>
+            <h2>{{ t.insightsLabel }}</h2>
+          </div>
+          <button class="close-button" type="button" @click="toggleInsights">{{ t.close }}</button>
+        </div>
+
+        <div class="settings-layout insights-layout">
+          <section class="study-card sidebar-panel">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ topicOverviewLabelText }}</p>
+                <h2>{{ topicOverviewTitleText }}</h2>
+              </div>
+              <span class="phase-pill topic-pill">{{ topicDisplayLabel }}</span>
+            </div>
+
+            <div v-if="topicProgressItems.length" class="topic-progress-list">
+              <article v-for="item in topicProgressItems" :key="`insight-${item.topic}`" class="topic-progress-item">
+                <div>
+                  <strong>{{ item.topic }}</strong>
+                  <span>{{ item.seenCount }} {{ selectedLanguage === 'en' ? 'answers' : '甈∩?蝑?' }}</span>
+                </div>
+                <span>{{ Math.round(item.accuracy * 100) }}% {{ t.accuracySuffix }}</span>
+              </article>
+            </div>
+            <p v-else class="explanation">{{ noTopicProgressText }}</p>
+          </section>
+
+          <section class="study-card sidebar-panel">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ t.weakTopicsLabel }}</p>
+                <h2>{{ weakTopicsHeading }}</h2>
+              </div>
+              <span class="phase-pill topic-pill">{{ topicDisplayLabel }}</span>
+            </div>
+
+            <div v-if="summary.weakTopics.length" class="weak-topics">
+              <article v-for="topic in summary.weakTopics" :key="`insight-${topic.tag}`" class="topic-chip">
+                <strong>{{ topic.tag }}</strong>
+                <span>{{ Math.round(topic.accuracy * 100) }}% {{ t.accuracySuffix }}</span>
+              </article>
+            </div>
+            <p v-else class="explanation">{{ noWeakTopicsText }}</p>
+          </section>
+        </div>
       </section>
     </div>
 
