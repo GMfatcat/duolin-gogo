@@ -1407,7 +1407,12 @@ async function showPetReaction(trigger) {
               <h3>{{ questionText }}</h3>
 
               <div class="answers">
-                <label v-for="choice in localizedChoices" :key="choice.value" class="answer-option">
+                <label
+                  v-for="choice in localizedChoices"
+                  :key="choice.value"
+                  class="answer-option"
+                  :class="{ selected: selectedAnswer === choice.value }"
+                >
                   <input v-model="selectedAnswer" type="radio" name="answer" :value="choice.value">
                   <span>{{ choice.label }}</span>
                 </label>
