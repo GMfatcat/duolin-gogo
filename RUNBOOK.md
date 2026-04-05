@@ -109,6 +109,7 @@ Expected current UI behavior:
 - studied-today / correct-rate values update
 - sidebar now includes a per-topic progress overview alongside weak-topic cues
 - review notifications now adapt to the active topic scope, including grouped presets like `backend-tools` and `languages`
+- non-Git decks now include a deeper second wave of cards for `docker`, `linux`, `go`, and `python`
 
 Current MVP note:
 

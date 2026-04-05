@@ -92,6 +92,7 @@ Next targets:
 - sixth slice implemented: mixed mode now adds extra weight to weaker topics so broad study can revisit weaker decks more often
 - seventh slice implemented: quick topic pin presets now jump between `all`, `backend-tools`, `languages`, and `git`
 - eighth slice implemented: review notifications and test-notification feedback now use the current multi-topic scope instead of assuming Git
+- ninth slice implemented: `docker`, `linux`, `go`, and `python` now each have a deeper second-wave deck for mixed-mode study
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting
   - keep notifications active while the app window is hidden
