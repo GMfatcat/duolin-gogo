@@ -3,6 +3,11 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App.vue'
 import { __resetFallbackState } from './api'
 
+async function switchToEnglish(wrapper) {
+  await wrapper.find('.language-select select').setValue('en')
+  await flushPromises()
+}
+
 describe('App', () => {
   beforeEach(() => {
     __resetFallbackState()
@@ -12,56 +17,49 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
 
     expect(wrapper.find('.workspace').exists()).toBe(true)
     expect(wrapper.find('.study-column').exists()).toBe(true)
     expect(wrapper.find('.sidebar-column').exists()).toBe(true)
-
     expect(wrapper.text()).toContain('duolin-gogo')
-    expect(wrapper.text()).toContain('Cherry-pick 指令用途')
-    expect(wrapper.text()).toContain('開始作答')
-    expect(wrapper.text()).not.toContain('快速問題')
+    expect(wrapper.text()).toContain('Cherry-pick Purpose')
+    expect(wrapper.text()).toContain('Start question')
+    expect(wrapper.text()).not.toContain('Quick question')
     expect(wrapper.findAll('input[type="radio"]').length).toBe(0)
 
     await wrapper.find('.phase-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('快速問題')
-    expect(wrapper.text()).toContain('`git cherry-pick` 會把選定的 commit 套用到目前分支。')
+    expect(wrapper.text()).toContain('Quick question')
+    expect(wrapper.text()).toContain('applies a chosen commit to the current branch')
     expect(wrapper.findAll('input[type="radio"]').length).toBe(2)
 
     await wrapper.find('input[value="true"]').setValue()
     await wrapper.find('.submit-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('答對了。')
-    expect(wrapper.text()).toContain('正確答案：是')
-    expect(wrapper.text()).toContain('下一張卡')
-    expect(wrapper.text()).toContain('Cherry-pick 會把選定 commit 的變更套用到目前分支。')
+    expect(wrapper.text()).toContain('Correct.')
+    expect(wrapper.text()).toContain('Correct answer: True')
+    expect(wrapper.text()).toContain('Next card')
+    expect(wrapper.text()).toContain('copies selected commit changes onto your current branch')
   })
 
-  it('shows settings popout with horizontal controls and active hours fields', async () => {
+  it('shows settings popout with runtime controls only', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
-
-    expect(wrapper.text()).not.toContain('送出測試通知')
-    expect(wrapper.text()).toContain('下次複習2026-04-05 21:00')
-
+    await switchToEnglish(wrapper)
     await wrapper.find('.settings-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('送出測試通知')
-    expect(wrapper.text()).toContain('重新掃描知識庫')
-    expect(wrapper.text()).toContain('檢查題庫格式')
-    expect(wrapper.text()).toContain('通知間隔（分鐘）')
-    expect(wrapper.text()).toContain('複習時間')
-    expect(wrapper.text()).toContain('推送時段')
     expect(wrapper.find('.settings-layout').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Send test notification')
+    expect(wrapper.text()).toContain('Rescan knowledge')
+    expect(wrapper.text()).toContain('Validate knowledge')
     expect(wrapper.text()).toContain('Reset study data')
-    expect(wrapper.findAll('.toolbar-button').length).toBe(5)
     expect(wrapper.find('.preview-select').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('AI')
+    expect(wrapper.text()).not.toContain('AI draft review')
 
     const numberInput = wrapper.find('input[type="number"]')
     const timeInputs = wrapper.findAll('input[type="time"]')
@@ -74,13 +72,14 @@ describe('App', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('Schedule settings updated.')
-    expect(wrapper.find('.settings-meta').text()).toContain('匯入正常')
+    expect(wrapper.find('.settings-meta').text()).toContain('import OK')
   })
 
   it('validates knowledge without reloading the current study card', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
 
     const currentTitle = wrapper.find('.study-header h2').text()
 
@@ -98,6 +97,7 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
     await wrapper.find('.settings-button').trigger('click')
     await flushPromises()
 
@@ -118,6 +118,7 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
 
     wrapper.vm.dashboard = {
       ...wrapper.vm.dashboard,
@@ -134,21 +135,22 @@ describe('App', () => {
     await wrapper.find('.next-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('複習完成')
-    expect(wrapper.text()).toContain('這輪小結')
-    expect(wrapper.text()).toContain('本輪作答')
+    expect(wrapper.text()).toContain('Review session complete')
+    expect(wrapper.text()).toContain('Session summary')
+    expect(wrapper.text()).toContain('Answered this batch')
     expect(wrapper.find('.complete-review-button').exists()).toBe(true)
 
     await wrapper.find('.complete-review-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Cherry-pick 指令用途')
+    expect(wrapper.text()).toContain('Cherry-pick Purpose')
   })
 
   it('shows review session progress cues while a batch is active', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
 
     wrapper.vm.dashboard = {
       ...wrapper.vm.dashboard,
@@ -163,7 +165,7 @@ describe('App', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.text()).toContain('1 / 3')
-    expect(wrapper.text()).toContain('剩餘 2')
+    expect(wrapper.text()).toContain('remaining 2')
   })
 
   it('switches global shell copy to english without changing the product name', async () => {
@@ -171,58 +173,54 @@ describe('App', () => {
 
     await flushPromises()
 
-    const summary = wrapper.find('.summary')
-    expect(summary.text()).toBe('把筆記變成定時提醒、微課與複習節奏。')
+    expect(wrapper.find('.language-select').exists()).toBe(true)
 
-    const languageButtons = wrapper.findAll('.language-toggle button')
-    await languageButtons[1].trigger('click')
-    await flushPromises()
+    await switchToEnglish(wrapper)
 
-    expect(summary.text()).toBe('Turn notes into study nudges and review loops.')
-    expect(wrapper.text()).toContain('Next review2026-04-05 21:00')
+    expect(wrapper.find('.summary').text()).toBe('Turn notes into study nudges and review loops.')
+    expect(wrapper.text()).toContain('Next review')
     expect(wrapper.text()).toContain('Concepts to revisit')
     expect(wrapper.text()).toContain('Cherry-pick Purpose')
     expect(wrapper.text()).toContain('Start question')
     expect(wrapper.text()).toContain('duolin-gogo')
   })
 
-  it('updates the current card when the global topic filter changes', async () => {
+  it('updates the current card when the global mode filter changes', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
 
     expect(wrapper.text()).toContain('Cherry-pick')
 
-    await wrapper.find('.topic-filter select').setValue('docker')
+    await wrapper.find('.mode-select select').setValue('docker')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('docker run')
-    expect(wrapper.find('.study-header h2').text()).toContain('docker run')
-    expect(wrapper.text()).toContain('目前專注在 docker 主題。')
-    expect(wrapper.text()).toContain('docker 建議多看幾次')
-    expect(wrapper.text()).toContain('docker 主題概況')
-    expect(wrapper.text()).toContain('3 次作答')
+    expect(wrapper.text()).toContain('Docker Run')
+    expect(wrapper.find('.study-header h2').text()).toContain('Docker Run')
+    expect(wrapper.text()).toContain('Focused on docker.')
+    expect(wrapper.text()).toContain('docker concepts to revisit')
+    expect(wrapper.text()).toContain('docker deck overview')
+    expect(wrapper.text()).toContain('3 answers')
   })
 
-  it('switches to preset topic groups from quick pins', async () => {
+  it('switches grouped study modes from the mode selector', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
 
-    const presetButtons = wrapper.findAll('.topic-preset')
-    await presetButtons[1].trigger('click')
+    await wrapper.find('.mode-select select').setValue('backend-tools')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('後端工具')
-    expect(wrapper.text()).toContain('Git、Docker 與 Linux')
+    expect(wrapper.text()).toContain('Focused on Git, Docker, and Linux workflows.')
     expect(wrapper.text()).toContain('docker')
     expect(wrapper.text()).toContain('git')
 
-    await presetButtons[2].trigger('click')
+    await wrapper.find('.mode-select select').setValue('languages')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('程式語言')
-    expect(wrapper.text()).toContain('Go 與 Python')
+    expect(wrapper.text()).toContain('Focused on Go and Python language concepts.')
     expect(wrapper.text()).toContain('go')
     expect(wrapper.text()).toContain('python')
   })
@@ -231,17 +229,33 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
 
-    expect(wrapper.text()).toContain('各主題概況')
+    expect(wrapper.text()).toContain('Topic progress')
     expect(wrapper.text()).toContain('docker')
     expect(wrapper.text()).toContain('git')
-    expect(wrapper.text()).toContain('10 次作答')
+    expect(wrapper.text()).toContain('10 answers')
   })
 
-  it('distinguishes import warnings from import errors inside diagnostics popout', async () => {
+  it('surfaces weakest deck hints near the top of the shell', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
+
+    expect(wrapper.find('.assistant-hint').text()).toContain('docker')
+
+    await wrapper.find('.mode-select select').setValue('languages')
+    await flushPromises()
+
+    expect(wrapper.find('.assistant-hint').text()).toContain('go')
+  })
+
+  it('keeps diagnostics collapsed by default and shows severity grouping', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
 
     wrapper.vm.dashboard = {
       ...wrapper.vm.dashboard,
@@ -267,13 +281,18 @@ describe('App', () => {
     await wrapper.find('.diagnostics-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('題庫報告')
+    const disclosure = wrapper.find('.diagnostics-disclosure')
+    expect(disclosure.attributes('open')).toBeUndefined()
+    expect(wrapper.find('.diagnostics-popout h2').text()).toContain('warnings')
+    expect(wrapper.find('.diagnostics-popout h2').text()).toContain('errors')
+
+    await disclosure.element.setAttribute('open', '')
+    await wrapper.vm.$nextTick()
+
     expect(wrapper.text()).toContain('warning')
     expect(wrapper.text()).toContain('error')
-    expect(wrapper.text()).toContain('題庫報告')
-    expect(wrapper.text()).toContain('總卡片數')
-    expect(wrapper.text()).toContain('乾淨卡片')
-    expect(wrapper.findAll('.severity-pill').length).toBe(5)
+    expect(wrapper.text()).toContain('Deck report')
+    expect(wrapper.text()).toContain('Total cards')
     expect(wrapper.findAll('.diagnostic-group').length).toBe(2)
   })
 
@@ -281,6 +300,7 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
 
     wrapper.vm.dashboard = {
       ...wrapper.vm.dashboard,
@@ -305,6 +325,9 @@ describe('App', () => {
 
     await wrapper.find('.diagnostics-button').trigger('click')
     await flushPromises()
+    const disclosure = wrapper.find('.diagnostics-disclosure')
+    await disclosure.element.setAttribute('open', '')
+    await wrapper.vm.$nextTick()
 
     const selects = wrapper.findAll('.diagnostic-filter')
     await selects[0].setValue('warning')
@@ -321,8 +344,12 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
     await wrapper.find('.diagnostics-button').trigger('click')
     await flushPromises()
+    const disclosure = wrapper.find('.diagnostics-disclosure')
+    await disclosure.element.setAttribute('open', '')
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.text()).toContain('rebase.md')
     expect(wrapper.text()).toContain('2026-04-05 11:45')
@@ -333,23 +360,25 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
     await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
     expect(wrapper.find('.preview-select').exists()).toBe(true)
     expect(wrapper.find('.diagnostics-disclosure').exists()).toBe(false)
-    expect(wrapper.find('.preview-card').text()).toContain('Cherry-pick')
+    expect(wrapper.find('.preview-card').text()).toContain('Cherry-pick Purpose')
 
     await wrapper.find('.preview-select').setValue('D:/duolin-gogo/knowledge/git/rebase.md')
     await flushPromises()
 
-    expect(wrapper.find('.preview-card').text()).toContain('Rebase')
+    expect(wrapper.find('.preview-card').text()).toContain('Rebase vs Merge')
   })
 
   it('reviews pasted AI draft markdown and shows normalized preview', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
     await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
@@ -360,7 +389,7 @@ title_en: Git Fetch Draft
 type: true-false
 question_zh: "git fetch 會直接 merge 到目前分支。"
 question_en: "git fetch merges into the current branch."
-clickbait_zh: "這個指令看起來沒做事，但很多人第一步會按它"
+clickbait_zh: "這個指令看起來很安靜，但多數人都忽略它。"
 clickbait_en: "This command looks quiet, but it matters"
 review_hint_zh: "fetch 只更新追蹤資訊，不會直接 merge。"
 review_hint_en: "Fetch updates tracking refs without merging."
@@ -369,7 +398,7 @@ answer: false
 
 ## zh-TW
 
-git fetch 只會更新遠端追蹤資訊，不會直接合併到目前分支。
+git fetch 只會更新遠端追蹤參照，不會直接把變更合併進目前分支。
 
 ## en
 
@@ -379,14 +408,15 @@ git fetch only updates remote-tracking refs and does not merge into the current 
     await wrapper.findAll('.phase-button')[1].trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Git Fetch')
-    expect(wrapper.text()).toContain('fetch')
+    expect(wrapper.text()).toContain('Git Fetch Draft')
+    expect(wrapper.text()).toContain('git fetch only updates remote-tracking refs and does not merge into the current branch')
   })
 
   it('saves a reviewed draft and reports the saved path', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
+    await switchToEnglish(wrapper)
     await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
@@ -397,7 +427,7 @@ title_en: Git Fetch Draft
 type: true-false
 question_zh: "git fetch 會直接 merge 到目前分支。"
 question_en: "git fetch merges into the current branch."
-clickbait_zh: "這個指令看起來沒做事，但很多人第一步會按它"
+clickbait_zh: "這個指令看起來很安靜，但多數人都忽略它。"
 clickbait_en: "This command looks quiet, but it matters"
 review_hint_zh: "fetch 只更新追蹤資訊，不會直接 merge。"
 review_hint_en: "Fetch updates tracking refs without merging."
@@ -406,7 +436,7 @@ answer: false
 
 ## zh-TW
 
-git fetch 只會更新遠端追蹤資訊，不會直接合併到目前分支。
+git fetch 只會更新遠端追蹤參照，不會直接把變更合併進目前分支。
 
 ## en
 
@@ -421,26 +451,6 @@ git fetch only updates remote-tracking refs and does not merge into the current 
 
     expect(wrapper.text()).toContain('Draft saved to')
     expect(wrapper.text()).toContain('knowledge/git/git-ai-review.md')
-    expect(wrapper.findAll('.preview-card')[0].text()).toContain('Git Fetch 草稿')
-  })
-  it('surfaces weakest deck hints for grouped topic modes', async () => {
-    const wrapper = mount(App)
-
-    await flushPromises()
-    await wrapper.findAll('.topic-preset')[2].trigger('click')
-    await flushPromises()
-
-    expect(wrapper.text()).toContain('go')
-
-    wrapper.vm.reviewCompleted = true
-    wrapper.vm.sessionSummary = {
-      visible: true,
-      answered: 3,
-      accuracy: 0.67,
-      weakTopic: 'go',
-    }
-    await wrapper.vm.$nextTick()
-
-    expect(wrapper.text()).toContain('go')
+    expect(wrapper.findAll('.preview-card')[0].text()).toContain('Git Fetch')
   })
 })

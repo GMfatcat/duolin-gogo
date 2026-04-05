@@ -52,6 +52,8 @@ const translations = {
     reviewQueue: '複習佇列',
     nextReview: '下次複習',
     topicLabel: '主題',
+    languageLabel: '語言',
+    modeLabel: '模式',
     notScheduled: '尚未安排',
     weakTopicsLabel: '弱勢主題',
     weakTopicsTitle: '建議多看幾次',
@@ -152,6 +154,8 @@ const translations = {
     reviewQueue: 'Review queue',
     nextReview: 'Next review',
     topicLabel: 'Topic',
+    languageLabel: 'Language',
+    modeLabel: 'Mode',
     notScheduled: 'Not scheduled',
     weakTopicsLabel: 'Weak topics',
     weakTopicsTitle: 'Concepts to revisit',
@@ -358,7 +362,6 @@ const localizedChoices = computed(() =>
 
 const formattedCorrectRate = computed(() => `${Math.round((stats.value.correctRate ?? 0) * 100)}%`)
 const nextReviewText = computed(() => formatDisplayTime(summary.value.nextReviewAt, t.value.notScheduled))
-const topicPresets = computed(() => ['all', 'backend-tools', 'languages', 'git'])
 const topicName = (topic) => {
   if (selectedLanguage.value === 'en') {
     switch (topic) {
@@ -452,6 +455,7 @@ const weakestDeckInsightText = computed(() => {
     ? `Within ${topicName(selectedTopic.value)}, ${topicName(weakestDeck.value.topic)} is currently slipping the most.`
     : `目前群組內最弱的是 ${topicName(weakestDeck.value.topic)}。`
 })
+const assistantHintText = computed(() => weakestDeckInsightText.value || topicDescription.value)
 const reviewCompleteBodyText = computed(() => {
   if (selectedTopic.value === 'all') {
     return t.value.reviewCompleteBody
@@ -926,49 +930,29 @@ function toggleDiagnostics() {
         <h1>duolin-gogo</h1>
         <p class="summary">{{ t.summary }}</p>
         <p class="topic-context">{{ topicDescription }}</p>
+        <div v-if="assistantHintText" class="assistant-hint" role="status">
+          <span class="assistant-avatar">dg</span>
+          <p>{{ assistantHintText }}</p>
+        </div>
       </div>
 
       <div class="hero-actions">
-        <div class="language-toggle hero-toggle">
-          <button
-            :class="{ active: selectedLanguage === 'zh-TW' }"
-            :disabled="changingLanguage"
-            type="button"
-            @click="handleLanguageChange('zh-TW')"
-          >
-            zh-TW
-          </button>
-          <button
-            :class="{ active: selectedLanguage === 'en' }"
-            :disabled="changingLanguage"
-            type="button"
-            @click="handleLanguageChange('en')"
-          >
-            en
-          </button>
-        </div>
+        <label class="control-select hero-toggle language-select">
+          <span>{{ t.languageLabel }}</span>
+          <select :value="selectedLanguage" :disabled="changingLanguage" @change="handleLanguageChange($event.target.value)">
+            <option value="zh-TW">中文</option>
+            <option value="en">English</option>
+          </select>
+        </label>
 
-        <label class="topic-filter hero-toggle">
-          <span>{{ t.topicLabel }}</span>
+        <label class="control-select hero-toggle mode-select">
+          <span>{{ t.modeLabel }}</span>
           <select :value="selectedTopic" @change="handleTopicChange($event.target.value)">
             <option v-for="topic in availableTopics" :key="topic" :value="topic">
               {{ topicName(topic) }}
             </option>
           </select>
         </label>
-
-        <div class="topic-presets">
-          <button
-            v-for="topic in topicPresets"
-            :key="`preset-${topic}`"
-            class="topic-preset"
-            :class="{ active: selectedTopic === topic }"
-            type="button"
-            @click="handleTopicChange(topic)"
-          >
-            {{ topicName(topic) }}
-          </button>
-        </div>
 
         <button class="library-button" type="button" :aria-label="t.libraryLabel" @click="toggleLibrary">
           <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -1158,7 +1142,6 @@ function toggleDiagnostics() {
             </article>
           </div>
           <p v-else class="explanation">{{ noTopicProgressText }}</p>
-          <p v-if="weakestDeckInsightText" class="explanation topic-insight">{{ weakestDeckInsightText }}</p>
         </section>
 
         <section class="study-card sidebar-panel">
@@ -1419,13 +1402,13 @@ function toggleDiagnostics() {
       <section class="settings-popout diagnostics-popout">
         <div class="study-header">
           <div>
-            <h2>{{ t.diagnosticsLabel }}</h2>
+            <h2>{{ t.diagnosticsLabel }} <span class="settings-meta">{{ diagnosticsSummary }}</span></h2>
           </div>
           <button class="close-button" type="button" @click="toggleDiagnostics">{{ t.close }}</button>
         </div>
 
-        <details class="diagnostics-disclosure" open>
-          <summary>{{ t.diagnosticsTitle }}</summary>
+        <details class="diagnostics-disclosure">
+          <summary>{{ t.diagnosticsTitle }} <span class="settings-meta">{{ diagnosticsSummary }}</span></summary>
           <p class="label batch-report-title">{{ t.deckReport }}</p>
           <section class="batch-report">
             <article class="status-card batch-stat">
@@ -1480,7 +1463,6 @@ function toggleDiagnostics() {
               </select>
             </label>
           </div>
-          <p v-if="!importErrors.length" class="explanation">{{ t.noDiagnostics }}</p>
           <div class="diagnostics-groups">
             <section v-if="filteredWarningItems.length" class="diagnostic-group">
               <div class="diagnostic-group-head">
