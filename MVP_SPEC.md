@@ -218,6 +218,8 @@ Question types deferred until later:
 - Displayed times should use a human-readable local format like `2026-04-05 21:00`
 - Avoid raw ISO timestamps in the visible UI
 - Grouped topic guidance should be promoted closer to the top of the shell as a compact assistant-style hint instead of living only lower in the sidebar
+- The assistant-style hint should evolve into a lightweight `DG` mascot surface that can speak short contextual guidance such as the weakest deck, review completion, or gentle encouragement
+- Mascot motion should stay subtle and low-noise, favoring small entrance, idle, and collapse animations over marquee-like movement
 - Language and study-mode controls should converge toward compact dropdown selectors instead of parallel button groups
 - User can dismiss and return later
 
@@ -382,6 +384,17 @@ Suggested review scheduling:
 - visible time values should use `YYYY-MM-DD HH:mm` style formatting
 - avoid duplicated `next review` summaries across multiple cards in the sidebar
 - keep the highlighted `next review` value in one place only
+
+### 11.8 DG Mascot Interaction
+
+- `DG` should live near the top of the shell as a compact assistant bubble rather than inside the lower sidebar
+- the first implementation should use a small avatar or badge plus one short context line
+- the hint should be collapsible so users can reduce it to a compact badge
+- the first animation set should be minimal:
+  - subtle entrance fade/slide
+  - lightweight collapse/expand motion
+  - small feedback states for review completion or weak-deck reminders
+- avoid continuous marquee or aggressive movement that competes with study content
 
 ### 11.4 Review Session Screen
 

@@ -547,6 +547,7 @@ Deliverables:
 - seventh slice implemented: each non-Git deck now has a second wave of cards, giving `docker`, `linux`, `go`, and `python` more study depth
 - eighth slice implemented: grouped topic modes now surface the weakest deck inside the group, so presets like `languages` can directly point back to `go` or `python`
 - next UI refinement: promote grouped-topic guidance into a top assistant-style hint, collapse diagnostics by default, and replace parallel language/mode controls with dropdown selectors
+- next interaction refinement: evolve the top assistant hint into a lightweight `DG` mascot surface with contextual copy and subtle animation states
 
 TDD focus:
 
@@ -557,6 +558,30 @@ TDD focus:
 Current status:
 
 - in_progress
+
+### Cross-Cut: DG Mascot And Motion
+
+Goal:
+
+- turn the top assistant hint into a recognizable mascot surface without adding noisy motion
+
+Deliverables:
+
+- compact `DG` mascot bubble near the top of the shell
+- context-aware hint copy for weak-deck nudges, review completion, and general encouragement
+- collapse/expand interaction for the mascot text
+- subtle animation states for entrance, idle emphasis, and completion feedback
+- motion guidelines that keep the study card as the visual priority
+
+TDD focus:
+
+- component tests for mascot hint collapse and restore behavior
+- UI tests for context-aware copy switching by topic mode and review state
+- style-regression checks for collapsed versus expanded mascot layout
+
+Current status:
+
+- planned
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 
