@@ -547,7 +547,7 @@ TDD focus:
 
 Current status:
 
-- planned
+- completed
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

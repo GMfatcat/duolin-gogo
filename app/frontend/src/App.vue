@@ -88,6 +88,7 @@ const translations = {
     falseLabel: '否',
     accuracySuffix: '正答率',
     settingsLabel: '設定',
+    libraryLabel: '書庫',
     close: '關閉',
     saveSchedule: '儲存排程',
     openSettings: '開啟設定',
@@ -185,6 +186,7 @@ const translations = {
     falseLabel: 'False',
     accuracySuffix: 'accuracy',
     settingsLabel: 'Settings',
+    libraryLabel: 'Library',
     close: 'Close',
     saveSchedule: 'Save schedule',
     openSettings: 'Open settings',
@@ -228,6 +230,7 @@ const savingScheduleSettings = ref(false)
 const changingLanguage = ref(false)
 const phase = ref('learn')
 const settingsOpen = ref(false)
+const libraryOpen = ref(false)
 const resetWarningOpen = ref(false)
 const reviewCompleted = ref(false)
 const reviewSessionProgress = ref({
@@ -773,6 +776,10 @@ async function handleLanguageChange(language) {
 function toggleSettings() {
   settingsOpen.value = !settingsOpen.value
 }
+
+function toggleLibrary() {
+  libraryOpen.value = !libraryOpen.value
+}
 </script>
 
 <template>
@@ -803,6 +810,27 @@ function toggleSettings() {
             en
           </button>
         </div>
+
+        <button class="library-button" type="button" :aria-label="t.libraryLabel" @click="toggleLibrary">
+          <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16.5a1.5 1.5 0 0 0-1.5-1.5H6.5A2.5 2.5 0 0 0 4 20.5V5.5Zm4 1.5h8"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+            />
+            <path
+              d="M8 11h8M8 15h5"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+            />
+          </svg>
+        </button>
 
         <button class="settings-button" type="button" :aria-label="t.openSettings" @click="toggleSettings">
           <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -984,6 +1012,94 @@ function toggleSettings() {
             <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
           </section>
 
+          <section class="study-card inset-card">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ t.notificationSettings }}</p>
+                <h2>{{ t.hookMode }}</h2>
+              </div>
+            </div>
+
+            <div class="settings-grid">
+              <label class="settings-field">
+                <span>{{ t.style }}</span>
+                <select :value="notificationSettings.style" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('style', $event.target.value)">
+                  <option value="safe">safe</option>
+                  <option value="playful">playful</option>
+                  <option value="aggressive">aggressive</option>
+                  <option value="chaotic">chaotic</option>
+                </select>
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.titleSource }}</span>
+                <select :value="notificationSettings.titleMode" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('titleMode', $event.target.value)">
+                  <option value="prefer_manual">prefer_manual</option>
+                  <option value="prefer_generated">prefer_generated</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="study-card inset-card">
+            <div class="study-header">
+              <div>
+                <p class="label">{{ t.scheduleLabel }}</p>
+                <h2>{{ t.scheduleLabel }}</h2>
+              </div>
+              <span class="phase-pill schedule-pill">{{ activeHoursSummary }}</span>
+            </div>
+
+            <div class="settings-grid schedule-grid">
+              <label class="settings-field">
+                <span>{{ t.intervalMinutes }}</span>
+                <input v-model="scheduleForm.notificationIntervalMinutes" type="number" min="5" max="120">
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.reviewTime }}</span>
+                <input v-model="scheduleForm.reviewTime" type="time">
+              </label>
+
+              <label class="settings-field settings-field-wide checkbox-field">
+                <span>{{ t.activeHours }}</span>
+                <label class="toggle-line">
+                  <input v-model="scheduleForm.activeHoursEnabled" type="checkbox">
+                  <span>{{ t.activeHoursEnabled }}</span>
+                </label>
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.activeHoursStart }}</span>
+                <input v-model="scheduleForm.activeHoursStart" type="time" :disabled="!scheduleForm.activeHoursEnabled">
+              </label>
+
+              <label class="settings-field">
+                <span>{{ t.activeHoursEnd }}</span>
+                <input v-model="scheduleForm.activeHoursEnd" type="time" :disabled="!scheduleForm.activeHoursEnabled">
+              </label>
+            </div>
+
+            <button class="phase-button save-button" type="button" :disabled="savingScheduleSettings" @click="handleScheduleSave">
+              {{ t.saveSchedule }}
+            </button>
+          </section>
+        </div>
+
+      </section>
+    </div>
+
+    <div v-if="libraryOpen" class="settings-overlay" @click.self="toggleLibrary">
+      <section class="settings-popout library-popout">
+        <div class="study-header">
+          <div>
+            <p class="label">{{ t.libraryLabel }}</p>
+            <h2>{{ t.libraryLabel }}</h2>
+          </div>
+          <button class="close-button" type="button" @click="toggleLibrary">{{ t.close }}</button>
+        </div>
+
+        <div class="settings-layout library-layout">
           <section class="study-card inset-card preview-panel">
             <div class="study-header">
               <div>
@@ -1102,82 +1218,11 @@ function toggleSettings() {
               <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
             </div>
           </section>
-
-          <section class="study-card inset-card">
-            <div class="study-header">
-              <div>
-                <p class="label">{{ t.notificationSettings }}</p>
-                <h2>{{ t.hookMode }}</h2>
-              </div>
-            </div>
-
-            <div class="settings-grid">
-              <label class="settings-field">
-                <span>{{ t.style }}</span>
-                <select :value="notificationSettings.style" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('style', $event.target.value)">
-                  <option value="safe">safe</option>
-                  <option value="playful">playful</option>
-                  <option value="aggressive">aggressive</option>
-                  <option value="chaotic">chaotic</option>
-                </select>
-              </label>
-
-              <label class="settings-field">
-                <span>{{ t.titleSource }}</span>
-                <select :value="notificationSettings.titleMode" :disabled="savingNotificationSettings" @change="handleNotificationSettingChange('titleMode', $event.target.value)">
-                  <option value="prefer_manual">prefer_manual</option>
-                  <option value="prefer_generated">prefer_generated</option>
-                </select>
-              </label>
-            </div>
-          </section>
-
-          <section class="study-card inset-card">
-            <div class="study-header">
-              <div>
-                <p class="label">{{ t.scheduleLabel }}</p>
-                <h2>{{ t.scheduleLabel }}</h2>
-              </div>
-              <span class="phase-pill schedule-pill">{{ activeHoursSummary }}</span>
-            </div>
-
-            <div class="settings-grid schedule-grid">
-              <label class="settings-field">
-                <span>{{ t.intervalMinutes }}</span>
-                <input v-model="scheduleForm.notificationIntervalMinutes" type="number" min="5" max="120">
-              </label>
-
-              <label class="settings-field">
-                <span>{{ t.reviewTime }}</span>
-                <input v-model="scheduleForm.reviewTime" type="time">
-              </label>
-
-              <label class="settings-field settings-field-wide checkbox-field">
-                <span>{{ t.activeHours }}</span>
-                <label class="toggle-line">
-                  <input v-model="scheduleForm.activeHoursEnabled" type="checkbox">
-                  <span>{{ t.activeHoursEnabled }}</span>
-                </label>
-              </label>
-
-              <label class="settings-field">
-                <span>{{ t.activeHoursStart }}</span>
-                <input v-model="scheduleForm.activeHoursStart" type="time" :disabled="!scheduleForm.activeHoursEnabled">
-              </label>
-
-              <label class="settings-field">
-                <span>{{ t.activeHoursEnd }}</span>
-                <input v-model="scheduleForm.activeHoursEnd" type="time" :disabled="!scheduleForm.activeHoursEnabled">
-              </label>
-            </div>
-
-            <button class="phase-button save-button" type="button" :disabled="savingScheduleSettings" @click="handleScheduleSave">
-              {{ t.saveSchedule }}
-            </button>
-          </section>
         </div>
 
-        <details class="diagnostics-disclosure">
+        <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
+
+        <details class="diagnostics-disclosure" open>
           <summary>{{ t.diagnosticsTitle }}</summary>
           <p class="label batch-report-title">{{ t.deckReport }}</p>
           <section class="batch-report">

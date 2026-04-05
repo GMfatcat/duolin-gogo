@@ -59,7 +59,9 @@ describe('App', () => {
     expect(wrapper.text()).toContain('推送時段')
     expect(wrapper.find('.settings-layout').exists()).toBe(true)
     expect(wrapper.text()).toContain('Reset study data')
-    expect(wrapper.findAll('.toolbar-button').length).toBe(6)
+    expect(wrapper.findAll('.toolbar-button').length).toBe(5)
+    expect(wrapper.find('.preview-select').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('AI')
 
     const numberInput = wrapper.find('input[type="number"]')
     const timeInputs = wrapper.findAll('input[type="time"]')
@@ -210,12 +212,10 @@ describe('App', () => {
     }
     await wrapper.vm.$nextTick()
 
-    await wrapper.find('.settings-button').trigger('click')
+    await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
-    expect(wrapper.find('.settings-meta').text()).toContain('1')
-    expect(wrapper.find('.settings-meta').text()).toContain('警告')
-    expect(wrapper.find('.settings-meta').text()).toContain('錯誤')
+    expect(wrapper.text()).toContain('題庫報告')
     expect(wrapper.text()).toContain('warning')
     expect(wrapper.text()).toContain('error')
     expect(wrapper.text()).toContain('題庫報告')
@@ -251,7 +251,7 @@ describe('App', () => {
     }
     await wrapper.vm.$nextTick()
 
-    await wrapper.find('.settings-button').trigger('click')
+    await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
     const selects = wrapper.findAll('.diagnostic-filter')
@@ -269,7 +269,7 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
-    await wrapper.find('.settings-button').trigger('click')
+    await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('rebase.md')
@@ -277,11 +277,11 @@ describe('App', () => {
     expect(wrapper.text()).toContain('cherry-pick.md')
   })
 
-  it('shows authoring preview controls inside settings and updates the preview selection', async () => {
+  it('shows authoring preview controls inside library and updates the preview selection', async () => {
     const wrapper = mount(App)
 
     await flushPromises()
-    await wrapper.find('.settings-button').trigger('click')
+    await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
     expect(wrapper.find('.preview-select').exists()).toBe(true)
@@ -297,7 +297,7 @@ describe('App', () => {
     const wrapper = mount(App)
 
     await flushPromises()
-    await wrapper.find('.settings-button').trigger('click')
+    await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
     const draft = `---
@@ -334,7 +334,7 @@ git fetch only updates remote-tracking refs and does not merge into the current 
     const wrapper = mount(App)
 
     await flushPromises()
-    await wrapper.find('.settings-button').trigger('click')
+    await wrapper.find('.library-button').trigger('click')
     await flushPromises()
 
     const draft = `---
