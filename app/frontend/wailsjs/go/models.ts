@@ -92,6 +92,8 @@ export namespace diagnostics {
 	    code: string;
 	    field?: string;
 	    message: string;
+	    suggestion_zh?: string;
+	    suggestion_en?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Error(source);
@@ -104,6 +106,8 @@ export namespace diagnostics {
 	        this.code = source["code"];
 	        this.field = source["field"];
 	        this.message = source["message"];
+	        this.suggestion_zh = source["suggestion_zh"];
+	        this.suggestion_en = source["suggestion_en"];
 	    }
 	}
 

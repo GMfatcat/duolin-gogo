@@ -1382,6 +1382,18 @@ body {
   gap: 0.9rem;
 }
 
+.diagnostic-suggestion {
+  margin: 0.25rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.diagnostic-suggestion span {
+  color: var(--spark-gold);
+  font-weight: 700;
+}
+
 .batch-review-card.valid {
   border-color: rgba(23, 168, 181, 0.28);
   box-shadow: 0 12px 24px rgba(9, 29, 42, 0.24);

@@ -700,6 +700,8 @@ Only one language section.`
     expect(wrapper.text()).toContain('Draft 2')
     expect(wrapper.text()).toContain('Needs fixes')
     expect(wrapper.text()).toContain('missing_language_section')
+    expect(wrapper.text()).toContain('Suggested fix')
+    expect(wrapper.text()).toContain('Add both `## zh-TW` and `## en` sections')
     expect(wrapper.findAll('.batch-review-card').length).toBe(2)
     expect(wrapper.findAll('.toolbar-button.secondary')[wrapper.findAll('.toolbar-button.secondary').length - 1].attributes('disabled')).toBeDefined()
   })

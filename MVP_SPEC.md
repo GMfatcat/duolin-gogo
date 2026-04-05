@@ -445,6 +445,7 @@ Suggested review scheduling:
 - the next authoring slice should support batch draft review, so multiple pasted drafts can be validated and previewed independently in one pass
 - later authoring slices should add fix suggestions, batch import reporting, and Markdown-to-card scaffolding
 - the first batch-draft implementation should use a simple delimiter such as `===` so several AI-generated drafts can be reviewed in one review panel before any save step
+- authoring diagnostics should progressively evolve from plain error reporting into fix-oriented guidance, starting with direct suggestions for common schema and bilingual mistakes
 
 ## 12. Local Storage Strategy
 

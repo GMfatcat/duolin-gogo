@@ -140,6 +140,7 @@ const translations = {
     previewFile: '卡片檔案',
     previewDiagnostics: '這張卡的診斷',
     noPreviewDiagnostics: '這張卡目前沒有額外診斷。',
+    fixSuggestion: '建議修法',
     aiDraftReview: 'AI 草稿審查',
     draftInput: '貼上 AI 產生的 Markdown',
     reviewDraft: '審查草稿',
@@ -262,6 +263,7 @@ const translations = {
     previewFile: 'Card file',
     previewDiagnostics: 'Diagnostics for this card',
     noPreviewDiagnostics: 'No diagnostics for this card.',
+    fixSuggestion: 'Suggested fix',
     aiDraftReview: 'AI draft review',
     draftInput: 'Paste AI-generated Markdown',
     reviewDraft: 'Review draft',
@@ -803,6 +805,69 @@ function resetStudyFlow() {
   feedback.value = null
   selectedAnswer.value = ''
   petReaction.value = null
+}
+
+function diagnosticSuggestion(item) {
+  if (!item) return ''
+
+  if (selectedLanguage.value === 'en') {
+    if (item.suggestion_en) return item.suggestion_en
+  } else if (item.suggestion_zh) {
+    return item.suggestion_zh
+  }
+
+  if (item.code === 'missing_language_section') {
+    return selectedLanguage.value === 'en'
+      ? 'Add both `## zh-TW` and `## en` sections, and make sure neither section is empty.'
+      : '補上完整的 `## zh-TW` 和 `## en` 兩段，而且兩邊都要有內容。'
+  }
+  if (item.code === 'missing_localized_field') {
+    return selectedLanguage.value === 'en'
+      ? `Add \`${item.field}\` so the card does not rely on fallback content.`
+      : `補上 \`${item.field}\`，避免只靠 fallback 值撐過匯入。`
+  }
+  if (item.code === 'bilingual_choice_count_mismatch') {
+    return selectedLanguage.value === 'en'
+      ? 'Make `choices_zh` and `choices_en` the same length and keep the option order aligned.'
+      : '讓 `choices_zh` 和 `choices_en` 的選項數量一致，並保持順序對齊。'
+  }
+  if (item.code === 'missing_required_field') {
+    return selectedLanguage.value === 'en'
+      ? `Fill in the required \`${item.field}\` field before this card can pass schema validation.`
+      : `先補齊必要欄位 \`${item.field}\`，這張卡才能通過基本 schema 驗證。`
+  }
+  if (item.code === 'missing_choices') {
+    return selectedLanguage.value === 'en'
+      ? 'Provide at least 2 choices for a single-choice card and keep `answer` within range.'
+      : '單選題至少提供 2 個選項，並讓 `answer` 指向有效索引。'
+  }
+  if (item.code === 'invalid_answer_type') {
+    return selectedLanguage.value === 'en'
+      ? 'Check that `type` matches `answer`: single-choice needs an integer index, true-false needs a boolean.'
+      : '檢查 `type` 和 `answer` 是否配對：單選題用整數索引，true-false 用布林值。'
+  }
+  if (item.code === 'answer_out_of_range') {
+    return selectedLanguage.value === 'en'
+      ? 'Change `answer` to a valid zero-based index that exists in the choice list.'
+      : '把 `answer` 改成有效索引，範圍要落在選項數量內。'
+  }
+  if (item.code === 'frontmatter_parse_failed') {
+    return selectedLanguage.value === 'en'
+      ? 'Check YAML frontmatter indentation, colons, and list formatting so the frontmatter parses cleanly.'
+      : '檢查 YAML frontmatter 的縮排、冒號和清單格式，先讓 frontmatter 能被正常解析。'
+  }
+  if (item.code === 'duplicate_id') {
+    return selectedLanguage.value === 'en'
+      ? 'Use a new unique `id` so this card does not collide with an existing one.'
+      : '換一個新的 `id`，避免和既有卡片衝突。'
+  }
+  if (item.code === 'unsupported_type') {
+    return selectedLanguage.value === 'en'
+      ? 'Use one of the currently supported types: `single-choice` or `true-false`.'
+      : '目前只支援 `single-choice` 和 `true-false`，請先改成其中一種。'
+  }
+
+  return ''
 }
 
 function resetLearnBreakState() {
@@ -1669,15 +1734,18 @@ async function showPetReaction(trigger) {
                   :key="`preview-${item.source_path}-${item.code}-${item.field || ''}`"
                   class="diagnostic-item"
                   :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'"
-                >
-                  <div class="diagnostic-head">
-                    <span class="severity-pill" :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'">
-                      {{ severityLabel(item) }}
-                    </span>
-                    <strong>{{ item.code }}</strong>
-                  </div>
-                  <p>{{ item.message }}</p>
-                </article>
+                  >
+                    <div class="diagnostic-head">
+                      <span class="severity-pill" :class="(item.severity || 'error') === 'warning' ? 'warning' : 'error'">
+                        {{ severityLabel(item) }}
+                      </span>
+                      <strong>{{ item.code }}</strong>
+                    </div>
+                    <p>{{ item.message }}</p>
+                    <p v-if="diagnosticSuggestion(item)" class="diagnostic-suggestion">
+                      <span>{{ t.fixSuggestion }}:</span> {{ diagnosticSuggestion(item) }}
+                    </p>
+                  </article>
               </div>
               <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
             </div>
@@ -1748,15 +1816,18 @@ async function showPetReaction(trigger) {
                         :key="`draft-${item.index}-${error.source_path}-${error.code}-${error.field || ''}`"
                         class="diagnostic-item"
                         :class="(error.severity || 'error') === 'warning' ? 'warning' : 'error'"
-                      >
-                        <div class="diagnostic-head">
-                          <span class="severity-pill" :class="(error.severity || 'error') === 'warning' ? 'warning' : 'error'">
-                            {{ severityLabel(error) }}
-                          </span>
-                          <strong>{{ error.code }}</strong>
-                        </div>
-                        <p>{{ error.message }}</p>
-                      </article>
+                        >
+                          <div class="diagnostic-head">
+                            <span class="severity-pill" :class="(error.severity || 'error') === 'warning' ? 'warning' : 'error'">
+                              {{ severityLabel(error) }}
+                            </span>
+                            <strong>{{ error.code }}</strong>
+                          </div>
+                          <p>{{ error.message }}</p>
+                          <p v-if="diagnosticSuggestion(error)" class="diagnostic-suggestion">
+                            <span>{{ t.fixSuggestion }}:</span> {{ diagnosticSuggestion(error) }}
+                          </p>
+                        </article>
                     </div>
                     <p v-else class="explanation">{{ t.noPreviewDiagnostics }}</p>
                   </div>
@@ -1847,14 +1918,17 @@ async function showPetReaction(trigger) {
                   v-for="item in filteredWarningItems"
                   :key="`${item.source_path}-${item.code}-${item.field || ''}`"
                   class="diagnostic-item warning"
-                >
-                  <div class="diagnostic-head">
-                    <span class="severity-pill warning">{{ severityLabel(item) }}</span>
-                    <strong>{{ item.code }}</strong>
-                  </div>
-                  <p>{{ item.message }}</p>
-                  <span>{{ item.source_path }}</span>
-                </article>
+                  >
+                    <div class="diagnostic-head">
+                      <span class="severity-pill warning">{{ severityLabel(item) }}</span>
+                      <strong>{{ item.code }}</strong>
+                    </div>
+                    <p>{{ item.message }}</p>
+                    <p v-if="diagnosticSuggestion(item)" class="diagnostic-suggestion">
+                      <span>{{ t.fixSuggestion }}:</span> {{ diagnosticSuggestion(item) }}
+                    </p>
+                    <span>{{ item.source_path }}</span>
+                  </article>
               </div>
             </section>
 
@@ -1868,14 +1942,17 @@ async function showPetReaction(trigger) {
                   v-for="item in filteredErrorItems"
                   :key="`${item.source_path}-${item.code}-${item.field || ''}`"
                   class="diagnostic-item error"
-                >
-                  <div class="diagnostic-head">
-                    <span class="severity-pill error">{{ severityLabel(item) }}</span>
-                    <strong>{{ item.code }}</strong>
-                  </div>
-                  <p>{{ item.message }}</p>
-                  <span>{{ item.source_path }}</span>
-                </article>
+                  >
+                    <div class="diagnostic-head">
+                      <span class="severity-pill error">{{ severityLabel(item) }}</span>
+                      <strong>{{ item.code }}</strong>
+                    </div>
+                    <p>{{ item.message }}</p>
+                    <p v-if="diagnosticSuggestion(item)" class="diagnostic-suggestion">
+                      <span>{{ t.fixSuggestion }}:</span> {{ diagnosticSuggestion(item) }}
+                    </p>
+                    <span>{{ item.source_path }}</span>
+                  </article>
               </div>
             </section>
           </div>

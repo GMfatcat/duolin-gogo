@@ -170,6 +170,11 @@ type DGInteractionStatus struct {
 	Stage   int    `json:"stage"`
 }
 
+type diagnosticSuggestion struct {
+	ZH string
+	EN string
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	knowledgeDir, dataDir := defaultAppPaths(os.Executable, os.Getwd)
@@ -273,7 +278,7 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		AvailableTopics:   availableTopics(cache.Cards),
 		Stats:             calculateStats(state, now),
 		Summary:           dashboard.BuildSummary(filteredCards, state, now),
-		ImportErrors:      diagnosticFile.Errors,
+		ImportErrors:      enrichDiagnosticsErrors(diagnosticFile.Errors),
 		NotificationSettings: NotificationSettings{
 			Style:     normalizeNotificationStyle(config.Notifications.Style),
 			TitleMode: normalizeNotificationTitleMode(config.Notifications.TitleMode),
@@ -551,7 +556,7 @@ func (a *App) ValidateKnowledge() (ValidationStatus, error) {
 
 	return ValidationStatus{
 		Message:      fmt.Sprintf("Knowledge validated: %d cards, %d diagnostics.", len(result.Cards), len(result.Errors)),
-		ImportErrors: diagnosticItems,
+		ImportErrors: enrichDiagnosticsErrors(diagnosticItems),
 	}, nil
 }
 
@@ -634,7 +639,7 @@ func (a *App) ReviewDraft(raw string) (DraftReviewData, error) {
 	return DraftReviewData{
 		Items:        items,
 		CurrentCard:  first.CurrentCard,
-		ImportErrors: first.ImportErrors,
+		ImportErrors: enrichDiagnosticsErrors(first.ImportErrors),
 	}, nil
 }
 
@@ -687,16 +692,95 @@ func splitDraftBatch(raw string) []string {
 func toDiagnosticsErrors(items []cards.ImportError) []diagnostics.Error {
 	diagnosticItems := make([]diagnostics.Error, 0, len(items))
 	for _, item := range items {
-		diagnosticItems = append(diagnosticItems, diagnostics.Error{
-			SourcePath: item.SourcePath,
-			Severity:   item.Severity,
-			Code:       item.Code,
-			Field:      item.Field,
-			Message:    item.Message,
-		})
+		diagnosticItems = append(diagnosticItems, toDiagnosticsError(item))
 	}
 
 	return diagnosticItems
+}
+
+func toDiagnosticsError(item cards.ImportError) diagnostics.Error {
+	suggestion := suggestionForDiagnostic(item.Code, item.Field)
+	return diagnostics.Error{
+		SourcePath:   item.SourcePath,
+		Severity:     item.Severity,
+		Code:         item.Code,
+		Field:        item.Field,
+		Message:      item.Message,
+		SuggestionZH: suggestion.ZH,
+		SuggestionEN: suggestion.EN,
+	}
+}
+
+func enrichDiagnosticsErrors(items []diagnostics.Error) []diagnostics.Error {
+	out := make([]diagnostics.Error, 0, len(items))
+	for _, item := range items {
+		suggestion := suggestionForDiagnostic(item.Code, item.Field)
+		if item.SuggestionZH == "" {
+			item.SuggestionZH = suggestion.ZH
+		}
+		if item.SuggestionEN == "" {
+			item.SuggestionEN = suggestion.EN
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func suggestionForDiagnostic(code string, field string) diagnosticSuggestion {
+	switch code {
+	case "missing_language_section":
+		return diagnosticSuggestion{
+			ZH: "補上完整的 `## zh-TW` 和 `## en` 兩段，而且兩邊都要有內容。",
+			EN: "Add both `## zh-TW` and `## en` sections, and make sure neither section is empty.",
+		}
+	case "missing_localized_field":
+		return diagnosticSuggestion{
+			ZH: fmt.Sprintf("補上 `%s`，避免只靠 fallback 值撐過匯入。", field),
+			EN: fmt.Sprintf("Add `%s` so the card does not rely on fallback content.", field),
+		}
+	case "bilingual_choice_count_mismatch":
+		return diagnosticSuggestion{
+			ZH: "讓 `choices_zh` 和 `choices_en` 的選項數量一致，並保持順序對齊。",
+			EN: "Make `choices_zh` and `choices_en` the same length and keep the option order aligned.",
+		}
+	case "missing_required_field":
+		return diagnosticSuggestion{
+			ZH: fmt.Sprintf("先補齊必要欄位 `%s`，這張卡才能通過基本 schema 驗證。", field),
+			EN: fmt.Sprintf("Fill in the required `%s` field before this card can pass schema validation.", field),
+		}
+	case "missing_choices":
+		return diagnosticSuggestion{
+			ZH: "單選題至少提供 2 個選項，並讓 `answer` 指向有效索引。",
+			EN: "Provide at least 2 choices for a single-choice card and keep `answer` within range.",
+		}
+	case "invalid_answer_type":
+		return diagnosticSuggestion{
+			ZH: "檢查 `type` 和 `answer` 是否配對：單選題用整數索引，true-false 用布林值。",
+			EN: "Check that `type` matches `answer`: single-choice needs an integer index, true-false needs a boolean.",
+		}
+	case "answer_out_of_range":
+		return diagnosticSuggestion{
+			ZH: "把 `answer` 改成有效索引，範圍要落在選項數量內。",
+			EN: "Change `answer` to a valid zero-based index that exists in the choice list.",
+		}
+	case "frontmatter_parse_failed":
+		return diagnosticSuggestion{
+			ZH: "檢查 YAML frontmatter 的縮排、冒號和清單格式，先讓 frontmatter 能被正常解析。",
+			EN: "Check YAML frontmatter indentation, colons, and list formatting so the frontmatter parses cleanly.",
+		}
+	case "duplicate_id":
+		return diagnosticSuggestion{
+			ZH: "換一個新的 `id`，避免和既有卡片衝突。",
+			EN: "Use a new unique `id` so this card does not collide with an existing one.",
+		}
+	case "unsupported_type":
+		return diagnosticSuggestion{
+			ZH: "目前只支援 `single-choice` 和 `true-false`，請先改成其中一種。",
+			EN: "Use one of the currently supported types: `single-choice` or `true-false`.",
+		}
+	default:
+		return diagnosticSuggestion{}
+	}
 }
 
 func (a *App) UpdateNotificationSettings(style string, titleMode string) (ActionStatus, error) {
@@ -857,7 +941,7 @@ func (a *App) previewKnowledgeCard(path string, files []string) (AuthoringPrevie
 		Files:        previewFiles,
 		SelectedPath: selectedPath,
 		CurrentCard:  previewCard,
-		ImportErrors: diagnosticItems,
+		ImportErrors: enrichDiagnosticsErrors(diagnosticItems),
 	}, nil
 }
 

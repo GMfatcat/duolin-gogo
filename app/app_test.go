@@ -1035,6 +1035,9 @@ Only one language section.`
 	if result.Items[1].ImportErrors[0].Code != "missing_language_section" {
 		t.Fatalf("unexpected diagnostic code: %s", result.Items[1].ImportErrors[0].Code)
 	}
+	if result.Items[1].ImportErrors[0].SuggestionEN == "" || result.Items[1].ImportErrors[0].SuggestionZH == "" {
+		t.Fatal("expected fix suggestions for broken draft")
+	}
 }
 
 func TestSaveDraftPersistsMarkdownIntoTopicFolder(t *testing.T) {

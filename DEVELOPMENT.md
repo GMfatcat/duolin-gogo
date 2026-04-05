@@ -79,6 +79,7 @@ Next targets:
     - A6: batch import report for larger AI-assisted save operations
     - A7: Markdown-to-card assist for turning plain notes into draft scaffolds
   - thirteenth slice implemented: AI draft review now supports batch input with `===` separators, per-draft normalized previews, and per-draft diagnostics in one pass
+  - fourteenth slice implemented: common authoring diagnostics now include direct fix suggestions, so preview, batch review, and diagnostics panels tell authors what to change instead of only reporting the problem
 - Phase B: session and progress UX
   - reduce short-term card repetition
   - add clearer session progress and completion cues

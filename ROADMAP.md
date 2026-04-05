@@ -544,7 +544,8 @@ TDD focus:
 
 Current status:
 
-- planned
+- in_progress
+- first slice implemented: common diagnostics now carry direct fix suggestions, and authoring surfaces render those suggestions beside the original error or warning message
 
 ### Next Phase A6: Batch Import Report
 
