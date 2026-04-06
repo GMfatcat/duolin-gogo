@@ -760,6 +760,19 @@ Current status:
 - eleventh slice implemented: Easter Egg V1 now also includes topic inside jokes and rare celebration lines, and DG reaction rotation is less script-like because repeated triggers no longer lock into the same exact sentence order
 - twelfth slice implemented: DG now has a thicker everyday reaction pool plus low-frequency time-of-day flavor, while topic-aware click tones stay primary so normal interactions feel less scripted without drowning in easter eggs
 - thirteenth slice implemented: DG can now notice short topic streaks and occasionally surface "almost there" encouragement when a weaker deck starts improving, so mascot surprises feel tied to real study momentum instead of pure randomness
+- DG Pet V2 planned slices:
+  - `V2-A Stage Visuals`
+    - make hidden stage 0 / 1 / 2 feel visible through subtle mascot differences instead of explicit levels
+    - likely cues: brighter spark nub, richer gloss, stronger aura, or slightly more expressive pose treatment
+    - first visual pass should focus on high-visibility poses such as `idle`, `wave`, and `spark`
+  - `V2-B Context Memory`
+    - let DG feel more aware of the user's recent study rhythm, not just the immediate trigger
+    - reinforce welcome-back, topic streak, and weak-deck recovery with more familiar copy
+  - `V2-C Interaction Growth`
+    - deepen direct click interaction so later hidden stages feel more alive without becoming a toy layer
+    - later stages should unlock thicker click pools and slightly more attitude-rich reactions
+  - `V2-D Rare Surprises`
+    - reserve low-frequency visual or behavioral surprises for later polish, such as rare pose variants or tiny badge-level changes
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

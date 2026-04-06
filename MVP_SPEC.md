@@ -427,6 +427,11 @@ Suggested review scheduling:
 - later hidden easter eggs can also include topic-specific inside jokes and occasional rare celebration lines, so DG feels more discoverable without ever surfacing a public unlock list
 - once those hidden easter eggs exist, the ordinary reaction pools should still keep growing too; DG should feel more alive in normal use through a thicker everyday line set, while low-frequency flavors such as time-of-day greetings stay secondary to the active study topic
 - later hidden easter eggs should also be allowed to notice short topic streaks and weak-deck improvement moments, so DG can occasionally feel like it recognizes what the user keeps returning to and when a weaker area is finally catching up
+- the next companion phase should let hidden growth become visible through subtle stage-based mascot presentation rather than explicit level indicators:
+  - `V2-A Stage Visuals`: stage 0 / 1 / 2 should gradually feel brighter, glossier, or more expressive, starting with high-frequency poses such as `idle`, `wave`, and `spark`
+  - `V2-B Context Memory`: DG should sound more like it remembers the user's recent rhythm, common topics, and weak-deck recovery
+  - `V2-C Interaction Growth`: later hidden stages should unlock thicker click-interaction pools and slightly richer personality without turning DG into a visible mini-game
+  - `V2-D Rare Surprises`: low-frequency pose variants, badge-level surprises, or rare visual quirks can be layered on later as polish
 
 ### 11.4 Review Session Screen
 

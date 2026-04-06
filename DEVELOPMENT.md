@@ -171,3 +171,13 @@ Next targets:
 - latest refinement: hidden easter eggs now also include topic inside jokes plus rarer celebration lines, and the reaction picker now advances through an internal step counter so repeated interactions feel less like a fixed script
 - latest refinement: the everyday DG pools are now thicker and a low-frequency time-of-day flavor can surface in general scopes, while focused topics such as `git`, `docker`, `sql`, and `http` still keep their own personality first
 - latest refinement: DG can now detect short topic streaks and surface an `almost there` encouragement when the currently weak deck starts improving, so some surprises feel earned by study momentum rather than pure randomness
+- next DG Pet V2 plan:
+  - `V2-A Stage Visuals`
+    - hidden growth should start to feel visible through mascot polish rather than visible stats
+    - stage 0 / 1 / 2 should get subtle visual differences, starting with `idle`, `wave`, and `spark`
+  - `V2-B Context Memory`
+    - strengthen the sense that DG remembers recent study habits and weak-deck recovery, not just one trigger at a time
+  - `V2-C Interaction Growth`
+    - expand direct click interaction so later hidden stages can feel more playful and distinct without increasing noise
+  - `V2-D Rare Surprises`
+    - save very low-frequency pose or badge surprises for later polish once stage visuals are stable
