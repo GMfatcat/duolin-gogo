@@ -264,6 +264,14 @@ Current status:
 
 - completed
 
+## 4. Current Follow-up Notes
+
+- `Onboarding V1` is implemented and replayable from `Settings`.
+- A follow-up polish pass is still queued for onboarding spotlight visuals.
+- Known issue:
+  - some target regions are technically highlighted but do not read brightly enough against the dim overlay
+  - the top-controls and top-right tool strip need a stronger, cleaner active-surface treatment in a later polish pass
+
 ## 4. Recommended Build Order
 
 Recommended implementation order:

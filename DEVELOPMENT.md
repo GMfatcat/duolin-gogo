@@ -205,3 +205,7 @@ Next targets:
     - DG bubble
     - done / start learning
   - the tour should auto-run on first launch, support skip/back/next, and be replayable from Settings
+  - current known issue:
+    - the onboarding spotlight still needs a dedicated polish pass
+    - some highlighted regions are framed correctly but still read as dim because the overlay treatment and target emphasis are not yet visually separated enough
+    - the top-controls / tools spotlight in particular still needs a cleaner "active surface" treatment so the highlighted area reads brighter than the surrounding shell

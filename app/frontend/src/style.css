@@ -1591,6 +1591,37 @@ body {
   gap: 0.85rem;
 }
 
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.hero-actions.onboarding-target.is-active {
+  padding: 0.42rem 0.48rem;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top, rgba(233, 196, 106, 0.12), transparent 58%),
+    linear-gradient(180deg, rgba(12, 36, 45, 0.94), rgba(8, 24, 32, 0.96));
+  box-shadow:
+    0 0 0 1px rgba(23, 168, 181, 0.62),
+    0 0 0 6px rgba(15, 143, 156, 0.18),
+    0 18px 40px rgba(4, 15, 23, 0.34);
+}
+
+.hero-actions.onboarding-target.is-active .control-select,
+.hero-actions.onboarding-target.is-active .library-button,
+.hero-actions.onboarding-target.is-active .settings-button,
+.hero-actions.onboarding-target.is-active .diagnostics-button,
+.hero-actions.onboarding-target.is-active .insights-button {
+  background:
+    linear-gradient(180deg, rgba(33, 66, 78, 0.98), rgba(18, 43, 55, 0.98));
+  border-color: rgba(23, 168, 181, 0.44);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 10px 22px rgba(4, 15, 23, 0.24);
+}
+
 .onboarding-shell {
   position: relative;
 }
@@ -1604,8 +1635,41 @@ body {
 .onboarding-target.is-active {
   z-index: 41;
   pointer-events: none;
-  box-shadow: 0 0 0 1px rgba(23, 168, 181, 0.55), 0 0 0 8px rgba(15, 143, 156, 0.18), 0 18px 42px rgba(4, 15, 23, 0.42);
-  border-radius: 24px;
+  box-shadow:
+    0 0 0 1px rgba(23, 168, 181, 0.58),
+    0 0 0 4px rgba(15, 143, 156, 0.18),
+    0 16px 34px rgba(4, 15, 23, 0.36);
+  border-radius: 18px;
+}
+
+.hero-controls.onboarding-target.is-active,
+.hero-tool-buttons.onboarding-target.is-active {
+  padding: 0.4rem 0.45rem;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top, rgba(233, 196, 106, 0.12), transparent 55%),
+    linear-gradient(180deg, rgba(12, 36, 45, 0.94), rgba(8, 24, 32, 0.96));
+  box-shadow:
+    0 0 0 1px rgba(23, 168, 181, 0.6),
+    0 0 0 6px rgba(15, 143, 156, 0.18),
+    0 18px 40px rgba(4, 15, 23, 0.34);
+}
+
+.hero-controls.onboarding-target.is-active .control-select,
+.hero-tool-buttons.onboarding-target.is-active .library-button,
+.hero-tool-buttons.onboarding-target.is-active .settings-button,
+.hero-tool-buttons.onboarding-target.is-active .diagnostics-button,
+.hero-tool-buttons.onboarding-target.is-active .insights-button {
+  background:
+    linear-gradient(180deg, rgba(33, 66, 78, 0.98), rgba(18, 43, 55, 0.98));
+  border-color: rgba(23, 168, 181, 0.44);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 10px 22px rgba(4, 15, 23, 0.24);
+}
+
+.assistant-hint.onboarding-target.is-active {
+  box-shadow: 0 0 0 1px rgba(23, 168, 181, 0.5), 0 0 0 4px rgba(15, 143, 156, 0.14), 0 10px 24px rgba(4, 15, 23, 0.32);
 }
 
 .onboarding-overlay {
@@ -1613,7 +1677,6 @@ body {
   inset: 0;
   z-index: 40;
   background: rgba(6, 12, 18, 0.72);
-  backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1665,20 +1728,24 @@ body {
 
 .onboarding-panel-copy {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  gap: 1rem;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 0.75rem;
   align-items: center;
 }
 
+.onboarding-copy-body {
+  padding-left: 1rem;
+}
+
 .onboarding-avatar {
-  width: 88px;
-  height: 88px;
-  border-radius: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
   background: radial-gradient(circle at top, rgba(233, 196, 106, 0.18), rgba(15, 143, 156, 0.18));
   border: 1px solid rgba(23, 168, 181, 0.22);
   display: grid;
   place-items: center;
-  padding: 0.55rem;
+  padding: 0.36rem;
 }
 
 .onboarding-nav {

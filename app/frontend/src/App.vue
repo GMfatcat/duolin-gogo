@@ -1637,7 +1637,7 @@ async function showPetReaction(trigger) {
         </button>
       </div>
 
-      <div class="hero-actions">
+      <div class="hero-actions onboarding-target" :class="{ 'is-active': isOnboardingTarget('top-controls') }">
         <div class="hero-controls onboarding-target" :class="{ 'is-active': isOnboardingTarget('top-controls') }">
         <label class="control-select hero-toggle language-select">
           <span>{{ t.languageLabel }}</span>
@@ -1657,7 +1657,7 @@ async function showPetReaction(trigger) {
         </label>
         </div>
 
-        <div class="hero-tool-buttons onboarding-target" :class="{ 'is-active': isOnboardingTarget('tool-buttons') }">
+        <div class="hero-tool-buttons onboarding-target" :class="{ 'is-active': isOnboardingTarget('tool-buttons') || isOnboardingTarget('top-controls') }">
         <button class="library-button" type="button" :aria-label="t.libraryLabel" @click="toggleLibrary">
           <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -2561,8 +2561,7 @@ async function showPetReaction(trigger) {
           <div class="onboarding-avatar">
             <img class="assistant-avatar-image" :src="assistantAvatarSrc" :alt="t.dgLabel">
           </div>
-          <div>
-            <p class="label">{{ t.dgLabel }}</p>
+          <div class="onboarding-copy-body">
             <h2 id="onboarding-title">{{ onboardingCurrentStep.title }}</h2>
             <p class="explanation">{{ onboardingCurrentStep.body }}</p>
           </div>
