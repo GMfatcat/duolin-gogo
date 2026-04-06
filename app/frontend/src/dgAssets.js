@@ -1,41 +1,33 @@
-import dgCollapsedBadge from './assets/dg/collapsed-badge.svg'
-import dgIdle from './assets/dg/idle.svg'
-import dgNod from './assets/dg/nod.svg'
-import dgRest from './assets/dg/rest.svg'
-import dgSpark from './assets/dg/spark.svg'
-import dgThink from './assets/dg/think.svg'
-import dgWave from './assets/dg/wave.svg'
+const assetModules = import.meta.glob('./assets/dg/*.{svg,png,webp}', {
+  eager: true,
+  import: 'default',
+})
 
 export const DG_SUPPORTED_STAGES = [0, 1, 2]
 export const DG_STAGE_VISUAL_POSES = ['idle', 'wave', 'spark']
 
-const assetManifest = {
-  collapsed: {
-    default: dgCollapsedBadge,
-  },
-  idle: {
-    default: dgIdle,
-  },
-  wave: {
-    default: dgWave,
-  },
-  nod: {
-    default: dgNod,
-  },
-  think: {
-    default: dgThink,
-  },
-  rest: {
-    default: dgRest,
-  },
-  spark: {
-    default: dgSpark,
-  },
+function assetFile(name) {
+  return (
+    assetModules[`./assets/dg/${name}.webp`] ||
+    assetModules[`./assets/dg/${name}.png`] ||
+    assetModules[`./assets/dg/${name}.svg`] ||
+    null
+  )
+}
+
+const baseAssets = {
+  collapsed: assetFile('collapsed-badge'),
+  idle: assetFile('idle'),
+  wave: assetFile('wave'),
+  nod: assetFile('nod'),
+  think: assetFile('think'),
+  rest: assetFile('rest'),
+  spark: assetFile('spark'),
 }
 
 function normalizePose(pose) {
   const normalized = String(pose || 'idle').replace(/^pose-/, '')
-  if (assetManifest[normalized]) {
+  if (baseAssets[normalized]) {
     return normalized
   }
   return 'idle'
@@ -48,17 +40,27 @@ function normalizeStage(stage) {
   return Math.floor(numeric)
 }
 
+function stageAssetName(pose, stage) {
+  return `${pose}-stage${stage}`
+}
+
 export function resolveDGMascotAsset({ pose = 'idle', stage = 0, collapsed = false } = {}) {
   const normalizedStage = normalizeStage(stage)
-  const stageKey = `stage${normalizedStage}`
+  const normalizedPose = collapsed ? 'collapsed' : normalizePose(pose)
 
   if (collapsed) {
-    return assetManifest.collapsed[stageKey] || assetManifest.collapsed.default
+    return (
+      assetFile(stageAssetName('collapsed-badge', normalizedStage)) ||
+      baseAssets.collapsed ||
+      baseAssets.idle
+    )
   }
 
-  const normalizedPose = normalizePose(pose)
-  const poseAssets = assetManifest[normalizedPose] || assetManifest.idle
-  return poseAssets[stageKey] || poseAssets.default || assetManifest.idle.default
+  return (
+    assetFile(stageAssetName(normalizedPose, normalizedStage)) ||
+    baseAssets[normalizedPose] ||
+    baseAssets.idle
+  )
 }
 
 export function resolveDGMascotStageClass(stage) {

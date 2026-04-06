@@ -6,11 +6,17 @@ import {
 } from './dgAssets'
 
 describe('dgAssets', () => {
-  it('falls back to base pose art when no stage asset exists yet', () => {
-    const idleBase = resolveDGMascotAsset({ pose: 'idle', stage: 0 })
+  it('resolves stage-specific assets when they exist', () => {
+    expect(resolveDGMascotAsset({ pose: 'idle', stage: 0 })).toContain('idle-stage0')
+    expect(resolveDGMascotAsset({ pose: 'idle', stage: 1 })).toContain('idle-stage1')
+    expect(resolveDGMascotAsset({ pose: 'idle', stage: 2 })).toContain('idle-stage2')
+    expect(resolveDGMascotAsset({ pose: 'wave', stage: 1 })).toContain('wave-stage1')
+    expect(resolveDGMascotAsset({ pose: 'spark', stage: 2 })).toContain('spark-stage2')
+  })
 
-    expect(resolveDGMascotAsset({ pose: 'idle', stage: 2 })).toBe(idleBase)
-    expect(resolveDGMascotAsset({ pose: 'spark', stage: 1 })).not.toBe('')
+  it('falls back to the base pose when a staged variant does not exist for that pose', () => {
+    expect(resolveDGMascotAsset({ pose: 'think', stage: 2 })).toContain('/think.')
+    expect(resolveDGMascotAsset({ pose: 'rest', stage: 1 })).toContain('/rest.')
   })
 
   it('always uses the collapsed badge while collapsed', () => {
