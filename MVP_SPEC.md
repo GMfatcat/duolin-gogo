@@ -432,6 +432,7 @@ Suggested review scheduling:
   - `V2-B Context Memory`: DG should sound more like it remembers the user's recent rhythm, common topics, and weak-deck recovery
   - `V2-C Interaction Growth`: later hidden stages should unlock thicker click-interaction pools and slightly richer personality without turning DG into a visible mini-game
   - `V2-D Rare Surprises`: low-frequency pose variants, badge-level surprises, or rare visual quirks can be layered on later as polish
+  - planning note: the first full `V2-A Stage Visuals` finish should happen in a dedicated mascot pass after the current topic-expansion push, so stage polish can stay coherent instead of getting fragmented across deck-content work
 
 ### 11.4 Review Session Screen
 

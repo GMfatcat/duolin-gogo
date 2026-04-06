@@ -185,3 +185,6 @@ Next targets:
   - mascot asset resolution now goes through a dedicated frontend resolver with stage-aware fallback
   - `idle`, `wave`, and `spark` are explicitly marked as the first staged poses
   - missing stage art safely falls back to current V1 assets, so stage visuals can land incrementally
+- current planning note:
+  - the complete `DG Pet V2-A` visual finish should be scheduled as its own mascot-focused polish pass
+  - immediate implementation focus has moved back to Phase C so topic expansion and deck depth can keep growing without interleaving a larger mascot-art integration slice

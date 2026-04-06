@@ -689,6 +689,7 @@ TDD focus:
 Current status:
 
 - in_progress
+- immediate roadmap focus has returned to Phase C deck growth and topic expansion; the full `DG Pet V2-A` stage-visual finish should be handled in its own dedicated mascot-polish pass later
 
 ### Cross-Cut: DG Mascot And Motion
 
@@ -716,6 +717,7 @@ Current status:
 - first slice implemented: `DG` now has hidden local growth state plus click-to-react behavior, without exposing visible pet stats, levels, or progress bars
 - first slice implemented: the top-shell assistant hint now behaves as a compact `DG` mascot bubble with weak-deck and review-complete states, plus subtle entrance and collapse motion
 - second slice implemented: `DG` now changes tone across learn, answer, correct-feedback, and wrong-feedback states so users can feel the study flow without waiting for review mode
+- current planning note: the next full mascot polish pass should focus on `DG Pet V2-A` as a dedicated follow-up, rather than being mixed into ongoing Phase C content expansion
 
 ### Cross-Cut: DG Pet Growth
 
