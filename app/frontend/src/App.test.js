@@ -1,7 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App.vue'
-import { __resetFallbackState } from './api'
+import { __resetFallbackState, __setFallbackOnboardingSeen } from './api'
 
 async function switchToEnglish(wrapper) {
   await wrapper.find('.language-select select').setValue('en')
@@ -100,6 +100,7 @@ describe('App', () => {
   })
 
   it('shows onboarding on first launch and lets users move between steps', async () => {
+    __setFallbackOnboardingSeen(false)
     const wrapper = mount(App)
 
     await flushPromises()
@@ -122,6 +123,7 @@ describe('App', () => {
   })
 
   it('can replay onboarding from settings after skipping it', async () => {
+    __setFallbackOnboardingSeen(false)
     const wrapper = mount(App)
 
     await flushPromises()

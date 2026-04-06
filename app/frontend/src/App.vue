@@ -526,17 +526,18 @@ const saveDraftLabel = computed(() =>
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
 
 const onboardingSteps = computed(() => [
-  { id: 'welcome', target: 'hero', title: t.value.onboardingWelcomeTitle, body: t.value.onboardingWelcomeBody },
-  { id: 'study-card', target: 'study-card', title: t.value.onboardingStudyTitle, body: t.value.onboardingStudyBody },
-  { id: 'progress-panel', target: 'progress-panel', title: t.value.onboardingProgressTitle, body: t.value.onboardingProgressBody },
-  { id: 'top-controls', target: 'top-controls', title: t.value.onboardingControlsTitle, body: t.value.onboardingControlsBody },
-  { id: 'tool-buttons', target: 'tool-buttons', title: t.value.onboardingToolsTitle, body: t.value.onboardingToolsBody },
-  { id: 'dg-bubble', target: 'dg-bubble', title: t.value.onboardingDGTitle, body: t.value.onboardingDGBody },
-  { id: 'done', target: 'hero', title: t.value.onboardingDoneTitle, body: t.value.onboardingDoneBody },
+  { id: 'welcome', target: 'hero', placement: 'bottom-center', title: t.value.onboardingWelcomeTitle, body: t.value.onboardingWelcomeBody },
+  { id: 'study-card', target: 'study-card', placement: 'top-right', title: t.value.onboardingStudyTitle, body: t.value.onboardingStudyBody },
+  { id: 'progress-panel', target: 'progress-panel', placement: 'center-left', title: t.value.onboardingProgressTitle, body: t.value.onboardingProgressBody },
+  { id: 'top-controls', target: 'top-controls', placement: 'bottom-center', title: t.value.onboardingControlsTitle, body: t.value.onboardingControlsBody },
+  { id: 'tool-buttons', target: 'tool-buttons', placement: 'bottom-left', title: t.value.onboardingToolsTitle, body: t.value.onboardingToolsBody },
+  { id: 'dg-bubble', target: 'dg-bubble', placement: 'bottom-right', title: t.value.onboardingDGTitle, body: t.value.onboardingDGBody },
+  { id: 'done', target: 'hero', placement: 'bottom-center', title: t.value.onboardingDoneTitle, body: t.value.onboardingDoneBody },
 ])
 const onboardingCurrentStep = computed(() => onboardingSteps.value[onboardingStepIndex.value] ?? onboardingSteps.value[0])
 const onboardingIsFirstStep = computed(() => onboardingStepIndex.value === 0)
 const onboardingIsLastStep = computed(() => onboardingStepIndex.value >= onboardingSteps.value.length - 1)
+const onboardingPanelClass = computed(() => `placement-${onboardingCurrentStep.value?.placement || 'bottom-center'}`)
 
 function previewFileLabel(file) {
   if (file?.cardId) {
@@ -1175,6 +1176,7 @@ function estimatedCorrectAnswers(dayStats) {
 }
 
 async function handleSubmit() {
+  if (onboardingOpen.value) return
   if (!card.value || !selectedAnswer.value) return
 
   submitting.value = true
@@ -1195,6 +1197,7 @@ async function handleSubmit() {
 }
 
 async function handleNextCard() {
+  if (onboardingOpen.value) return
   const wasReviewMode = reviewMode.value
   const previousQueueLength = reviewQueue.value.length
   const previousReviewTotal = reviewSessionProgress.value.total
@@ -1502,22 +1505,27 @@ function handleReplayOnboarding() {
 }
 
 function toggleSettings() {
+  if (onboardingOpen.value) return
   settingsOpen.value = !settingsOpen.value
 }
 
 function toggleLibrary() {
+  if (onboardingOpen.value) return
   libraryOpen.value = !libraryOpen.value
 }
 
 function toggleAI() {
+  if (onboardingOpen.value) return
   aiOpen.value = !aiOpen.value
 }
 
 function toggleDiagnostics() {
+  if (onboardingOpen.value) return
   diagnosticsOpen.value = !diagnosticsOpen.value
 }
 
 function toggleInsights() {
+  if (onboardingOpen.value) return
   insightsOpen.value = !insightsOpen.value
 }
 
@@ -1526,6 +1534,7 @@ function toggleAssistantHint() {
 }
 
 async function handleAssistantInteraction() {
+  if (onboardingOpen.value) return
   if (assistantHintCollapsed.value) {
     assistantHintCollapsed.value = false
     return
@@ -2547,7 +2556,7 @@ async function showPetReaction(trigger) {
       </div>
 
     <div v-if="onboardingOpen" class="onboarding-overlay">
-      <section class="onboarding-panel" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+      <section class="onboarding-panel" :class="onboardingPanelClass" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
         <div class="onboarding-panel-copy">
           <div class="onboarding-avatar">
             <img class="assistant-avatar-image" :src="assistantAvatarSrc" :alt="t.dgLabel">

@@ -279,7 +279,7 @@ const fallbackDashboard = {
   preferredLanguage: 'zh-TW',
   selectedTopic: 'all',
   availableTopics: ['all', 'backend-tools', 'languages', 'docker', 'git', 'go', 'linux', 'python'],
-  onboardingSeen: false,
+  onboardingSeen: true,
   petStage: 0,
   stats: {
     studiedToday: 1,
@@ -531,7 +531,7 @@ export function __resetFallbackState() {
     style: 'playful',
     titleMode: 'prefer_manual',
   }
-  fallbackDashboard.onboardingSeen = false
+  fallbackDashboard.onboardingSeen = true
   fallbackDashboard.scheduleSettings = {
     notificationIntervalMinutes: 20,
     reviewTime: '21:00',
@@ -562,6 +562,10 @@ export function __resetFallbackState() {
   fallbackPetState.lastInteractionAt = ''
   fallbackPetState.lastReactionAt = ''
   fallbackDashboard.petStage = 0
+}
+
+export function __setFallbackOnboardingSeen(seen) {
+  fallbackDashboard.onboardingSeen = Boolean(seen)
 }
 
 export async function loadDashboard() {
