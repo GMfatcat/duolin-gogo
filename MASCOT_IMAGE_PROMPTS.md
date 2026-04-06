@@ -221,6 +221,16 @@ Do not redesign DG here. The job is to make the same DG feel subtly more alive a
 2. Generate stage `0`, `1`, and `2` variants for that same pose
 3. Keep identity locked
 4. Only change liveliness, glow, gloss, and expression richness
+5. Export with the staged naming convention so frontend fallback stays trivial:
+   - `idle-stage0`
+   - `idle-stage1`
+   - `idle-stage2`
+   - `wave-stage0`
+   - `wave-stage1`
+   - `wave-stage2`
+   - `spark-stage0`
+   - `spark-stage1`
+   - `spark-stage2`
 
 ---
 

@@ -181,3 +181,7 @@ Next targets:
     - expand direct click interaction so later hidden stages can feel more playful and distinct without increasing noise
   - `V2-D Rare Surprises`
     - save very low-frequency pose or badge surprises for later polish once stage visuals are stable
+- first V2-A wiring slice implemented:
+  - mascot asset resolution now goes through a dedicated frontend resolver with stage-aware fallback
+  - `idle`, `wave`, and `spark` are explicitly marked as the first staged poses
+  - missing stage art safely falls back to current V1 assets, so stage visuals can land incrementally

@@ -773,6 +773,7 @@ Current status:
     - later stages should unlock thicker click pools and slightly more attitude-rich reactions
   - `V2-D Rare Surprises`
     - reserve low-frequency visual or behavioral surprises for later polish, such as rare pose variants or tiny badge-level changes
+- V2-A wiring slice implemented: frontend mascot asset resolution now has a stable fallback chain for future `stage0/1/2` art, so `idle`, `wave`, and `spark` can gain staged assets incrementally without breaking current V1 poses
 
 ### Cross-Cut: Background Running And Tray Lifecycle
 

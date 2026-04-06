@@ -448,6 +448,48 @@ Start with:
 
 These three poses are enough to make stage growth noticeable without redrawing the whole mascot pack at once.
 
+### Frontend Wiring Rule
+
+The frontend should resolve mascot art with a strict fallback chain:
+
+1. collapsed badge stage asset if the bubble is collapsed
+2. pose-specific stage asset such as `idle-stage1`
+3. pose default such as `idle.svg`
+4. final fallback to `idle.svg`
+
+This makes V2-A safe to ship incrementally:
+
+- start with `idle`, `wave`, and `spark`
+- leave `nod`, `think`, and `rest` on the current V1 art
+- keep the resolver stable while stage assets arrive over time
+
+### Naming Convention
+
+Recommended staged filenames:
+
+- `idle-stage0.svg`
+- `idle-stage1.svg`
+- `idle-stage2.svg`
+- `wave-stage0.svg`
+- `wave-stage1.svg`
+- `wave-stage2.svg`
+- `spark-stage0.svg`
+- `spark-stage1.svg`
+- `spark-stage2.svg`
+
+Optional later:
+
+- `collapsed-badge-stage1.svg`
+- `collapsed-badge-stage2.svg`
+
+If a staged asset does not exist yet, the frontend should always fall back to the current pose asset.
+
+### Current Frontend Constraint
+
+Right now the frontend reliably knows the hidden pet stage during explicit reaction payloads.
+
+For always-on stage visuals in the shell, a later V2-A implementation slice should also expose current pet stage through ordinary dashboard loading, not only through reaction responses.
+
 ### Stage 0
 
 Feel:

@@ -1,13 +1,7 @@
 ﻿<script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { EventsOn } from '../wailsjs/runtime/runtime'
-import dgCollapsedBadge from './assets/dg/collapsed-badge.svg'
-import dgIdle from './assets/dg/idle.svg'
-import dgNod from './assets/dg/nod.svg'
-import dgRest from './assets/dg/rest.svg'
-import dgSpark from './assets/dg/spark.svg'
-import dgThink from './assets/dg/think.svg'
-import dgWave from './assets/dg/wave.svg'
+import { resolveDGMascotAsset, resolveDGMascotStageClass } from './dgAssets'
 import {
   getStudyCard,
   getDGReaction,
@@ -677,26 +671,13 @@ const assistantHintPose = computed(() => {
   if (phase.value === 'learn') return 'pose-idle'
   return 'pose-wave'
 })
-const assistantStageClass = computed(() => `stage-${petReaction.value?.stage ?? 0}`)
+const assistantStageClass = computed(() => resolveDGMascotStageClass(petReaction.value?.stage ?? 0))
 const assistantAvatarSrc = computed(() => {
-  if (assistantHintCollapsed.value) return dgCollapsedBadge
-
-  switch (assistantHintPose.value) {
-    case 'pose-nod':
-      return dgNod
-    case 'pose-think':
-      return dgThink
-    case 'pose-rest':
-      return dgRest
-    case 'pose-spark':
-      return dgSpark
-    case 'pose-wave':
-    case 'pose-focus':
-      return dgWave
-    case 'pose-idle':
-    default:
-      return dgIdle
-  }
+  return resolveDGMascotAsset({
+    collapsed: assistantHintCollapsed.value,
+    pose: assistantHintPose.value === 'pose-focus' ? 'wave' : assistantHintPose.value,
+    stage: petReaction.value?.stage ?? 0,
+  })
 })
 const assistantHintText = computed(() => {
   if (petReaction.value?.body) return petReaction.value.body
