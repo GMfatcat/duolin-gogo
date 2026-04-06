@@ -6,3 +6,7 @@ node_modules/
 *.dll
 *.log
 .DS_Store
+app/frontend/src/assets/dg-archive/
+data/cards-cache.gob
+data/pet.json
+data-release-backup/
