@@ -160,6 +160,7 @@ type DashboardData struct {
 	PreferredLanguage    string               `json:"preferredLanguage"`
 	SelectedTopic        string               `json:"selectedTopic"`
 	AvailableTopics      []string             `json:"availableTopics"`
+	OnboardingSeen       bool                 `json:"onboardingSeen"`
 	PetStage             int                  `json:"petStage"`
 	Stats                DashboardStats       `json:"stats"`
 	Summary              dashboard.Summary    `json:"summary"`
@@ -315,6 +316,7 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		PreferredLanguage: preferredLanguage,
 		SelectedTopic:     selectedTopic,
 		AvailableTopics:   availableTopics(cache.Cards),
+		OnboardingSeen:    config.Onboarding.Seen,
 		PetStage:          petState.Stage,
 		Stats:             calculateStats(state, now),
 		Summary:           dashboard.BuildSummary(filteredCards, state, now),
@@ -1070,6 +1072,22 @@ func (a *App) UpdateScheduleSettings(notificationIntervalMinutes int, reviewTime
 	a.schedulerState.SnoozedUntil = nil
 
 	return ActionStatus{Message: "Schedule settings updated."}, nil
+}
+
+func (a *App) UpdateOnboardingSeen(seen bool) (ActionStatus, error) {
+	path := filepath.Join(a.dataDir, "settings.json")
+	file, err := settings.Load(path)
+	if err != nil {
+		return ActionStatus{}, err
+	}
+
+	file.Onboarding.Seen = seen
+
+	if err := writeSettingsFile(path, file); err != nil {
+		return ActionStatus{}, err
+	}
+
+	return ActionStatus{Message: "Onboarding preference updated."}, nil
 }
 
 func (a *App) loadState() (cards.CacheFile, progress.ProgressFile, string, error) {

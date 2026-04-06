@@ -434,6 +434,30 @@ Suggested review scheduling:
   - `V2-D Rare Surprises`: low-frequency pose variants, badge-level surprises, or rare visual quirks can be layered on later as polish
   - planning note: the first full `V2-A Stage Visuals` finish should happen in a dedicated mascot pass after the current topic-expansion push, so stage polish can stay coherent instead of getting fragmented across deck-content work
 
+### 11.9 Onboarding V1
+
+- the app should support a first-launch guided tour inside the main window
+- onboarding should use:
+  - a dimmed overlay
+  - one highlighted target area at a time
+  - blocked interaction outside the guided flow
+- `DG` should narrate the tour so onboarding feels like part of the product instead of a generic tooltip layer
+- each step should support:
+  - `Skip`
+  - `Back`
+  - `Next`
+- the final step should offer `Start learning`
+- onboarding should be replayable from `Settings`
+- the first planned step order is:
+  - welcome
+  - study card
+  - progress panel
+  - top controls
+  - tool surfaces
+  - DG bubble
+  - done
+- the first implementation can use a dimmed overlay plus target highlighting instead of a full geometric spotlight mask, as long as non-target regions are visually suppressed and non-interactive
+
 ### 11.4 Review Session Screen
 
 - current question index

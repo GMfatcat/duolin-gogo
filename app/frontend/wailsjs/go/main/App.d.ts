@@ -42,6 +42,8 @@ export function SubmitAnswer(arg1:string,arg2:string,arg3:string,arg4:string):Pr
 
 export function UpdateNotificationSettings(arg1:string,arg2:string):Promise<main.ActionStatus>;
 
+export function UpdateOnboardingSeen(arg1:boolean):Promise<main.ActionStatus>;
+
 export function UpdatePreferredLanguage(arg1:string):Promise<main.ActionStatus>;
 
 export function UpdateScheduleSettings(arg1:number,arg2:string,arg3:boolean,arg4:string,arg5:string,arg6:string):Promise<main.ActionStatus>;

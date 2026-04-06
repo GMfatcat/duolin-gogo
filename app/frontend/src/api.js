@@ -16,6 +16,7 @@
   StartLearnBreak,
   SubmitAnswer,
   UpdateNotificationSettings,
+  UpdateOnboardingSeen,
   UpdatePreferredLanguage,
   UpdateScheduleSettings,
   UpdateSelectedTopic,
@@ -278,6 +279,7 @@ const fallbackDashboard = {
   preferredLanguage: 'zh-TW',
   selectedTopic: 'all',
   availableTopics: ['all', 'backend-tools', 'languages', 'docker', 'git', 'go', 'linux', 'python'],
+  onboardingSeen: false,
   petStage: 0,
   stats: {
     studiedToday: 1,
@@ -529,6 +531,7 @@ export function __resetFallbackState() {
     style: 'playful',
     titleMode: 'prefer_manual',
   }
+  fallbackDashboard.onboardingSeen = false
   fallbackDashboard.scheduleSettings = {
     notificationIntervalMinutes: 20,
     reviewTime: '21:00',
@@ -1069,6 +1072,15 @@ export async function updatePreferredLanguage(language) {
 
   fallbackDashboard.preferredLanguage = language
   return { message: 'Language updated.' }
+}
+
+export async function updateOnboardingSeen(seen) {
+  if (hasBackend()) {
+    return UpdateOnboardingSeen(seen)
+  }
+
+  fallbackDashboard.onboardingSeen = Boolean(seen)
+  return { message: 'Onboarding preference updated.' }
 }
 
 export async function updateSelectedTopic(topic) {

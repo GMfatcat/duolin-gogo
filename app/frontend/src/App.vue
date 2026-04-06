@@ -19,6 +19,7 @@ import {
   startLearnBreak,
   submitAnswer,
   updateNotificationSettings,
+  updateOnboardingSeen,
   updatePreferredLanguage,
   updateSelectedTopic,
   updateScheduleSettings,
@@ -123,7 +124,26 @@ const translations = {
     insightsLabel: '洞察',
     close: '關閉',
     saveSchedule: '儲存排程',
-    openSettings: '開啟設定',
+      openSettings: '開啟設定',
+      replayOnboarding: '重新導覽',
+      onboardingSkip: '跳過',
+      onboardingBack: '上一步',
+      onboardingNext: '下一步',
+      onboardingStart: '開始學習',
+      onboardingWelcomeTitle: '歡迎來到 duolin-gogo',
+      onboardingWelcomeBody: '我是 DG，我會帶你快速看一圈，知道這個 app 怎麼用。',
+      onboardingStudyTitle: '這裡是學習主舞台',
+      onboardingStudyBody: '左邊會照 Learn → Answer → Feedback 的節奏帶你走完一張卡。',
+      onboardingProgressTitle: '右邊看整體狀態',
+      onboardingProgressBody: '這裡會告訴你今天答了多少、正答率、streak 和目前最需要補的主題。',
+      onboardingControlsTitle: '上方切語言與模式',
+      onboardingControlsBody: '你可以切換語言，也可以改成混合模式或專注某個主題來學。',
+      onboardingToolsTitle: '工具都收在右上角',
+      onboardingToolsBody: '設定、書庫、AI 與診斷都在這裡，需要時再打開，不會干擾主畫面。',
+      onboardingDGTitle: 'DG 會陪你學',
+      onboardingDGBody: '你可以點我互動，我也會在不同情境下給提醒、鼓勵和一些小彩蛋。',
+      onboardingDoneTitle: '準備好了',
+      onboardingDoneBody: '先從一張卡開始就好，之後如果想重看引導，也能從設定再播一次。',
     toolsLabel: '工具',
     warningLabel: 'warning',
     errorLabel: 'error',
@@ -271,7 +291,26 @@ const translations = {
     insightsLabel: 'Insights',
     close: 'Close',
     saveSchedule: 'Save schedule',
-    openSettings: 'Open settings',
+      openSettings: 'Open settings',
+      replayOnboarding: 'Replay onboarding',
+      onboardingSkip: 'Skip',
+      onboardingBack: 'Back',
+      onboardingNext: 'Next',
+      onboardingStart: 'Start learning',
+      onboardingWelcomeTitle: 'Welcome to duolin-gogo',
+      onboardingWelcomeBody: 'I am DG. I will give you a quick guided tour so the app feels obvious right away.',
+      onboardingStudyTitle: 'This is the study stage',
+      onboardingStudyBody: 'The left side guides every card through Learn → Answer → Feedback.',
+      onboardingProgressTitle: 'The right side tracks momentum',
+      onboardingProgressBody: 'You can see daily answers, accuracy, streak, and the topics that need another pass.',
+      onboardingControlsTitle: 'Top controls change language and mode',
+      onboardingControlsBody: 'Switch language here, then choose mixed mode or focus on a specific topic.',
+      onboardingToolsTitle: 'Tools live in the top-right cluster',
+      onboardingToolsBody: 'Settings, Library, AI, and Diagnostics stay here so the main study area stays clean.',
+      onboardingDGTitle: 'DG studies with you',
+      onboardingDGBody: 'You can tap me anytime. I react to your sessions, cheer you on, and hide a few easter eggs.',
+      onboardingDoneTitle: 'You are ready',
+      onboardingDoneBody: 'Start with one card. If you ever want the tour again, replay it from Settings.',
     toolsLabel: 'Tools',
     warningLabel: 'warning',
     errorLabel: 'error',
@@ -342,6 +381,8 @@ const libraryOpen = ref(false)
 const aiOpen = ref(false)
 const diagnosticsOpen = ref(false)
 const insightsOpen = ref(false)
+const onboardingOpen = ref(false)
+const onboardingStepIndex = ref(0)
 const assistantHintCollapsed = ref(false)
 const petReaction = ref(null)
 const petStage = ref(0)
@@ -483,6 +524,19 @@ const saveDraftLabel = computed(() =>
   draftReviewItems.value.length > 1 ? t.value.saveValidDrafts : t.value.saveDraft,
 )
 const t = computed(() => translations[selectedLanguage.value] ?? translations['zh-TW'])
+
+const onboardingSteps = computed(() => [
+  { id: 'welcome', target: 'hero', title: t.value.onboardingWelcomeTitle, body: t.value.onboardingWelcomeBody },
+  { id: 'study-card', target: 'study-card', title: t.value.onboardingStudyTitle, body: t.value.onboardingStudyBody },
+  { id: 'progress-panel', target: 'progress-panel', title: t.value.onboardingProgressTitle, body: t.value.onboardingProgressBody },
+  { id: 'top-controls', target: 'top-controls', title: t.value.onboardingControlsTitle, body: t.value.onboardingControlsBody },
+  { id: 'tool-buttons', target: 'tool-buttons', title: t.value.onboardingToolsTitle, body: t.value.onboardingToolsBody },
+  { id: 'dg-bubble', target: 'dg-bubble', title: t.value.onboardingDGTitle, body: t.value.onboardingDGBody },
+  { id: 'done', target: 'hero', title: t.value.onboardingDoneTitle, body: t.value.onboardingDoneBody },
+])
+const onboardingCurrentStep = computed(() => onboardingSteps.value[onboardingStepIndex.value] ?? onboardingSteps.value[0])
+const onboardingIsFirstStep = computed(() => onboardingStepIndex.value === 0)
+const onboardingIsLastStep = computed(() => onboardingStepIndex.value >= onboardingSteps.value.length - 1)
 
 function previewFileLabel(file) {
   if (file?.cardId) {
@@ -951,6 +1005,9 @@ async function refreshDashboard() {
   }
   resetStudyFlow()
   loading.value = false
+  if (!nextDashboard.onboardingSeen && !onboardingOpen.value) {
+    startOnboarding()
+  }
 }
 
 async function refreshAuthoringPreview(selectedPath = '') {
@@ -1392,6 +1449,58 @@ async function handleTopicChange(topic) {
   }
 }
 
+function startOnboarding() {
+  settingsOpen.value = false
+  libraryOpen.value = false
+  aiOpen.value = false
+  diagnosticsOpen.value = false
+  insightsOpen.value = false
+  assistantHintCollapsed.value = false
+  onboardingStepIndex.value = 0
+  onboardingOpen.value = true
+}
+
+async function closeOnboarding(markSeen = true) {
+  onboardingOpen.value = false
+  onboardingStepIndex.value = 0
+
+  if (!markSeen || dashboard.value?.onboardingSeen) {
+    return
+  }
+
+  try {
+    const result = await updateOnboardingSeen(true)
+    if (dashboard.value) {
+      dashboard.value.onboardingSeen = true
+    }
+    actionMessage.value = result.message
+  } catch (error) {
+    actionMessage.value = `Onboarding update failed: ${error?.message ?? String(error)}`
+  }
+}
+
+function nextOnboardingStep() {
+  if (onboardingIsLastStep.value) {
+    closeOnboarding(true)
+    return
+  }
+  onboardingStepIndex.value += 1
+}
+
+function previousOnboardingStep() {
+  if (onboardingIsFirstStep.value) return
+  onboardingStepIndex.value -= 1
+}
+
+function isOnboardingTarget(target) {
+  return onboardingOpen.value && onboardingCurrentStep.value?.target === target
+}
+
+function handleReplayOnboarding() {
+  settingsOpen.value = false
+  startOnboarding()
+}
+
 function toggleSettings() {
   settingsOpen.value = !settingsOpen.value
 }
@@ -1489,8 +1598,8 @@ async function showPetReaction(trigger) {
 </script>
 
 <template>
-  <main class="shell">
-    <section class="hero">
+  <main class="shell" :class="{ 'onboarding-shell': onboardingOpen }">
+    <section class="hero onboarding-target" :class="{ 'is-active': isOnboardingTarget('hero') }">
       <div class="hero-copy">
         <p class="eyebrow">THE CLICK-BAIT MASTER</p>
         <h1>duolin-gogo</h1>
@@ -1498,8 +1607,8 @@ async function showPetReaction(trigger) {
         <p class="topic-context">{{ topicDescription }}</p>
         <button
           v-if="assistantVisible"
-          class="assistant-hint"
-          :class="[assistantHintTone, assistantHintPose, assistantStageClass, { collapsed: assistantHintCollapsed, 'is-cooldown': assistantIsCooldown, silent: assistantIsSilentCooldown }]"
+          class="assistant-hint onboarding-target"
+          :class="[assistantHintTone, assistantHintPose, assistantStageClass, { collapsed: assistantHintCollapsed, 'is-cooldown': assistantIsCooldown, silent: assistantIsSilentCooldown, 'is-active': isOnboardingTarget('dg-bubble') }]"
           type="button"
           @click="handleAssistantInteraction"
         >
@@ -1520,6 +1629,7 @@ async function showPetReaction(trigger) {
       </div>
 
       <div class="hero-actions">
+        <div class="hero-controls onboarding-target" :class="{ 'is-active': isOnboardingTarget('top-controls') }">
         <label class="control-select hero-toggle language-select">
           <span>{{ t.languageLabel }}</span>
           <select :value="selectedLanguage" :disabled="changingLanguage" @change="handleLanguageChange($event.target.value)">
@@ -1536,7 +1646,9 @@ async function showPetReaction(trigger) {
             </option>
           </select>
         </label>
+        </div>
 
+        <div class="hero-tool-buttons onboarding-target" :class="{ 'is-active': isOnboardingTarget('tool-buttons') }">
         <button class="library-button" type="button" :aria-label="t.libraryLabel" @click="toggleLibrary">
           <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -1624,11 +1736,12 @@ async function showPetReaction(trigger) {
             />
           </svg>
         </button>
+        </div>
       </div>
     </section>
 
     <section class="workspace">
-      <div class="study-column">
+      <div class="study-column onboarding-target" :class="{ 'is-active': isOnboardingTarget('study-card') }">
         <section v-if="loading" class="study-card emphasis">
           <p class="label">{{ t.loading }}</p>
           <strong>{{ t.preparingCard }}</strong>
@@ -1799,7 +1912,7 @@ async function showPetReaction(trigger) {
         </section>
       </div>
 
-      <aside class="sidebar-column">
+      <aside class="sidebar-column onboarding-target" :class="{ 'is-active': isOnboardingTarget('progress-panel') }">
         <section class="status-grid compact">
           <article class="status-card">
             <span class="label">{{ t.studiedToday }}</span>
@@ -1882,6 +1995,7 @@ async function showPetReaction(trigger) {
               <button class="toolbar-button secondary" type="button" @click="handleSnooze">{{ t.snoozeNotifications }}</button>
               <button class="toolbar-button secondary" type="button" @click="handleRescanKnowledge">{{ t.rescanKnowledge }}</button>
               <button class="toolbar-button secondary" type="button" @click="handleValidateKnowledge">{{ t.validateKnowledge }}</button>
+              <button class="toolbar-button secondary" type="button" @click="handleReplayOnboarding">{{ t.replayOnboarding }}</button>
               <button class="toolbar-button danger" type="button" @click="openResetWarning">{{ t.resetStudyData }}</button>
             </div>
             <span v-if="actionMessage" class="toolbar-message">{{ actionMessage }}</span>
@@ -2428,6 +2542,31 @@ async function showPetReaction(trigger) {
           <button class="toolbar-button danger confirm-reset-button" type="button" @click="handleResetStudyData">
             {{ t.confirmReset }}
           </button>
+        </div>
+        </section>
+      </div>
+
+    <div v-if="onboardingOpen" class="onboarding-overlay">
+      <section class="onboarding-panel" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <div class="onboarding-panel-copy">
+          <div class="onboarding-avatar">
+            <img class="assistant-avatar-image" :src="assistantAvatarSrc" :alt="t.dgLabel">
+          </div>
+          <div>
+            <p class="label">{{ t.dgLabel }}</p>
+            <h2 id="onboarding-title">{{ onboardingCurrentStep.title }}</h2>
+            <p class="explanation">{{ onboardingCurrentStep.body }}</p>
+          </div>
+        </div>
+
+        <div class="onboarding-nav">
+          <button class="toolbar-button secondary" type="button" @click="closeOnboarding(true)">{{ t.onboardingSkip }}</button>
+          <div class="onboarding-actions">
+            <button class="toolbar-button secondary" type="button" :disabled="onboardingIsFirstStep" @click="previousOnboardingStep">{{ t.onboardingBack }}</button>
+            <button class="toolbar-button" type="button" @click="nextOnboardingStep">
+              {{ onboardingIsLastStep ? t.onboardingStart : t.onboardingNext }}
+            </button>
+          </div>
         </div>
       </section>
     </div>

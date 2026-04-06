@@ -435,6 +435,7 @@ export namespace main {
 	    preferredLanguage: string;
 	    selectedTopic: string;
 	    availableTopics: string[];
+	    onboardingSeen: boolean;
 	    petStage: number;
 	    stats: DashboardStats;
 	    summary: dashboard.Summary;
@@ -455,6 +456,7 @@ export namespace main {
 	        this.preferredLanguage = source["preferredLanguage"];
 	        this.selectedTopic = source["selectedTopic"];
 	        this.availableTopics = source["availableTopics"];
+	        this.onboardingSeen = source["onboardingSeen"];
 	        this.petStage = source["petStage"];
 	        this.stats = this.convertValues(source["stats"], DashboardStats);
 	        this.summary = this.convertValues(source["summary"], dashboard.Summary);

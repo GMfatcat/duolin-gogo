@@ -830,3 +830,38 @@ Current status:
 - in_progress
 - first slice implemented: settings and authoring are already split into separate gear and book surfaces
 - second slice implemented: diagnostics now live in a dedicated top-right popout so settings and library stay shorter
+
+### Cross-Cut: Onboarding V1
+
+Goal:
+
+- help first-time users understand the app through an in-product guided tour instead of external explanation
+
+Deliverables:
+
+- first-launch onboarding overlay inside the main window
+- dimmed shell with one highlighted target area at a time
+- `DG`-narrated guidance copy for each step
+- step controls for `Skip`, `Back`, and `Next`
+- final completion step with `Start learning`
+- replay entry inside `Settings`
+
+Suggested first step set:
+
+- `welcome`
+- `study-card`
+- `progress-panel`
+- `top-controls`
+- `tool-buttons`
+- `dg-bubble`
+- `done`
+
+TDD focus:
+
+- component tests for onboarding step transitions
+- persistence tests for first-run completion state
+- UI tests for replaying the guided tour from settings
+
+Current status:
+
+- planned

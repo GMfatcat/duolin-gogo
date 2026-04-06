@@ -189,3 +189,19 @@ Next targets:
 - current planning note:
   - the complete `DG Pet V2-A` visual finish should be scheduled as its own mascot-focused polish pass
   - immediate implementation focus has moved back to Phase C so topic expansion and deck depth can keep growing without interleaving a larger mascot-art integration slice
+- Cross-cut onboarding work
+  - add a first-launch guided tour inside the app instead of relying on outside docs
+  - use a dimmed overlay with a highlighted target area and `DG` as the narrator
+  - keep the first version lightweight:
+    - no intro video
+    - no branching tutorial
+    - no complex mask geometry
+  - first planned steps:
+    - welcome
+    - main study card
+    - right-side progress area
+    - top language/topic controls
+    - tool popout entry buttons
+    - DG bubble
+    - done / start learning
+  - the tour should auto-run on first launch, support skip/back/next, and be replayable from Settings

@@ -35,6 +35,9 @@ type File struct {
 		CooldownAfterAnswerMinutes int `json:"cooldown_after_answer_minutes"`
 		RevealSpeed                string `json:"reveal_speed"`
 	} `json:"study_rules"`
+	Onboarding struct {
+		Seen bool `json:"seen"`
+	} `json:"onboarding"`
 }
 
 func Load(path string) (File, error) {

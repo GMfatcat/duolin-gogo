@@ -99,6 +99,51 @@ describe('App', () => {
     }
   })
 
+  it('shows onboarding on first launch and lets users move between steps', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    expect(wrapper.find('.onboarding-overlay').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Welcome to duolin-gogo')
+
+    const nextButton = wrapper.findAll('.onboarding-nav .toolbar-button').find((button) => button.text().includes('Next'))
+    await nextButton.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('This is the study stage')
+
+    const backButton = wrapper.findAll('.onboarding-nav .toolbar-button').find((button) => button.text().includes('Back'))
+    await backButton.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Welcome to duolin-gogo')
+  })
+
+  it('can replay onboarding from settings after skipping it', async () => {
+    const wrapper = mount(App)
+
+    await flushPromises()
+    await switchToEnglish(wrapper)
+
+    const skipButton = wrapper.findAll('.onboarding-nav .toolbar-button').find((button) => button.text().includes('Skip'))
+    await skipButton.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.onboarding-overlay').exists()).toBe(false)
+
+    await wrapper.find('.settings-button').trigger('click')
+    await flushPromises()
+
+    const replayButton = wrapper.findAll('.toolbar-button').find((button) => button.text().includes('Replay onboarding'))
+    await replayButton.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.onboarding-overlay').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Welcome to duolin-gogo')
+  })
+
   it('shows settings popout with runtime controls only', async () => {
     const wrapper = mount(App)
 
@@ -165,8 +210,8 @@ describe('App', () => {
 
     await wrapper.find('.settings-button').trigger('click')
     await flushPromises()
-    const buttons = wrapper.findAll('.toolbar-button')
-    await buttons[3].trigger('click')
+    const validateButton = wrapper.findAll('.toolbar-button').find((button) => button.text().includes('Validate knowledge'))
+    await validateButton.trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('Knowledge validated: 40 cards, 0 diagnostics.')

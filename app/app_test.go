@@ -1333,6 +1333,34 @@ func TestUpdatePreferredLanguagePersistsValue(t *testing.T) {
 	}
 }
 
+func TestUpdateOnboardingSeenPersistsValue(t *testing.T) {
+	app := newTestApp(t)
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+	if dashboard.OnboardingSeen {
+		t.Fatal("expected onboarding to default to unseen")
+	}
+
+	status, err := app.UpdateOnboardingSeen(true)
+	if err != nil {
+		t.Fatalf("update onboarding seen failed: %v", err)
+	}
+	if status.Message != "Onboarding preference updated." {
+		t.Fatalf("unexpected status: %s", status.Message)
+	}
+
+	after, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard after update failed: %v", err)
+	}
+	if !after.OnboardingSeen {
+		t.Fatal("expected onboarding to persist as seen")
+	}
+}
+
 func TestUpdateScheduleSettingsPersistsValues(t *testing.T) {
 	app := newTestApp(t)
 
