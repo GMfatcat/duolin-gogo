@@ -10,7 +10,7 @@ difficulty: 2
 question_zh: "`git checkout` 這個舊指令既能切分支，也能還原檔案內容。"
 question_en: "The older `git checkout` command can both switch branches and restore file content."
 answer: true
-clickbait_zh: "一個指令做太多事，往往就是新手出事的開始"
+clickbait_zh: "一個指令做太多事，往往就是新手出事的開始~"
 clickbait_en: "When one command does too much, beginners usually pay for it."
 review_hint_zh: "`git checkout` 是舊式多功能指令，能切分支也能還原內容。"
 review_hint_en: "`git checkout` is an older multi-purpose command for switching and restoring."
