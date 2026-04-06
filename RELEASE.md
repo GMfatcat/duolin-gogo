@@ -26,7 +26,6 @@ These should stay:
 Run:
 
 ```powershell
-cd D:\duolin-gogo
 powershell -ExecutionPolicy Bypass -File .\scripts\prepare-release.ps1
 ```
 
@@ -41,13 +40,13 @@ What it does:
 ## Build
 
 ```powershell
-cd D:\duolin-gogo\app
+cd app
 wails build
 ```
 
 Output:
 
-- [app.exe](D:\duolin-gogo\app\build\bin\app.exe)
+- `app/build/bin/app.exe`
 
 ## Recommended Release Folder
 
@@ -74,4 +73,3 @@ Do not ship:
 
 - `data-release-backup/`
 - `app/frontend/src/assets/dg-archive/`
-

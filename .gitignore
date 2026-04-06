@@ -10,3 +10,4 @@ app/frontend/src/assets/dg-archive/
 data/cards-cache.gob
 data/pet.json
 data-release-backup/
+release/
