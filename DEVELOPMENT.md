@@ -122,6 +122,7 @@ Next targets:
 - fifteenth slice implemented: the content map now expands beyond tools and languages into three new high-value decks for SQL, HTTP, and backend engineering basics, covering query optimization pitfalls, protocol/transport concepts, and testing/async/cache strategy
 - sixteenth slice implemented: those SQL, HTTP, and backend decks now have a second wave covering join/null/update pitfalls, headers/content-type/keep-alive/TLS handshake/REST, and practical backend patterns such as stubs, E2E tests, retries, TTL, hot keys, and queues
 - seventeenth slice implemented: practical topic coverage now also includes a first Bash deck, a middleware deck, backend CRUD cards, and an ACID transaction card for SQL
+- eighteenth slice implemented: topic coverage now also includes OOP, functional programming, and lightweight design-patterns concepts such as classes, encapsulation, pure functions, side effects, factory functions, strategy, adapter, and dependency injection
 - next UI refinement queued: move grouped-topic guidance toward the top as an assistant hint, collapse diagnostics by default, and simplify language/topic controls into dropdowns
 - Cross-cut lifecycle work
   - add close-to-background behavior so `X` hides instead of quitting
