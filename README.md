@@ -1,31 +1,41 @@
 # duolin-gogo
 
-Local-first desktop microlearning for your own technical notes.
+> Local-first desktop microlearning for your own technical notes.
 
-[繁體中文版](./README.zh-TW.md)
+[![Platform](https://img.shields.io/badge/platform-Windows-0f8f9c?style=flat-square)](./RELEASE.md)
+[![Stack](https://img.shields.io/badge/stack-Wails%20%7C%20Go%20%7C%20Vue%203-e9c46a?style=flat-square)](./app)
+[![Knowledge](https://img.shields.io/badge/knowledge-Markdown%20decks-1c3345?style=flat-square)](./knowledge)
+[![Language](https://img.shields.io/badge/language-English%20%7C%20%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-0a5161?style=flat-square)](./README.zh-TW.md)
 
-## What It Is
+English | [繁體中文](./README.zh-TW.md)
 
-`duolin-gogo` turns your Markdown knowledge base into:
+## Overview
+
+`duolin-gogo` turns your Markdown knowledge base into a local desktop study app with:
 
 - timed study nudges
-- short concept-first learning cards
+- concept-first microlearning cards
 - spaced review loops
 - topic-aware study sessions
-- a mascot-led desktop learning experience
+- AI-assisted authoring tools
+- a DG mascot companion with hidden growth and easter eggs
 
-Everything runs locally. Your knowledge lives in `knowledge/`, and your runtime state stays in `data/`.
+Everything stays local:
 
-## Main Features
+- source knowledge lives in [`knowledge/`](./knowledge)
+- runtime state lives in [`data/`](./data)
+- the desktop app lives in [`app/`](./app)
 
-- Bilingual cards (`zh-TW` / `en`)
-- Local Markdown-based knowledge decks
-- Adaptive card selection and review flow
-- Windows toast notifications and tray background running
-- Multi-topic technical study decks
-- AI-assisted authoring workspace
-- DG mascot companion with hidden growth and easter eggs
-- First-launch onboarding tour
+## Highlights
+
+- 🌏 Bilingual cards (`zh-TW` / `en`)
+- 🧠 Adaptive card selection and review flow
+- 🔔 Windows toast notifications and tray background running
+- 🗂️ Multi-topic technical study decks
+- ✍️ Library + AI authoring workspace
+- 🤖 DG mascot with reactions, growth, and easter eggs
+- 🚀 First-launch onboarding tour
+- ⚡ `cards-cache.gob` knowledge cache for faster startup and rescans
 
 ## Current Topics
 
@@ -49,16 +59,16 @@ Everything runs locally. Your knowledge lives in `knowledge/`, and your runtime 
 - Go
 - Vue 3
 - Local JSON / JSONL runtime state
-- `cards-cache.gob` knowledge cache
+- `cards-cache.gob` for parsed knowledge caching
 
-## Project Layout
+## Repository Layout
 
-- `knowledge/` - source knowledge cards
-- `data/` - local runtime state and cache
-- `app/` - Wails desktop app
-- `AI_CARD_PROMPT.md` - AI card authoring prompt
-- `MASCOT_SPEC.md` - DG mascot design spec
-- `RELEASE.md` - release preparation and packaging notes
+- [`knowledge/`](./knowledge): source knowledge cards
+- [`data/`](./data): local runtime state and cache
+- [`app/`](./app): Wails desktop app
+- [`AI_CARD_PROMPT.md`](./AI_CARD_PROMPT.md): AI card authoring prompt
+- [`MASCOT_SPEC.md`](./MASCOT_SPEC.md): DG mascot design spec
+- [`RELEASE.md`](./RELEASE.md): release preparation and packaging notes
 
 ## Development
 
@@ -100,7 +110,13 @@ cd app
 wails build
 ```
 
-Recommended release bundle:
+Create a distributable release bundle:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\create-release-bundle.ps1
+```
+
+Recommended release structure:
 
 ```text
 duolin-gogo/
@@ -109,4 +125,4 @@ duolin-gogo/
   data/
 ```
 
-See [RELEASE.md](./RELEASE.md) for details.
+See [`RELEASE.md`](./RELEASE.md) for details.
