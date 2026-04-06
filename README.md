@@ -37,6 +37,13 @@ Everything stays local:
 - 🚀 First-launch onboarding tour
 - ⚡ `cards-cache.gob` knowledge cache for faster startup and rescans
 
+## Timeline
+
+- `MVP`: local-first study flow, review loop, notifications, tray running
+- `Authoring`: Library / AI workspace, batch review, fix suggestions, import reports
+- `Expansion`: multi-topic decks across tools, backend, and programming concepts
+- `DG`: mascot companion, hidden growth, onboarding, and easter eggs
+
 ## Current Topics
 
 - Git
