@@ -359,6 +359,7 @@ export namespace main {
 		}
 	}
 	export class DGInteractionStatus {
+	    key: string;
 	    title: string;
 	    body: string;
 	    variant: string;
@@ -371,6 +372,7 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.key = source["key"];
 	        this.title = source["title"];
 	        this.body = source["body"];
 	        this.variant = source["variant"];
@@ -433,6 +435,7 @@ export namespace main {
 	    preferredLanguage: string;
 	    selectedTopic: string;
 	    availableTopics: string[];
+	    petStage: number;
 	    stats: DashboardStats;
 	    summary: dashboard.Summary;
 	    importErrors: diagnostics.Error[];
@@ -452,6 +455,7 @@ export namespace main {
 	        this.preferredLanguage = source["preferredLanguage"];
 	        this.selectedTopic = source["selectedTopic"];
 	        this.availableTopics = source["availableTopics"];
+	        this.petStage = source["petStage"];
 	        this.stats = this.convertValues(source["stats"], DashboardStats);
 	        this.summary = this.convertValues(source["summary"], dashboard.Summary);
 	        this.importErrors = this.convertValues(source["importErrors"], diagnostics.Error);

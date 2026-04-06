@@ -571,6 +571,25 @@ func TestSubmitAnswerAdvancesHiddenPetGrowth(t *testing.T) {
 	}
 }
 
+func TestLoadDashboardIncludesPetStage(t *testing.T) {
+	app := newTestApp(t)
+
+	for index := 0; index < 2; index++ {
+		if _, err := pet.RecordStudyEvent(filepath.Join(app.dataDir, "pet.json"), pet.StudyEventLearnBatch, app.nowFunc()); err != nil {
+			t.Fatalf("record pet study event failed: %v", err)
+		}
+	}
+
+	dashboard, err := app.LoadDashboard()
+	if err != nil {
+		t.Fatalf("load dashboard failed: %v", err)
+	}
+
+	if dashboard.PetStage < 1 {
+		t.Fatalf("expected pet stage in dashboard to advance, got %d", dashboard.PetStage)
+	}
+}
+
 func TestSendTestNotificationUsesSelectedCard(t *testing.T) {
 	app := newTestApp(t)
 	sender := &stubSender{}

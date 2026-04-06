@@ -2,6 +2,7 @@ package pet
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -58,11 +59,58 @@ func TestInteractUsesCooldownWithoutAddingMoreGrowth(t *testing.T) {
 	if second.State.BondXP != 1 {
 		t.Fatalf("expected cooldown interaction not to add xp, got %d", second.State.BondXP)
 	}
-	if second.Reaction.Key != "cooldown" {
-		t.Fatalf("expected cooldown reaction, got %s", second.Reaction.Key)
+	if !strings.HasPrefix(second.Reaction.Key, "cooldown-") {
+		t.Fatalf("expected cooldown reaction variant, got %s", second.Reaction.Key)
 	}
-	if second.Reaction.Pose != "rest" {
-		t.Fatalf("expected cooldown pose rest, got %s", second.Reaction.Pose)
+	if second.Reaction.Pose != "rest" && second.Reaction.Pose != "think" {
+		t.Fatalf("expected cooldown pose rest or think, got %s", second.Reaction.Pose)
+	}
+	if second.Reaction.Variant != "warning" {
+		t.Fatalf("expected cooldown variant warning, got %s", second.Reaction.Variant)
+	}
+}
+
+func TestInteractUsesSilentCooldownAfterRepeatedRapidClicks(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	now := time.Date(2026, 4, 5, 10, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	if _, err := Interact(path, "en", "all", now); err != nil {
+		t.Fatalf("first interaction failed: %v", err)
+	}
+
+	second, err := Interact(path, "en", "all", now.Add(2*time.Second))
+	if err != nil {
+		t.Fatalf("second interaction failed: %v", err)
+	}
+	if !strings.HasPrefix(second.Reaction.Key, "cooldown-") {
+		t.Fatalf("expected cooldown reaction variant, got %s", second.Reaction.Key)
+	}
+
+	third, err := Interact(path, "en", "all", now.Add(4*time.Second))
+	if err != nil {
+		t.Fatalf("third interaction failed: %v", err)
+	}
+	if !strings.HasPrefix(third.Reaction.Key, "cooldown-") {
+		t.Fatalf("expected cooldown reaction variant, got %s", third.Reaction.Key)
+	}
+
+	fourth, err := Interact(path, "en", "all", now.Add(6*time.Second))
+	if err != nil {
+		t.Fatalf("fourth interaction failed: %v", err)
+	}
+	if !strings.HasPrefix(fourth.Reaction.Key, "cooldown-") {
+		t.Fatalf("expected cooldown reaction variant, got %s", fourth.Reaction.Key)
+	}
+
+	fifth, err := Interact(path, "en", "all", now.Add(8*time.Second))
+	if err != nil {
+		t.Fatalf("fifth interaction failed: %v", err)
+	}
+	if fifth.Reaction.Key != "cooldown-silent" {
+		t.Fatalf("expected silent cooldown reaction, got %s", fifth.Reaction.Key)
+	}
+	if fifth.Reaction.Body != "" {
+		t.Fatalf("expected silent cooldown to suppress body, got %q", fifth.Reaction.Body)
 	}
 }
 

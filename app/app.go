@@ -160,6 +160,7 @@ type DashboardData struct {
 	PreferredLanguage    string               `json:"preferredLanguage"`
 	SelectedTopic        string               `json:"selectedTopic"`
 	AvailableTopics      []string             `json:"availableTopics"`
+	PetStage             int                  `json:"petStage"`
 	Stats                DashboardStats       `json:"stats"`
 	Summary              dashboard.Summary    `json:"summary"`
 	ImportErrors         []diagnostics.Error  `json:"importErrors"`
@@ -196,6 +197,7 @@ type LearnBreakStatus struct {
 }
 
 type DGInteractionStatus struct {
+	Key     string `json:"key"`
 	Title   string `json:"title"`
 	Body    string `json:"body"`
 	Variant string `json:"variant"`
@@ -283,6 +285,10 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 	if err != nil {
 		return DashboardData{}, err
 	}
+	petState, err := pet.Load(filepath.Join(a.dataDir, "pet.json"))
+	if err != nil {
+		return DashboardData{}, err
+	}
 	diagnosticFile, err := diagnostics.Load(filepath.Join(a.dataDir, "import-errors.json"))
 	if err != nil {
 		return DashboardData{}, err
@@ -309,6 +315,7 @@ func (a *App) LoadDashboard() (DashboardData, error) {
 		PreferredLanguage: preferredLanguage,
 		SelectedTopic:     selectedTopic,
 		AvailableTopics:   availableTopics(cache.Cards),
+		PetStage:          petState.Stage,
 		Stats:             calculateStats(state, now),
 		Summary:           dashboard.BuildSummary(filteredCards, state, now),
 		ImportErrors:      enrichDiagnosticsErrors(diagnosticFile.Errors),
@@ -527,6 +534,7 @@ func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 	}
 
 	return DGInteractionStatus{
+		Key:     result.Reaction.Key,
 		Title:   result.Reaction.Title,
 		Body:    result.Reaction.Body,
 		Variant: result.Reaction.Variant,
@@ -550,6 +558,7 @@ func (a *App) GetDGReaction(trigger string) (DGInteractionStatus, error) {
 	}
 
 	return DGInteractionStatus{
+		Key:     result.Reaction.Key,
 		Title:   result.Reaction.Title,
 		Body:    result.Reaction.Body,
 		Variant: result.Reaction.Variant,

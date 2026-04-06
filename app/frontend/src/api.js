@@ -278,6 +278,7 @@ const fallbackDashboard = {
   preferredLanguage: 'zh-TW',
   selectedTopic: 'all',
   availableTopics: ['all', 'backend-tools', 'languages', 'docker', 'git', 'go', 'linux', 'python'],
+  petStage: 0,
   stats: {
     studiedToday: 1,
     correctRate: 1,
@@ -557,6 +558,7 @@ export function __resetFallbackState() {
   fallbackPetState.stage = 0
   fallbackPetState.lastInteractionAt = ''
   fallbackPetState.lastReactionAt = ''
+  fallbackDashboard.petStage = 0
 }
 
 export async function loadDashboard() {
@@ -576,6 +578,7 @@ export async function submitAnswer({ cardId, sessionType, selectedAnswer, shownA
   const isCorrect = selectedAnswer === 'true' || selectedAnswer === '1' || selectedAnswer === '0'
   fallbackPetState.bondXp += isCorrect ? 2 : 1
   fallbackPetState.stage = fallbackPetState.bondXp >= 16 ? 2 : fallbackPetState.bondXp >= 6 ? 1 : 0
+  fallbackDashboard.petStage = fallbackPetState.stage
 
   return {
     cardId,
@@ -676,6 +679,7 @@ export async function resetStudyData() {
   fallbackPetState.stage = 0
   fallbackPetState.lastInteractionAt = ''
   fallbackPetState.lastReactionAt = ''
+  fallbackDashboard.petStage = 0
   return { message: 'Study data reset.' }
 }
 
@@ -688,10 +692,26 @@ export async function interactWithDG() {
   if (fallbackPetState.lastInteractionAt) {
     const last = new Date(fallbackPetState.lastInteractionAt)
     if (now.getTime() - last.getTime() < 15000) {
+      const cooldownCount = Math.max(2, Math.min(6, Math.floor((now.getTime() - new Date(fallbackPetState.lastInteractionAt).getTime()) / 2000) + 2))
+      if (cooldownCount >= 5) {
+        return {
+          key: 'cooldown-silent',
+          title: 'DG',
+          body: '',
+          variant: 'warning',
+          pose: 'think',
+          stage: fallbackPetState.stage,
+        }
+      }
       return {
+        key: 'cooldown-breath',
         title: 'DG',
-        body: fallbackDashboard.preferredLanguage === 'zh-TW' ? '我有聽到，先讓我喘一口氣。' : 'I heard you. Give me a beat.',
-        variant: 'focus',
+        body:
+          fallbackDashboard.preferredLanguage === 'zh-TW'
+            ? '欸，我現在是假裝下班狀態 😤'
+            : 'Hey, I am in fake-off-clock mode 😤',
+        variant: 'warning',
+        pose: 'think',
         stage: fallbackPetState.stage,
       }
     }
@@ -701,6 +721,7 @@ export async function interactWithDG() {
   fallbackPetState.stage = fallbackPetState.bondXp >= 16 ? 2 : fallbackPetState.bondXp >= 6 ? 1 : 0
   fallbackPetState.lastInteractionAt = now.toISOString()
   fallbackPetState.lastReactionAt = now.toISOString()
+  fallbackDashboard.petStage = fallbackPetState.stage
   return pickFallbackPetReaction(
     'clicked',
     fallbackClickPool(fallbackDashboard.preferredLanguage, fallbackDashboard.selectedTopic, fallbackPetState.stage),
@@ -714,10 +735,11 @@ export async function getDGReaction(trigger) {
 
   const now = new Date('2026-04-05T10:00:00+08:00')
   if (!shouldEmitFallbackReaction(trigger, now)) {
-    return { title: '', body: '', variant: '', pose: '', stage: fallbackPetState.stage }
+    return { key: '', title: '', body: '', variant: '', pose: '', stage: fallbackPetState.stage }
   }
 
   fallbackPetState.lastReactionAt = now.toISOString()
+  fallbackDashboard.petStage = fallbackPetState.stage
   return pickFallbackPetReaction(
     trigger,
     fallbackTriggerPool(trigger, fallbackDashboard.preferredLanguage, fallbackDashboard.selectedTopic, fallbackPetState.stage),

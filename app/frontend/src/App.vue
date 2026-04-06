@@ -344,6 +344,7 @@ const diagnosticsOpen = ref(false)
 const insightsOpen = ref(false)
 const assistantHintCollapsed = ref(false)
 const petReaction = ref(null)
+const petStage = ref(0)
 const resetWarningOpen = ref(false)
 const reviewCompleted = ref(false)
 const learnBreakActive = ref(false)
@@ -662,6 +663,9 @@ const assistantHintTone = computed(() => {
   if (weakestDeck.value) return 'warning'
   return 'neutral'
 })
+const assistantIsCooldown = computed(() => String(petReaction.value?.key || '').startsWith('cooldown'))
+const assistantIsSilentCooldown = computed(() => petReaction.value?.key === 'cooldown-silent')
+const assistantShowCollapse = computed(() => !assistantIsSilentCooldown.value && !assistantHintCollapsed.value)
 const assistantHintPose = computed(() => {
   if (petReaction.value?.pose) return `pose-${petReaction.value.pose}`
   if (reviewCompleted.value) return 'pose-spark'
@@ -671,15 +675,17 @@ const assistantHintPose = computed(() => {
   if (phase.value === 'learn') return 'pose-idle'
   return 'pose-wave'
 })
-const assistantStageClass = computed(() => resolveDGMascotStageClass(petReaction.value?.stage ?? 0))
+const resolvedPetStage = computed(() => petReaction.value?.stage ?? petStage.value ?? dashboard.value?.petStage ?? 0)
+const assistantStageClass = computed(() => resolveDGMascotStageClass(resolvedPetStage.value))
 const assistantAvatarSrc = computed(() => {
   return resolveDGMascotAsset({
     collapsed: assistantHintCollapsed.value,
     pose: assistantHintPose.value === 'pose-focus' ? 'wave' : assistantHintPose.value,
-    stage: petReaction.value?.stage ?? 0,
+    stage: resolvedPetStage.value,
   })
 })
 const assistantHintText = computed(() => {
+  if (assistantIsSilentCooldown.value) return ''
   if (petReaction.value?.body) return petReaction.value.body
   if (reviewCompleted.value) return t.value.dgReviewBody
   if (phase.value === 'feedback' && feedback.value?.isCorrect) return t.value.dgCorrectBody
@@ -688,6 +694,7 @@ const assistantHintText = computed(() => {
   if (phase.value === 'learn') return t.value.dgLearnBody
   return weakestDeckInsightText.value || topicDescription.value
 })
+const assistantVisible = computed(() => Boolean(assistantHintText.value) || assistantIsSilentCooldown.value)
 const reviewCompleteBodyText = computed(() => {
   if (selectedTopic.value === 'all') {
     return t.value.reviewCompleteBody
@@ -889,6 +896,7 @@ watch(contentTopics, (topics) => {
 
 async function refreshDashboard() {
   const nextDashboard = await loadDashboard()
+  petStage.value = nextDashboard.petStage ?? 0
   if (nextDashboard.reviewMode) {
     if (!reviewSessionProgress.value.active) {
       reviewSessionSnapshot.value = {
@@ -949,6 +957,15 @@ async function refreshAuthoringPreview(selectedPath = '') {
   authoringPreview.value = selectedPath
     ? await previewKnowledgeCard(selectedPath)
     : await loadAuthoringPreview()
+}
+
+function syncPetStage(stage) {
+  if (stage === undefined || stage === null || Number.isNaN(Number(stage))) return
+  const normalizedStage = Math.max(0, Math.min(2, Math.floor(Number(stage))))
+  petStage.value = normalizedStage
+  if (dashboard.value) {
+    dashboard.value.petStage = normalizedStage
+  }
 }
 
 async function refreshAuthoringPrompt() {
@@ -1408,6 +1425,7 @@ async function handleAssistantInteraction() {
   try {
     const result = await interactWithDG()
     petReaction.value = result
+    syncPetStage(result?.stage)
 
     if (petReactionTimer.value) {
       clearTimeout(petReactionTimer.value)
@@ -1456,6 +1474,7 @@ async function showPetReaction(trigger) {
     if (!result || !result.body) return
 
     petReaction.value = result
+    syncPetStage(result?.stage)
     if (petReactionTimer.value) {
       clearTimeout(petReactionTimer.value)
     }
@@ -1478,19 +1497,20 @@ async function showPetReaction(trigger) {
         <p class="summary">{{ t.summary }}</p>
         <p class="topic-context">{{ topicDescription }}</p>
         <button
-          v-if="assistantHintText"
+          v-if="assistantVisible"
           class="assistant-hint"
-          :class="[assistantHintTone, assistantHintPose, assistantStageClass, { collapsed: assistantHintCollapsed }]"
+          :class="[assistantHintTone, assistantHintPose, assistantStageClass, { collapsed: assistantHintCollapsed, 'is-cooldown': assistantIsCooldown, silent: assistantIsSilentCooldown }]"
           type="button"
           @click="handleAssistantInteraction"
         >
-          <span class="assistant-avatar" :class="[assistantHintTone, assistantHintPose, assistantStageClass]">
+          <span class="assistant-avatar" :class="[assistantHintTone, assistantHintPose, assistantStageClass, { 'is-cooldown': assistantIsCooldown }]">
             <img class="assistant-avatar-image" :src="assistantAvatarSrc" :alt="t.dgLabel">
           </span>
-          <div class="assistant-copy">
+          <div class="assistant-copy" :class="{ hidden: assistantIsSilentCooldown }">
             <p>{{ assistantHintText }}</p>
           </div>
           <span
+            v-if="assistantShowCollapse"
             class="assistant-collapse"
             @click.stop="toggleAssistantHint"
           >

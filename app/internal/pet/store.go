@@ -134,10 +134,10 @@ func InteractWithContext(path string, language string, topic string, context Con
 		if err := Save(path, state); err != nil {
 			return InteractionResult{}, err
 		}
-		return InteractionResult{
-			State:    state,
-			Reaction: cooldownReaction(language),
-		}, nil
+	return InteractionResult{
+		State:    state,
+		Reaction: cooldownReaction(language, state),
+	}, nil
 	}
 
 	state.BondXP += 1
@@ -291,11 +291,25 @@ func pickReaction(pool []Reaction, state State, trigger string) Reaction {
 	return pool[index]
 }
 
-func cooldownReaction(language string) Reaction {
-	if language == "zh-TW" {
-		return Reaction{Key: "cooldown", Variant: "focus", Pose: "rest", Title: "DG", Body: "我有聽到，先讓我緩一下。"}
+func cooldownReaction(language string, state State) Reaction {
+	if state.RapidClickCount >= 5 {
+		return Reaction{Key: "cooldown-silent", Variant: "warning", Pose: "think", Title: "DG", Body: ""}
 	}
-	return Reaction{Key: "cooldown", Variant: "focus", Pose: "rest", Title: "DG", Body: "I heard you. Give me a beat."}
+
+	if language == "zh-TW" {
+		return pickReaction([]Reaction{
+			{Key: "cooldown-breath", Variant: "warning", Pose: "rest", Title: "DG", Body: "我有聽到，先讓我喘三秒。"},
+			{Key: "cooldown-offclock", Variant: "warning", Pose: "think", Title: "DG", Body: "欸，我現在是假裝下班狀態 😤"},
+			{Key: "cooldown-gone", Variant: "warning", Pose: "rest", Title: "DG", Body: "先別戳，我正在練習原地消失。🙃"},
+			{Key: "cooldown-busy", Variant: "warning", Pose: "think", Title: "DG", Body: "我知道你很急，但我先裝忙一下。"},
+		}, state, "cooldown")
+	}
+	return pickReaction([]Reaction{
+		{Key: "cooldown-breath", Variant: "warning", Pose: "rest", Title: "DG", Body: "I heard you. Give me three seconds."},
+		{Key: "cooldown-offclock", Variant: "warning", Pose: "think", Title: "DG", Body: "Hey, I am in fake-off-clock mode 😤"},
+		{Key: "cooldown-gone", Variant: "warning", Pose: "rest", Title: "DG", Body: "Easy. I am practicing how to disappear for a second. 🙃"},
+		{Key: "cooldown-busy", Variant: "warning", Pose: "think", Title: "DG", Body: "I know you are eager. Let me pretend to be busy for a beat."},
+	}, state, "cooldown")
 }
 
 func clickReactions(language string, topic string, stage int) []Reaction {
