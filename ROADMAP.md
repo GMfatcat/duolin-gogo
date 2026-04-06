@@ -677,6 +677,7 @@ Deliverables:
 - fourteenth slice implemented: the second wave for SQL, HTTP, and backend decks now adds optimization pitfalls, protocol metadata and connection behavior, plus practical retry/TTL/queue/test-double concepts
 - fifteenth slice implemented: practical expansion now also covers Bash command flow, middleware pipeline concepts, backend CRUD semantics, and SQL transaction ACID basics
 - sixteenth slice implemented: a concept-oriented wave now adds OOP, functional programming, and lightweight design-patterns decks that stay close to day-to-day engineering instead of drifting into overly abstract theory
+- seventeenth slice implemented: a deeper third wave for `sql`, `http`, and `backend` now adds transactions, isolation/deadlock/upsert/pagination tradeoffs, response caching and browser/network boundary concepts, plus reliability patterns like idempotency keys, rate limiting, backpressure, dead-letter queues, and outbox handling
 - next UI refinement: promote grouped-topic guidance into a top assistant-style hint, collapse diagnostics by default, and replace parallel language/mode controls with dropdown selectors
 - next interaction refinement: evolve the top assistant hint into a lightweight `DG` mascot surface with contextual copy and subtle animation states
 
