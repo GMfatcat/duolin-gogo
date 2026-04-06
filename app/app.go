@@ -513,14 +513,15 @@ func (a *App) StartLearnBreak() (LearnBreakStatus, error) {
 }
 
 func (a *App) InteractWithDG() (DGInteractionStatus, error) {
-	config := a.mustLoadSettings()
-	cache, err := a.loadKnowledgeCache()
+	cache, state, _, err := a.loadState()
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
 
+	config := a.mustLoadSettings()
 	selectedTopic := normalizeSelectedTopic(config.SelectedTopic, cache.Cards)
-	result, err := pet.Interact(filepath.Join(a.dataDir, "pet.json"), a.loadPreferredLanguage(), selectedTopic, a.nowFunc())
+	context := a.dgPetContext(cache.Cards, state, selectedTopic)
+	result, err := pet.InteractWithContext(filepath.Join(a.dataDir, "pet.json"), a.loadPreferredLanguage(), selectedTopic, context, a.nowFunc())
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
@@ -535,14 +536,15 @@ func (a *App) InteractWithDG() (DGInteractionStatus, error) {
 }
 
 func (a *App) GetDGReaction(trigger string) (DGInteractionStatus, error) {
-	config := a.mustLoadSettings()
-	cache, err := a.loadKnowledgeCache()
+	cache, state, _, err := a.loadState()
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
 
+	config := a.mustLoadSettings()
 	selectedTopic := normalizeSelectedTopic(config.SelectedTopic, cache.Cards)
-	result, err := pet.ReactionForTrigger(filepath.Join(a.dataDir, "pet.json"), trigger, a.loadPreferredLanguage(), selectedTopic, a.nowFunc())
+	context := a.dgPetContext(cache.Cards, state, selectedTopic)
+	result, err := pet.ReactionForTriggerWithContext(filepath.Join(a.dataDir, "pet.json"), trigger, a.loadPreferredLanguage(), selectedTopic, context, a.nowFunc())
 	if err != nil {
 		return DGInteractionStatus{}, err
 	}
@@ -554,6 +556,22 @@ func (a *App) GetDGReaction(trigger string) (DGInteractionStatus, error) {
 		Pose:    result.Reaction.Pose,
 		Stage:   result.State.Stage,
 	}, nil
+}
+
+func (a *App) dgPetContext(allCards []cards.Card, state progress.ProgressFile, selectedTopic string) pet.Context {
+	filteredCards := selection.FilterCardsByTopic(allCards, selectedTopic)
+	summary := dashboard.BuildSummary(filteredCards, state, a.nowFunc())
+	encourageTopic := ""
+
+	if isSpecificStudyTopic(selectedTopic) {
+		encourageTopic = selectedTopic
+	} else if summary.WeakestDeck != nil && summary.WeakestDeck.Topic != "" {
+		encourageTopic = summary.WeakestDeck.Topic
+	} else if len(summary.WeakTopics) > 0 {
+		encourageTopic = summary.WeakTopics[0].Tag
+	}
+
+	return pet.Context{EncourageTopic: encourageTopic}
 }
 
 func (a *App) RescanKnowledge() (ActionStatus, error) {
@@ -1356,6 +1374,11 @@ func isTopicPreset(topic string) bool {
 	default:
 		return false
 	}
+}
+
+func isSpecificStudyTopic(topic string) bool {
+	normalized := normalizeTopicKey(topic)
+	return normalized != "" && normalized != "all" && !isTopicPreset(normalized)
 }
 
 func topicForCard(card cards.Card) string {

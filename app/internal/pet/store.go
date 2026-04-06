@@ -37,6 +37,8 @@ type State struct {
 	BondXP            int     `json:"bond_xp"`
 	Stage             int     `json:"stage"`
 	ReactionStep      int     `json:"reaction_step,omitempty"`
+	LastTopic         *string `json:"last_topic,omitempty"`
+	TopicStreakCount  int     `json:"topic_streak_count,omitempty"`
 	LastInteractionAt *string `json:"last_interaction_at,omitempty"`
 	LastReactionAt    *string `json:"last_reaction_at,omitempty"`
 	LastRapidClickAt  *string `json:"last_rapid_click_at,omitempty"`
@@ -51,6 +53,10 @@ type Reaction struct {
 	Pose    string `json:"pose"`
 	Title   string `json:"title"`
 	Body    string `json:"body"`
+}
+
+type Context struct {
+	EncourageTopic string `json:"encourageTopic,omitempty"`
 }
 
 type InteractionResult struct {
@@ -101,6 +107,10 @@ func RecordStudyEvent(path string, event string, now time.Time) (State, error) {
 }
 
 func Interact(path string, language string, topic string, now time.Time) (InteractionResult, error) {
+	return InteractWithContext(path, language, topic, Context{}, now)
+}
+
+func InteractWithContext(path string, language string, topic string, context Context, now time.Time) (InteractionResult, error) {
 	state, err := Load(path)
 	if err != nil {
 		return InteractionResult{}, err
@@ -142,9 +152,13 @@ func Interact(path string, language string, topic string, now time.Time) (Intera
 	}
 
 	normalizedTopic := normalizeTopic(topic)
+	state = trackTopicStreak(state, normalizedTopic)
 	reaction := pickReaction(clickReactions(language, normalizedTopic, state.Stage), state, TriggerClicked)
 	if wasAwayLongEnough {
 		reaction = pickReaction(welcomeBackReactions(language, normalizedTopic, state.Stage), state, "welcome_back")
+	} else if shouldTriggerTopicStreakEgg(state, normalizedTopic, now) {
+		state.LastEasterEggAt = &stamp
+		reaction = pickReaction(topicStreakReactions(language, normalizedTopic, state.TopicStreakCount), state, "topic_streak")
 	} else if isGeneralTopic(normalizedTopic) && shouldTriggerTimeOfDayEgg(state, now) {
 		state.LastEasterEggAt = &stamp
 		reaction = pickReaction(timeOfDayReactions(language, now), state, "time_of_day")
@@ -162,6 +176,10 @@ func Interact(path string, language string, topic string, now time.Time) (Intera
 }
 
 func ReactionForTrigger(path string, trigger string, language string, topic string, now time.Time) (InteractionResult, error) {
+	return ReactionForTriggerWithContext(path, trigger, language, topic, Context{}, now)
+}
+
+func ReactionForTriggerWithContext(path string, trigger string, language string, topic string, context Context, now time.Time) (InteractionResult, error) {
 	state, err := Load(path)
 	if err != nil {
 		return InteractionResult{}, err
@@ -175,10 +193,17 @@ func ReactionForTrigger(path string, trigger string, language string, topic stri
 	state.LastReactionAt = &stamp
 
 	normalizedTopic := normalizeTopic(topic)
+	state = trackTopicStreak(state, normalizedTopic)
 	reaction := reactionForTrigger(language, normalizedTopic, trigger, state)
 	if shouldTriggerRareCelebration(state, trigger, now) {
 		state.LastEasterEggAt = &stamp
 		reaction = pickReaction(rareCelebrationReactions(language, normalizedTopic), state, "rare_celebration")
+	} else if shouldTriggerAlmostThere(state, context, trigger, normalizedTopic, now) {
+		state.LastEasterEggAt = &stamp
+		reaction = pickReaction(almostThereReactions(language, normalizedTopic, normalizeTopic(context.EncourageTopic)), state, "almost_there")
+	} else if (trigger == TriggerCorrect || trigger == TriggerWrong || trigger == TriggerLearnBreak) && shouldTriggerTopicStreakEgg(state, normalizedTopic, now) {
+		state.LastEasterEggAt = &stamp
+		reaction = pickReaction(topicStreakReactions(language, normalizedTopic, state.TopicStreakCount), state, "topic_streak")
 	} else if shouldTriggerTopicInsideJoke(state, trigger, normalizedTopic, now) {
 		state.LastEasterEggAt = &stamp
 		reaction = pickReaction(topicInsideJokeReactions(language, normalizedTopic, trigger), state, "topic_inside_joke")
@@ -665,6 +690,121 @@ func topicInsideJokeReactions(language string, topic string, trigger string) []R
 	return nil
 }
 
+func topicStreakReactions(language string, topic string, streak int) []Reaction {
+	label := normalizeTopic(topic)
+	switch label {
+	case "docker":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "topic_streak_docker_ops", Variant: "celebration", Pose: "spark", Title: "DG", Body: "你今天真的在整頓 docker，這輪已經很有 container 值班感了。"},
+			}
+		}
+		return []Reaction{
+			{Key: "topic_streak_docker_ops", Variant: "celebration", Pose: "spark", Title: "DG", Body: "You are clearly in a docker cleanup mood today."},
+		}
+	case "sql":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "topic_streak_sql_where", Variant: "celebration", Pose: "spark", Title: "DG", Body: "你今天真的很在意 SQL，尤其是 where 和 join 的陷阱。"},
+			}
+		}
+		return []Reaction{
+			{Key: "topic_streak_sql_where", Variant: "celebration", Pose: "spark", Title: "DG", Body: "You are definitely in a SQL mood today, especially around where and join traps."},
+		}
+	case "http":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "topic_streak_http_status", Variant: "celebration", Pose: "spark", Title: "DG", Body: "今天這輪很像網路協定小巡檢，你一直在補 HTTP 跟傳輸基礎。"},
+			}
+		}
+		return []Reaction{
+			{Key: "topic_streak_http_status", Variant: "celebration", Pose: "spark", Title: "DG", Body: "This round feels like a protocol inspection tour. You keep coming back to HTTP and transport basics."},
+		}
+	case "git":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "topic_streak_git_history", Variant: "celebration", Pose: "spark", Title: "DG", Body: "你今天很執著在 git 歷史線，這種偏執其實不錯。"},
+			}
+		}
+		return []Reaction{
+			{Key: "topic_streak_git_history", Variant: "celebration", Pose: "spark", Title: "DG", Body: "You are really staying with git today. Honestly, that kind of history obsession helps."},
+		}
+	}
+
+	if language == "zh-TW" {
+		return []Reaction{
+			{Key: "topic_streak_general", Variant: "celebration", Pose: "spark", Title: "DG", Body: "你這輪已經連著盯同一塊三次了，我看得出來你在追這個主題。"},
+		}
+	}
+	return []Reaction{
+		{Key: "topic_streak_general", Variant: "celebration", Pose: "spark", Title: "DG", Body: "You have stayed on this topic for a few rounds now. I can tell you are chasing it on purpose."},
+	}
+}
+
+func almostThereReactions(language string, currentTopic string, encourageTopic string) []Reaction {
+	target := encourageTopic
+	if !isSpecificTopic(target) {
+		target = currentTopic
+	}
+
+	switch target {
+	case "go":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "almost_there_go", Variant: "celebration", Pose: "nod", Title: "DG", Body: "Go 這塊其實快追上來了，再幾題就會更穩。"},
+			}
+		}
+		return []Reaction{
+			{Key: "almost_there_go", Variant: "celebration", Pose: "nod", Title: "DG", Body: "Go is starting to catch up. A few more clean cards will settle it."},
+		}
+	case "docker":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "almost_there_docker", Variant: "celebration", Pose: "nod", Title: "DG", Body: "Docker 這塊沒有你想像中那麼遠，手感其實在回來。"},
+			}
+		}
+		return []Reaction{
+			{Key: "almost_there_docker", Variant: "celebration", Pose: "nod", Title: "DG", Body: "Docker is not as far off as it feels. The muscle memory is coming back."},
+		}
+	case "sql":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "almost_there_sql", Variant: "celebration", Pose: "nod", Title: "DG", Body: "SQL 這塊其實快追平了，你今天的差異感抓得比之前好。"},
+			}
+		}
+		return []Reaction{
+			{Key: "almost_there_sql", Variant: "celebration", Pose: "nod", Title: "DG", Body: "SQL is getting close. You are reading the small differences better today."},
+		}
+	case "http":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "almost_there_http", Variant: "celebration", Pose: "nod", Title: "DG", Body: "HTTP 這塊快補平了，狀態碼和協定差異已經沒有前幾輪那麼散。"},
+			}
+		}
+		return []Reaction{
+			{Key: "almost_there_http", Variant: "celebration", Pose: "nod", Title: "DG", Body: "HTTP is starting to settle. Status codes and protocol differences look less fuzzy now."},
+		}
+	case "backend":
+		if language == "zh-TW" {
+			return []Reaction{
+				{Key: "almost_there_backend", Variant: "celebration", Pose: "nod", Title: "DG", Body: "後端基礎這塊有在追上來，今天的概念掌握度比之前穩。"},
+			}
+		}
+		return []Reaction{
+			{Key: "almost_there_backend", Variant: "celebration", Pose: "nod", Title: "DG", Body: "Backend basics are catching up. The concepts are landing more cleanly today."},
+		}
+	}
+
+	if language == "zh-TW" {
+		return []Reaction{
+			{Key: "almost_there_general", Variant: "celebration", Pose: "nod", Title: "DG", Body: "這塊其實快追上來了，再幾張就會更穩。"},
+		}
+	}
+	return []Reaction{
+		{Key: "almost_there_general", Variant: "celebration", Pose: "nod", Title: "DG", Body: "This area is closer than it looks. A few more clean cards will steady it."},
+	}
+}
+
 func rareCelebrationReactions(language string, topic string) []Reaction {
 	switch normalizeTopic(topic) {
 	case "languages":
@@ -863,6 +1003,10 @@ func isGeneralTopic(topic string) bool {
 	}
 }
 
+func isSpecificTopic(topic string) bool {
+	return topic != "" && !isGeneralTopic(topic)
+}
+
 func lastInteractionWithinCooldown(state State, now time.Time) bool {
 	return lastTimestampWithin(state.LastInteractionAt, clickCooldownWindow, now)
 }
@@ -881,6 +1025,23 @@ func trackRapidClicks(state State, now time.Time) State {
 	return state
 }
 
+func trackTopicStreak(state State, topic string) State {
+	if !isSpecificTopic(topic) {
+		state.LastTopic = stringPtr(topic)
+		state.TopicStreakCount = 0
+		return state
+	}
+
+	if state.LastTopic != nil && *state.LastTopic == topic {
+		state.TopicStreakCount++
+	} else {
+		state.LastTopic = stringPtr(topic)
+		state.TopicStreakCount = 1
+	}
+
+	return state
+}
+
 func shouldTriggerRapidClickEgg(state State, now time.Time) bool {
 	if state.RapidClickCount < 3 {
 		return false
@@ -889,6 +1050,16 @@ func shouldTriggerRapidClickEgg(state State, now time.Time) bool {
 		return false
 	}
 	return true
+}
+
+func shouldTriggerTopicStreakEgg(state State, topic string, now time.Time) bool {
+	if !isSpecificTopic(topic) || state.TopicStreakCount < 3 {
+		return false
+	}
+	if state.LastEasterEggAt != nil && lastTimestampWithin(state.LastEasterEggAt, easterEggCooldown, now) {
+		return false
+	}
+	return state.TopicStreakCount%3 == 0
 }
 
 func shouldTriggerWelcomeBack(state State, now time.Time) bool {
@@ -913,6 +1084,25 @@ func shouldTriggerTimeOfDayEgg(state State, now time.Time) bool {
 	}
 	seed := state.ReactionStep + state.BondXP + now.Hour() + now.Minute()
 	return seed%11 == 0
+}
+
+func shouldTriggerAlmostThere(state State, context Context, trigger string, currentTopic string, now time.Time) bool {
+	encourageTopic := normalizeTopic(context.EncourageTopic)
+	if !isSpecificTopic(encourageTopic) {
+		return false
+	}
+	if state.LastEasterEggAt != nil && lastTimestampWithin(state.LastEasterEggAt, easterEggCooldown, now) {
+		return false
+	}
+	if trigger != TriggerCorrect && trigger != TriggerReviewComplete && trigger != TriggerLearnBreak {
+		return false
+	}
+
+	if isGeneralTopic(currentTopic) {
+		return true
+	}
+
+	return currentTopic == encourageTopic
 }
 
 func shouldTriggerTopicInsideJoke(state State, trigger string, topic string, now time.Time) bool {

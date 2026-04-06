@@ -372,3 +372,49 @@ func TestReactionForTriggerCanUseRareCelebration(t *testing.T) {
 
 	t.Fatal("expected at least one rare celebration reaction in sampled window")
 }
+
+func TestInteractCanTriggerTopicStreakEgg(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 6, 15, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	first, err := Interact(path, "en", "sql", base)
+	if err != nil {
+		t.Fatalf("first interaction failed: %v", err)
+	}
+	if first.Reaction.Body == "" {
+		t.Fatal("expected first click reaction body")
+	}
+
+	if _, err := Interact(path, "en", "sql", base.Add(20*time.Second)); err != nil {
+		t.Fatalf("second interaction failed: %v", err)
+	}
+
+	third, err := Interact(path, "en", "sql", base.Add(40*time.Second))
+	if err != nil {
+		t.Fatalf("third interaction failed: %v", err)
+	}
+
+	if third.Reaction.Key != "topic_streak_sql_where" {
+		t.Fatalf("expected topic streak reaction, got %s", third.Reaction.Key)
+	}
+}
+
+func TestReactionForTriggerCanUseAlmostThereEncouragement(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "pet.json")
+	base := time.Date(2026, 4, 6, 16, 0, 0, 0, time.FixedZone("UTC+8", 8*3600))
+
+	for index := 0; index < 3; index++ {
+		if _, err := Interact(path, "en", "backend-tools", base.Add(time.Duration(index)*20*time.Second)); err != nil {
+			t.Fatalf("seed interaction %d failed: %v", index, err)
+		}
+	}
+
+	result, err := ReactionForTriggerWithContext(path, TriggerCorrect, "en", "backend-tools", Context{EncourageTopic: "go"}, base.Add(2*time.Minute))
+	if err != nil {
+		t.Fatalf("almost-there reaction failed: %v", err)
+	}
+
+	if result.Reaction.Key != "almost_there_go" {
+		t.Fatalf("expected almost-there reaction, got %s", result.Reaction.Key)
+	}
+}

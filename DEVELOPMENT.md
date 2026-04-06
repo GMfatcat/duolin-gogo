@@ -168,3 +168,4 @@ Next targets:
 - latest easter-egg slice: `rapid_click` and `welcome_back` now live inside the hidden pet layer, so DG can occasionally react in playful or familiar ways when users boop too fast or return after a long gap
 - latest refinement: hidden easter eggs now also include topic inside jokes plus rarer celebration lines, and the reaction picker now advances through an internal step counter so repeated interactions feel less like a fixed script
 - latest refinement: the everyday DG pools are now thicker and a low-frequency time-of-day flavor can surface in general scopes, while focused topics such as `git`, `docker`, `sql`, and `http` still keep their own personality first
+- latest refinement: DG can now detect short topic streaks and surface an `almost there` encouragement when the currently weak deck starts improving, so some surprises feel earned by study momentum rather than pure randomness

@@ -426,6 +426,7 @@ Suggested review scheduling:
   - hidden easter eggs can layer on top of this companion without visible unlock UI, starting with rare rapid-click reactions and low-frequency welcome-back lines after a long absence
 - later hidden easter eggs can also include topic-specific inside jokes and occasional rare celebration lines, so DG feels more discoverable without ever surfacing a public unlock list
 - once those hidden easter eggs exist, the ordinary reaction pools should still keep growing too; DG should feel more alive in normal use through a thicker everyday line set, while low-frequency flavors such as time-of-day greetings stay secondary to the active study topic
+- later hidden easter eggs should also be allowed to notice short topic streaks and weak-deck improvement moments, so DG can occasionally feel like it recognizes what the user keeps returning to and when a weaker area is finally catching up
 
 ### 11.4 Review Session Screen
 
