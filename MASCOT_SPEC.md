@@ -399,3 +399,100 @@ Mascot V1 is ready when:
 - pose switching is visually obvious at normal app size
 - the mascot still reads clearly when collapsed
 - the mascot does not add visual noise or pull attention away from the study card
+
+## DG Pet V2-A: Stage Visuals
+
+The next mascot phase should make hidden growth feel visible without surfacing any explicit pet stats.
+
+### Goal
+
+Let stage `0`, `1`, and `2` feel progressively more alive through subtle visual differences only.
+
+Users should feel:
+
+- "DG looks a bit brighter lately."
+- "The expressions feel richer now."
+- "This mascot seems more awake than before."
+
+Users should not feel:
+
+- "I just leveled up my pet."
+- "This is a visible RPG progression system."
+
+### V2-A Design Rule
+
+Keep silhouette and identity fixed.
+
+Stage visuals should change:
+
+- glow strength
+- gloss richness
+- spark nub energy
+- eye liveliness
+- tiny accent marks
+
+Stage visuals should not change:
+
+- core body shape
+- basic palette family
+- camera angle
+- character identity
+
+### Recommended Pose Scope For First Pass
+
+Start with:
+
+- `idle`
+- `wave`
+- `spark`
+
+These three poses are enough to make stage growth noticeable without redrawing the whole mascot pack at once.
+
+### Stage 0
+
+Feel:
+
+- calm
+- simple
+- reserved
+
+Visual cues:
+
+- lower glow
+- simpler gloss
+- softer spark nub
+- fewer accent spark marks
+- gentler eye highlight
+
+### Stage 1
+
+Feel:
+
+- warmer
+- more engaged
+- slightly more awake
+
+Visual cues:
+
+- stronger gloss on the body
+- brighter spark nub
+- slightly clearer face contrast
+- more lively eye highlights
+- slightly richer teal-gold separation
+
+### Stage 2
+
+Feel:
+
+- confident
+- familiar
+- quietly magical
+
+Visual cues:
+
+- strongest glow within the same restrained palette
+- crispest gloss
+- spark nub most energized
+- richer expression detail
+- optional tiny extra accent sparkle in `spark`
+- subtle sense of polish, not a costume change

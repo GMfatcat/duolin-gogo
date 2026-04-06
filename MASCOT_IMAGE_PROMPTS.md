@@ -206,3 +206,174 @@ Best practical approach:
 5. clean them into final SVG assets later
 
 This is safer than generating six unrelated prompts from scratch.
+
+## DG Pet V2-A Image Prompts
+
+These prompts are for stage-based visual growth variants.
+
+Use the currently shipped mascot SVGs or their high-quality PNG exports as the identity anchor.
+
+Do not redesign DG here. The job is to make the same DG feel subtly more alive across hidden stages.
+
+### V2-A Workflow
+
+1. Take the current pose asset as the base image
+2. Generate stage `0`, `1`, and `2` variants for that same pose
+3. Keep identity locked
+4. Only change liveliness, glow, gloss, and expression richness
+
+---
+
+### Pose: idle
+
+#### Stage 0
+
+Base image:
+
+- current `idle.svg` or a clean PNG export from it
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face shape, spark nub identity, and overall palette. Create a stage 0 idle variant that feels calmer and simpler, with softer gloss, lower glow, gentler eye highlights, and a more reserved magical presence. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- reduce extra shine
+- keep the spark nub warm but not bright
+- avoid making the face dull or sleepy
+
+#### Stage 1
+
+Base image:
+
+- current `idle.svg`
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face shape, spark nub identity, and overall palette. Create a stage 1 idle variant that feels slightly more awake and companion-like, with stronger gloss, brighter eye highlights, a mildly brighter spark nub, and a warmer polished presence. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- increase gloss slightly, not dramatically
+- let the eyes feel more alert
+- keep the stage jump subtle compared with stage 0
+
+#### Stage 2
+
+Base image:
+
+- current `idle.svg`
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face shape, spark nub identity, and overall palette. Create a stage 2 idle variant that feels the most alive and quietly magical, with the richest gloss, the brightest controlled spark nub, slightly more expressive eyes, and a polished bonded presence. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- strongest glow of the three, but still tasteful
+- do not add props or new body parts
+- keep it feeling like the same DG, only more alive
+
+---
+
+### Pose: wave
+
+#### Stage 0
+
+Base image:
+
+- current `wave.svg`
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face proportions, spark nub identity, and color palette. Create a stage 0 wave variant that feels friendly but modest, with a lighter greeting energy, softer gloss, and restrained glow. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- keep the smile small
+- keep the greeting visible without making it too excited
+- avoid large sparkle accents
+
+#### Stage 1
+
+Base image:
+
+- current `wave.svg`
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face proportions, spark nub identity, and palette. Create a stage 1 wave variant that feels warmer and more familiar, with clearer gloss, brighter eyes, a livelier spark nub, and a more companion-like greeting energy. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- let the expression feel more welcoming
+- add a touch more polish to the body
+- keep the shape identical to the base pose
+
+#### Stage 2
+
+Base image:
+
+- current `wave.svg`
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face proportions, spark nub identity, and palette. Create a stage 2 wave variant that feels most alive, cheerful, and familiar, with the richest gloss, strongest controlled spark-nub energy, and the clearest eye expression while still staying compact and calm. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- greeting should feel confident, not loud
+- add a very small extra magical warmth
+- avoid turning it into a celebration pose
+
+---
+
+### Pose: spark
+
+#### Stage 0
+
+Base image:
+
+- current `spark.svg`
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face shape, spark nub identity, and palette. Create a stage 0 spark variant that feels celebratory but still relatively simple, with moderate glow, restrained accent sparks, and a clean bright smile. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- keep effects minimal
+- make the celebration read clearly without looking flashy
+- keep accent spark marks sparse
+
+#### Stage 1
+
+Base image:
+
+- current `spark.svg`
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face shape, spark nub identity, and palette. Create a stage 1 spark variant that feels brighter and more rewarding, with stronger glow, richer gloss, more energized eye highlights, and slightly more expressive spark accents. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- add glow before adding new shapes
+- keep spark accents small and tidy
+- make the face more delighted, not hyperactive
+
+#### Stage 2
+
+Base image:
+
+- current `spark.svg`
+
+Image prompt:
+
+> Same mascot character as the base image, preserve the exact silhouette, face shape, spark nub identity, and palette. Create a stage 2 spark variant that feels the richest, brightest, and most bonded version of the same mascot, with the strongest tasteful glow, clearest gloss, most energized spark nub, and slightly richer celebratory accent spark marks. Transparent background, centered composition, same camera angle, clean vector-friendly illustration.
+
+Enhance tips:
+
+- this should be the most special version, but still belong to the same calm app
+- avoid overwhelming the face with effects
+- keep the silhouette unchanged and the identity fully intact

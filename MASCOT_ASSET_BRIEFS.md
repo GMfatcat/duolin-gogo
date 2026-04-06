@@ -340,3 +340,92 @@ If these assets are generated first and cleaned later, prioritize:
 - matching color palette
 
 Perfect polish can come after the first in-app integration.
+
+## DG Pet V2-A Asset Briefs
+
+These briefs are for stage-based variants of the existing mascot, not for a redesign.
+
+### Asset Strategy
+
+Use the current shipped mascot as the identity anchor.
+
+For V2-A:
+
+- keep one shared character
+- preserve the current pose set
+- generate stage variants only for the first three high-value poses:
+  - `idle`
+  - `wave`
+  - `spark`
+
+Suggested filenames:
+
+- `idle-stage0.svg`
+- `idle-stage1.svg`
+- `idle-stage2.svg`
+- `wave-stage0.svg`
+- `wave-stage1.svg`
+- `wave-stage2.svg`
+- `spark-stage0.svg`
+- `spark-stage1.svg`
+- `spark-stage2.svg`
+
+### Stage 0 Brief
+
+Character should feel:
+
+- new
+- calmer
+- slightly simpler
+
+Art cues:
+
+- weakest glow
+- simplest gloss
+- least energetic spark nub
+- lowest amount of tiny accent sparkle
+
+### Stage 1 Brief
+
+Character should feel:
+
+- more awake
+- more familiar
+- more responsive
+
+Art cues:
+
+- stronger gloss
+- more readable eye highlight
+- slightly brighter spark nub
+- a touch more warmth in gold accents
+
+### Stage 2 Brief
+
+Character should feel:
+
+- most alive
+- quietly proud
+- polished and bonded
+
+Art cues:
+
+- strongest glow while staying tasteful
+- clearest body highlights
+- most energized spark nub
+- optional tiny accent sparkle for `spark`
+- most expressive but still compact face treatment
+
+### Production Recommendation
+
+Generate stage variants in this order:
+
+1. `idle-stage0`, `idle-stage1`, `idle-stage2`
+2. `wave-stage0`, `wave-stage1`, `wave-stage2`
+3. `spark-stage0`, `spark-stage1`, `spark-stage2`
+
+Why:
+
+- `idle` will make stage differences visible most often
+- `wave` makes welcome/greeting energy easier to read
+- `spark` makes celebration-stage richness easiest to notice
