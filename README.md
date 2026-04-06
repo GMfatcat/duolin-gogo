@@ -2,6 +2,8 @@
 
 > Local-first desktop microlearning for your own technical notes.
 
+![duolin-gogo cover](./cover.png)
+
 [![Platform](https://img.shields.io/badge/platform-Windows-0f8f9c?style=flat-square)](./RELEASE.md)
 [![Stack](https://img.shields.io/badge/stack-Wails%20%7C%20Go%20%7C%20Vue%203-e9c46a?style=flat-square)](./app)
 [![Knowledge](https://img.shields.io/badge/knowledge-Markdown%20decks-1c3345?style=flat-square)](./knowledge)
@@ -9,7 +11,7 @@
 
 English | [繁體中文](./README.zh-TW.md)
 
-## Overview
+## ✨ Overview
 
 `duolin-gogo` turns your Markdown knowledge base into a local desktop study app with:
 
@@ -26,7 +28,7 @@ Everything stays local:
 - runtime state lives in [`data/`](./data)
 - the desktop app lives in [`app/`](./app)
 
-## Highlights
+## 🌟 Highlights
 
 - 🌏 Bilingual cards (`zh-TW` / `en`)
 - 🧠 Adaptive card selection and review flow
@@ -37,14 +39,14 @@ Everything stays local:
 - 🚀 First-launch onboarding tour
 - ⚡ `cards-cache.gob` knowledge cache for faster startup and rescans
 
-## Timeline
+## 🗺️ Timeline
 
 - `MVP`: local-first study flow, review loop, notifications, tray running
 - `Authoring`: Library / AI workspace, batch review, fix suggestions, import reports
 - `Expansion`: multi-topic decks across tools, backend, and programming concepts
 - `DG`: mascot companion, hidden growth, onboarding, and easter eggs
 
-## Current Topics
+## 📚 Current Topics
 
 - Git
 - Docker
@@ -60,7 +62,7 @@ Everything stays local:
 - Functional Programming
 - Design Patterns
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 - Wails
 - Go
@@ -68,7 +70,7 @@ Everything stays local:
 - Local JSON / JSONL runtime state
 - `cards-cache.gob` for parsed knowledge caching
 
-## Repository Layout
+## 🧱 Repository Layout
 
 - [`knowledge/`](./knowledge): source knowledge cards
 - [`data/`](./data): local runtime state and cache
@@ -77,7 +79,7 @@ Everything stays local:
 - [`MASCOT_SPEC.md`](./MASCOT_SPEC.md): DG mascot design spec
 - [`RELEASE.md`](./RELEASE.md): release preparation and packaging notes
 
-## Development
+## 🧪 Development
 
 Backend tests:
 
@@ -107,7 +109,7 @@ cd app
 wails build
 ```
 
-## Release
+## 📦 Release
 
 Prepare a clean release build:
 

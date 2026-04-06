@@ -2,6 +2,8 @@
 
 > 把自己的技術筆記變成一個本地優先的桌面微學習工具。
 
+![duolin-gogo cover](./cover.png)
+
 [![平台](https://img.shields.io/badge/platform-Windows-0f8f9c?style=flat-square)](./RELEASE.md)
 [![技術棧](https://img.shields.io/badge/stack-Wails%20%7C%20Go%20%7C%20Vue%203-e9c46a?style=flat-square)](./app)
 [![知識來源](https://img.shields.io/badge/knowledge-Markdown%20decks-1c3345?style=flat-square)](./knowledge)
@@ -9,7 +11,7 @@
 
 [English](./README.md) | 繁體中文
 
-## 專案簡介
+## ✨ 專案簡介
 
 `duolin-gogo` 會把你的 Markdown 知識庫轉成一個本地桌面學習 app，包含：
 
@@ -26,7 +28,7 @@
 - 執行時狀態放在 [`data/`](./data)
 - 桌面 app 程式放在 [`app/`](./app)
 
-## 主要特色
+## 🌟 主要特色
 
 - 🌏 雙語卡片（`zh-TW` / `en`）
 - 🧠 自適應選題與複習流程
@@ -37,14 +39,14 @@
 - 🚀 第一次啟動引導導覽
 - ⚡ 使用 `cards-cache.gob` 提升啟動與重新掃描速度
 
-## 開發時間線
+## 🗺️ 開發時間線
 
 - `MVP`：本地優先學習流程、複習循環、通知與背景常駐
 - `Authoring`：Library / AI 產卡工作區、批次審查、修正建議、匯入報告
 - `Expansion`：擴充為多主題技術 deck，涵蓋工具、後端與程式設計概念
 - `DG`：加入吉祥物陪伴、隱藏成長、引導導覽與彩蛋
 
-## 目前主題
+## 📚 目前主題
 
 - Git
 - Docker
@@ -60,7 +62,7 @@
 - Functional Programming
 - Design Patterns
 
-## 技術棧
+## 🛠️ 技術棧
 
 - Wails
 - Go
@@ -68,7 +70,7 @@
 - 本地 JSON / JSONL runtime state
 - `cards-cache.gob` 知識快取
 
-## 專案結構
+## 🧱 專案結構
 
 - [`knowledge/`](./knowledge)：知識卡來源
 - [`data/`](./data)：本地執行狀態與快取
@@ -77,7 +79,7 @@
 - [`MASCOT_SPEC.md`](./MASCOT_SPEC.md)：DG 吉祥物設計規格
 - [`RELEASE.md`](./RELEASE.md)：發布前整理與打包說明
 
-## 開發方式
+## 🧪 開發方式
 
 Backend 測試：
 
@@ -107,7 +109,7 @@ cd app
 wails build
 ```
 
-## 發布
+## 📦 發布
 
 先整理出乾淨的發布資料：
 
