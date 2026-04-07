@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -81,6 +82,7 @@ func Load(path string) (ProgressFile, error) {
 	if err != nil {
 		return ProgressFile{}, err
 	}
+	bytes = []byte(strings.TrimPrefix(string(bytes), "\uFEFF"))
 
 	var state ProgressFile
 	if err := json.Unmarshal(bytes, &state); err != nil {

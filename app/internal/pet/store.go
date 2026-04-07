@@ -73,6 +73,8 @@ func Load(path string) (State, error) {
 		return State{}, err
 	}
 
+	bytes = []byte(strings.TrimPrefix(string(bytes), "\uFEFF"))
+
 	var state State
 	if err := json.Unmarshal(bytes, &state); err != nil {
 		return State{}, err

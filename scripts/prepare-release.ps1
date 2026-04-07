@@ -16,7 +16,8 @@ function Ensure-Dir($path) {
 
 function Write-JsonFile($path, $object) {
   $json = $object | ConvertTo-Json -Depth 10
-  Set-Content -LiteralPath $path -Value $json -Encoding UTF8
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($path, $json + [Environment]::NewLine, $utf8NoBom)
 }
 
 Ensure-Dir $dataDir
@@ -103,6 +104,7 @@ Write-JsonFile (Join-Path $dataDir "settings.json") $cleanSettings
 Write-JsonFile (Join-Path $dataDir "progress.json") $cleanProgress
 Write-JsonFile (Join-Path $dataDir "import-errors.json") $cleanImportErrors
 Write-JsonFile (Join-Path $dataDir "pet.json") $cleanPet
-Set-Content -LiteralPath (Join-Path $dataDir "attempts.jsonl") -Value "" -Encoding UTF8
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText((Join-Path $dataDir "attempts.jsonl"), "", $utf8NoBom)
 
 Write-Host "Release data prepared."

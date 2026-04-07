@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 )
 
 type File struct {
@@ -34,6 +35,7 @@ func Load(path string) (File, error) {
 	if err != nil {
 		return File{}, err
 	}
+	bytes = []byte(strings.TrimPrefix(string(bytes), "\uFEFF"))
 
 	var file File
 	if err := json.Unmarshal(bytes, &file); err != nil {

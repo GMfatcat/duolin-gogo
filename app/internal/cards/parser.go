@@ -696,6 +696,7 @@ func LoadCache(path string) (CacheFile, error) {
 		if err != nil {
 			return CacheFile{}, err
 		}
+		bytes = []byte(strings.TrimPrefix(string(bytes), "\uFEFF"))
 
 		var cache CacheFile
 		if err := json.Unmarshal(bytes, &cache); err != nil {
